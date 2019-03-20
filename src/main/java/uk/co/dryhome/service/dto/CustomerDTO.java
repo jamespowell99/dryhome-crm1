@@ -3,6 +3,7 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
+import uk.co.dryhome.domain.enumeration.CompanyType;
 
 /**
  * A DTO for the Customer entity.
@@ -54,6 +55,9 @@ public class CustomerDTO implements Serializable {
     private String interested;
 
     private BigDecimal paid;
+
+    @NotNull
+    private CompanyType type;
 
 
     public Long getId() {
@@ -184,6 +188,14 @@ public class CustomerDTO implements Serializable {
         this.paid = paid;
     }
 
+    public CompanyType getType() {
+        return type;
+    }
+
+    public void setType(CompanyType type) {
+        this.type = type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -224,6 +236,7 @@ public class CustomerDTO implements Serializable {
             ", products='" + getProducts() + "'" +
             ", interested='" + getInterested() + "'" +
             ", paid=" + getPaid() +
+            ", type='" + getType() + "'" +
             "}";
     }
 }

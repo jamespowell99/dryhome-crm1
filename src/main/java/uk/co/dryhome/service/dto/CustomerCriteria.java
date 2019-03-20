@@ -2,6 +2,7 @@ package uk.co.dryhome.service.dto;
 
 import java.io.Serializable;
 import java.util.Objects;
+import uk.co.dryhome.domain.enumeration.CompanyType;
 import io.github.jhipster.service.filter.BooleanFilter;
 import io.github.jhipster.service.filter.DoubleFilter;
 import io.github.jhipster.service.filter.Filter;
@@ -20,6 +21,11 @@ import io.github.jhipster.service.filter.BigDecimalFilter;
  * fix type specific filters.
  */
 public class CustomerCriteria implements Serializable {
+    /**
+     * Class for filtering CompanyType
+     */
+    public static class CompanyTypeFilter extends Filter<CompanyType> {
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -54,6 +60,8 @@ public class CustomerCriteria implements Serializable {
     private StringFilter interested;
 
     private BigDecimalFilter paid;
+
+    private CompanyTypeFilter type;
 
     public LongFilter getId() {
         return id;
@@ -183,6 +191,14 @@ public class CustomerCriteria implements Serializable {
         this.paid = paid;
     }
 
+    public CompanyTypeFilter getType() {
+        return type;
+    }
+
+    public void setType(CompanyTypeFilter type) {
+        this.type = type;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -209,7 +225,8 @@ public class CustomerCriteria implements Serializable {
             Objects.equals(email, that.email) &&
             Objects.equals(products, that.products) &&
             Objects.equals(interested, that.interested) &&
-            Objects.equals(paid, that.paid);
+            Objects.equals(paid, that.paid) &&
+            Objects.equals(type, that.type);
     }
 
     @Override
@@ -230,7 +247,8 @@ public class CustomerCriteria implements Serializable {
         email,
         products,
         interested,
-        paid
+        paid,
+        type
         );
     }
 
@@ -253,6 +271,7 @@ public class CustomerCriteria implements Serializable {
                 (products != null ? "products=" + products + ", " : "") +
                 (interested != null ? "interested=" + interested + ", " : "") +
                 (paid != null ? "paid=" + paid + ", " : "") +
+                (type != null ? "type=" + type + ", " : "") +
             "}";
     }
 

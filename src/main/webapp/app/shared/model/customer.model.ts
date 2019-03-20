@@ -1,3 +1,8 @@
+export const enum CompanyType {
+  DAMP_PROOFER = 'DAMP_PROOFER',
+  DOMESTIC = 'DOMESTIC'
+}
+
 export interface ICustomer {
   id?: number;
   companyName?: string;
@@ -15,6 +20,7 @@ export interface ICustomer {
   products?: string;
   interested?: string;
   paid?: number;
+  type?: CompanyType;
 }
 
 export const defaultValue: Readonly<ICustomer> = {};

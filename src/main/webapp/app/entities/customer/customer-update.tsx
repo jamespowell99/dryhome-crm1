@@ -258,6 +258,19 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                   </Label>
                   <AvField id="customer-paid" type="text" name="paid" />
                 </AvGroup>
+                <AvGroup>
+                  <Label id="typeLabel">Type</Label>
+                  <AvInput
+                    id="customer-type"
+                    type="select"
+                    className="form-control"
+                    name="type"
+                    value={(!isNew && customerEntity.type) || 'DAMP_PROOFER'}
+                  >
+                    <option value="DAMP_PROOFER">DAMP_PROOFER</option>
+                    <option value="DOMESTIC">DOMESTIC</option>
+                  </AvInput>
+                </AvGroup>
                 <Button tag={Link} id="cancel-save" to="/entity/customer" replace color="info">
                   <FontAwesomeIcon icon="arrow-left" />
                   &nbsp;

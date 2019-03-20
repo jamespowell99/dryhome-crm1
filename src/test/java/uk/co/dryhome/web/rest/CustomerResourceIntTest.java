@@ -43,6 +43,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import uk.co.dryhome.domain.enumeration.CompanyType;
 /**
  * Test class for the CustomerResource REST controller.
  *
@@ -96,6 +97,9 @@ public class CustomerResourceIntTest {
 
     private static final BigDecimal DEFAULT_PAID = new BigDecimal(1);
     private static final BigDecimal UPDATED_PAID = new BigDecimal(2);
+
+    private static final CompanyType DEFAULT_TYPE = CompanyType.DAMP_PROOFER;
+    private static final CompanyType UPDATED_TYPE = CompanyType.DOMESTIC;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -170,7 +174,8 @@ public class CustomerResourceIntTest {
             .email(DEFAULT_EMAIL)
             .products(DEFAULT_PRODUCTS)
             .interested(DEFAULT_INTERESTED)
-            .paid(DEFAULT_PAID);
+            .paid(DEFAULT_PAID)
+            .type(DEFAULT_TYPE);
         return customer;
     }
 
@@ -210,6 +215,7 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getProducts()).isEqualTo(DEFAULT_PRODUCTS);
         assertThat(testCustomer.getInterested()).isEqualTo(DEFAULT_INTERESTED);
         assertThat(testCustomer.getPaid()).isEqualTo(DEFAULT_PAID);
+        assertThat(testCustomer.getType()).isEqualTo(DEFAULT_TYPE);
 
         // Validate the Customer in Elasticsearch
         verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
@@ -297,6 +303,25 @@ public class CustomerResourceIntTest {
 
     @Test
     @Transactional
+    public void checkTypeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = customerRepository.findAll().size();
+        // set the field null
+        customer.setType(null);
+
+        // Create the Customer, which fails.
+        CustomerDTO customerDTO = customerMapper.toDto(customer);
+
+        restCustomerMockMvc.perform(post("/api/customers")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(customerDTO)))
+            .andExpect(status().isBadRequest());
+
+        List<Customer> customerList = customerRepository.findAll();
+        assertThat(customerList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     public void getAllCustomers() throws Exception {
         // Initialize the database
         customerRepository.saveAndFlush(customer);
@@ -320,7 +345,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL.toString())))
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS.toString())))
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED.toString())))
-            .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())));
+            .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
     }
     
     @Test
@@ -348,7 +374,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL.toString()))
             .andExpect(jsonPath("$.products").value(DEFAULT_PRODUCTS.toString()))
             .andExpect(jsonPath("$.interested").value(DEFAULT_INTERESTED.toString()))
-            .andExpect(jsonPath("$.paid").value(DEFAULT_PAID.intValue()));
+            .andExpect(jsonPath("$.paid").value(DEFAULT_PAID.intValue()))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()));
     }
 
     @Test
@@ -935,6 +962,45 @@ public class CustomerResourceIntTest {
         // Get all the customerList where paid is null
         defaultCustomerShouldNotBeFound("paid.specified=false");
     }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where type equals to DEFAULT_TYPE
+        defaultCustomerShouldBeFound("type.equals=" + DEFAULT_TYPE);
+
+        // Get all the customerList where type equals to UPDATED_TYPE
+        defaultCustomerShouldNotBeFound("type.equals=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByTypeIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where type in DEFAULT_TYPE or UPDATED_TYPE
+        defaultCustomerShouldBeFound("type.in=" + DEFAULT_TYPE + "," + UPDATED_TYPE);
+
+        // Get all the customerList where type equals to UPDATED_TYPE
+        defaultCustomerShouldNotBeFound("type.in=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByTypeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where type is not null
+        defaultCustomerShouldBeFound("type.specified=true");
+
+        // Get all the customerList where type is null
+        defaultCustomerShouldNotBeFound("type.specified=false");
+    }
     /**
      * Executes the search, and checks that the default entity is returned
      */
@@ -957,7 +1023,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS)))
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
-            .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())));
+            .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
 
         // Check, that the count call also returns 1
         restCustomerMockMvc.perform(get("/api/customers/count?sort=id,desc&" + filter))
@@ -1019,7 +1086,8 @@ public class CustomerResourceIntTest {
             .email(UPDATED_EMAIL)
             .products(UPDATED_PRODUCTS)
             .interested(UPDATED_INTERESTED)
-            .paid(UPDATED_PAID);
+            .paid(UPDATED_PAID)
+            .type(UPDATED_TYPE);
         CustomerDTO customerDTO = customerMapper.toDto(updatedCustomer);
 
         restCustomerMockMvc.perform(put("/api/customers")
@@ -1046,6 +1114,7 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getProducts()).isEqualTo(UPDATED_PRODUCTS);
         assertThat(testCustomer.getInterested()).isEqualTo(UPDATED_INTERESTED);
         assertThat(testCustomer.getPaid()).isEqualTo(UPDATED_PAID);
+        assertThat(testCustomer.getType()).isEqualTo(UPDATED_TYPE);
 
         // Validate the Customer in Elasticsearch
         verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
@@ -1120,7 +1189,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS)))
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
-            .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())));
+            .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
     }
 
     @Test

@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import uk.co.dryhome.domain.enumeration.CompanyType;
+
 /**
  * A Customer.
  */
@@ -85,6 +87,11 @@ public class Customer implements Serializable {
 
     @Column(name = "paid", precision = 10, scale = 2)
     private BigDecimal paid;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "jhi_type", nullable = false)
+    private CompanyType type;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -289,6 +296,19 @@ public class Customer implements Serializable {
     public void setPaid(BigDecimal paid) {
         this.paid = paid;
     }
+
+    public CompanyType getType() {
+        return type;
+    }
+
+    public Customer type(CompanyType type) {
+        this.type = type;
+        return this;
+    }
+
+    public void setType(CompanyType type) {
+        this.type = type;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -330,6 +350,7 @@ public class Customer implements Serializable {
             ", products='" + getProducts() + "'" +
             ", interested='" + getInterested() + "'" +
             ", paid=" + getPaid() +
+            ", type='" + getType() + "'" +
             "}";
     }
 }

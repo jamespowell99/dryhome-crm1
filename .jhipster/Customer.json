@@ -117,6 +117,14 @@
         {
             "fieldName": "paid",
             "fieldType": "BigDecimal"
+        },
+        {
+            "fieldName": "type",
+            "fieldType": "CompanyType",
+            "fieldValues": "DAMP_PROOFER,DOMESTIC",
+            "fieldValidateRules": [
+                "required"
+            ]
         }
     ],
     "changelogDate": "20190320210536",

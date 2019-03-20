@@ -88,6 +88,10 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps> {
               <span id="paid">Paid</span>
             </dt>
             <dd>{customerEntity.paid}</dd>
+            <dt>
+              <span id="type">Type</span>
+            </dt>
+            <dd>{customerEntity.type}</dd>
           </dl>
           <Button tag={Link} to="/entity/customer" replace color="info">
             <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
