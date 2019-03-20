@@ -1,0 +1,35 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "uk.co.dryhome"
+    },
+    "jhipsterVersion": "5.8.2",
+    "applicationType": "monolith",
+    "baseName": "dryhomecrm1",
+    "packageName": "uk.co.dryhome",
+    "packageFolder": "uk/co/dryhome",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "mysql",
+    "searchEngine": "elasticsearch",
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "OTU2MDg3NzNjMjNkYTQ4ZTY4ZTUyMGYxMWVjZjA2NmUyZGIzN2NhNWQ3ZjhiZmU4NjQyZjg4NGZlNDM3M2Q4MmYyYTY1MWRkZDg3MDc3YjhjNjA0MWY4MThkMTdhNjQ1MzQ0YzJlZTI5ZWYzZjdmMzAzMDlhMTcwYTJiYmVhYTQ=",
+    "clientFramework": "react",
+    "useSass": false,
+    "clientPackageManager": "npm",
+    "testFrameworks": ["gatling"],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false
+  }
+}
