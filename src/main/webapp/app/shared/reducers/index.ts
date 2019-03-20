@@ -12,10 +12,6 @@ import password, { PasswordState } from 'app/modules/account/password/password.r
 import settings, { SettingsState } from 'app/modules/account/settings/settings.reducer';
 import passwordReset, { PasswordResetState } from 'app/modules/account/password-reset/password-reset.reducer';
 // prettier-ignore
-import company, {
-  CompanyState
-} from 'app/entities/company/company.reducer';
-// prettier-ignore
 import customer, {
   CustomerState
 } from 'app/entities/customer/customer.reducer';
@@ -31,7 +27,6 @@ export interface IRootState {
   readonly passwordReset: PasswordResetState;
   readonly password: PasswordState;
   readonly settings: SettingsState;
-  readonly company: CompanyState;
   readonly customer: CustomerState;
   /* jhipster-needle-add-reducer-type - JHipster will add reducer type here */
   readonly loadingBar: any;
@@ -47,7 +42,6 @@ const rootReducer = combineReducers<IRootState>({
   passwordReset,
   password,
   settings,
-  company,
   customer,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
   loadingBar

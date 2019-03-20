@@ -38,7 +38,6 @@ public class CacheConfiguration {
             cm.createCache(uk.co.dryhome.domain.User.class.getName(), jcacheConfiguration);
             cm.createCache(uk.co.dryhome.domain.Authority.class.getName(), jcacheConfiguration);
             cm.createCache(uk.co.dryhome.domain.User.class.getName() + ".authorities", jcacheConfiguration);
-            cm.createCache(uk.co.dryhome.domain.Company.class.getName(), jcacheConfiguration);
             cm.createCache(uk.co.dryhome.domain.Customer.class.getName(), jcacheConfiguration);
             // jhipster-needle-ehcache-add-entry
         };
