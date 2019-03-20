@@ -121,20 +121,11 @@ export class Company extends React.Component<ICompanyProps, ICompanyState> {
                 <th className="hand" onClick={this.sort('address1')}>
                   Address 1 <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={this.sort('address2')}>
-                  Address 2 <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('address3')}>
-                  Address 3 <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={this.sort('town')}>
                   Town <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={this.sort('postCode')}>
                   Post Code <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('title')}>
-                  Title <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={this.sort('firstName')}>
                   First Name <FontAwesomeIcon icon="sort" />
@@ -151,15 +142,6 @@ export class Company extends React.Component<ICompanyProps, ICompanyState> {
                 <th className="hand" onClick={this.sort('email')}>
                   Email <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={this.sort('products')}>
-                  Products <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('interested')}>
-                  Interested <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('paid')}>
-                  Paid <FontAwesomeIcon icon="sort" />
-                </th>
                 <th />
               </tr>
             </thead>
@@ -173,19 +155,13 @@ export class Company extends React.Component<ICompanyProps, ICompanyState> {
                   </td>
                   <td>{company.name}</td>
                   <td>{company.address1}</td>
-                  <td>{company.address2}</td>
-                  <td>{company.address3}</td>
                   <td>{company.town}</td>
                   <td>{company.postCode}</td>
-                  <td>{company.title}</td>
                   <td>{company.firstName}</td>
                   <td>{company.lastName}</td>
                   <td>{company.tel}</td>
                   <td>{company.mobile}</td>
                   <td>{company.email}</td>
-                  <td>{company.products}</td>
-                  <td>{company.interested}</td>
-                  <td>{company.paid}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${company.id}`} color="info" size="sm">
