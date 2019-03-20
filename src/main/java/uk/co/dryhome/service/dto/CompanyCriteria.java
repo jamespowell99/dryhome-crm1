@@ -25,7 +25,7 @@ public class CompanyCriteria implements Serializable {
 
     private LongFilter id;
 
-    private StringFilter name;
+    private StringFilter companyName;
 
     private StringFilter address1;
 
@@ -63,12 +63,12 @@ public class CompanyCriteria implements Serializable {
         this.id = id;
     }
 
-    public StringFilter getName() {
-        return name;
+    public StringFilter getCompanyName() {
+        return companyName;
     }
 
-    public void setName(StringFilter name) {
-        this.name = name;
+    public void setCompanyName(StringFilter companyName) {
+        this.companyName = companyName;
     }
 
     public StringFilter getAddress1() {
@@ -195,7 +195,7 @@ public class CompanyCriteria implements Serializable {
         final CompanyCriteria that = (CompanyCriteria) o;
         return
             Objects.equals(id, that.id) &&
-            Objects.equals(name, that.name) &&
+            Objects.equals(companyName, that.companyName) &&
             Objects.equals(address1, that.address1) &&
             Objects.equals(address2, that.address2) &&
             Objects.equals(address3, that.address3) &&
@@ -216,7 +216,7 @@ public class CompanyCriteria implements Serializable {
     public int hashCode() {
         return Objects.hash(
         id,
-        name,
+        companyName,
         address1,
         address2,
         address3,
@@ -238,7 +238,7 @@ public class CompanyCriteria implements Serializable {
     public String toString() {
         return "CompanyCriteria{" +
                 (id != null ? "id=" + id + ", " : "") +
-                (name != null ? "name=" + name + ", " : "") +
+                (companyName != null ? "companyName=" + companyName + ", " : "") +
                 (address1 != null ? "address1=" + address1 + ", " : "") +
                 (address2 != null ? "address2=" + address2 + ", " : "") +
                 (address3 != null ? "address3=" + address3 + ", " : "") +

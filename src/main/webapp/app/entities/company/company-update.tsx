@@ -86,10 +86,10 @@ export class CompanyUpdate extends React.Component<ICompanyUpdateProps, ICompany
                   </AvGroup>
                 ) : null}
                 <AvGroup>
-                  <Label id="nameLabel" for="name">
-                    Name
+                  <Label id="companyNameLabel" for="companyName">
+                    Company Name
                   </Label>
-                  <AvField id="company-name" type="text" name="name" />
+                  <AvField id="company-companyName" type="text" name="companyName" />
                 </AvGroup>
                 <AvGroup>
                   <Label id="address1Label" for="address1">

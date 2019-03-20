@@ -72,7 +72,7 @@ class CompanyGatlingTest extends Simulation {
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
-                , "name":"SAMPLE_TEXT"
+                , "companyName":"SAMPLE_TEXT"
                 , "address1":"SAMPLE_TEXT"
                 , "address2":"SAMPLE_TEXT"
                 , "address3":"SAMPLE_TEXT"

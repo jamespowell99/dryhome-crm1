@@ -29,9 +29,9 @@ export class CompanyDetail extends React.Component<ICompanyDetailProps> {
           </h2>
           <dl className="jh-entity-details">
             <dt>
-              <span id="name">Name</span>
+              <span id="companyName">Company Name</span>
             </dt>
-            <dd>{companyEntity.name}</dd>
+            <dd>{companyEntity.companyName}</dd>
             <dt>
               <span id="address1">Address 1</span>
             </dt>

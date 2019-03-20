@@ -115,8 +115,8 @@ export class Company extends React.Component<ICompanyProps, ICompanyState> {
                 <th className="hand" onClick={this.sort('id')}>
                   ID <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={this.sort('name')}>
-                  Name <FontAwesomeIcon icon="sort" />
+                <th className="hand" onClick={this.sort('companyName')}>
+                  Company Name <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={this.sort('address1')}>
                   Address 1 <FontAwesomeIcon icon="sort" />
@@ -153,7 +153,7 @@ export class Company extends React.Component<ICompanyProps, ICompanyState> {
                       {company.id}
                     </Button>
                   </td>
-                  <td>{company.name}</td>
+                  <td>{company.companyName}</td>
                   <td>{company.address1}</td>
                   <td>{company.town}</td>
                   <td>{company.postCode}</td>

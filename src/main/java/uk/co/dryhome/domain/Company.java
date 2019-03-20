@@ -27,8 +27,8 @@ public class Company implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "company_name")
+    private String companyName;
 
     @NotNull
     @Size(min = 1, max = 100)
@@ -95,17 +95,17 @@ public class Company implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public Company name(String name) {
-        this.name = name;
+    public Company companyName(String companyName) {
+        this.companyName = companyName;
         return this;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public String getAddress1() {
@@ -315,7 +315,7 @@ public class Company implements Serializable {
     public String toString() {
         return "Company{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
+            ", companyName='" + getCompanyName() + "'" +
             ", address1='" + getAddress1() + "'" +
             ", address2='" + getAddress2() + "'" +
             ", address3='" + getAddress3() + "'" +

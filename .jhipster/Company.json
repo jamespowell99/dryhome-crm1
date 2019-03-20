@@ -4,7 +4,7 @@
     "relationships": [],
     "fields": [
         {
-            "fieldName": "name",
+            "fieldName": "companyName",
             "fieldType": "String"
         },
         {

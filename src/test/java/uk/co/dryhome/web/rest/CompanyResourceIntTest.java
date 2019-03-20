@@ -52,8 +52,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = Dryhomecrm1App.class)
 public class CompanyResourceIntTest {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
+    private static final String DEFAULT_COMPANY_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_COMPANY_NAME = "BBBBBBBBBB";
 
     private static final String DEFAULT_ADDRESS_1 = "AAAAAAAAAA";
     private static final String UPDATED_ADDRESS_1 = "BBBBBBBBBB";
@@ -156,7 +156,7 @@ public class CompanyResourceIntTest {
      */
     public static Company createEntity(EntityManager em) {
         Company company = new Company()
-            .name(DEFAULT_NAME)
+            .companyName(DEFAULT_COMPANY_NAME)
             .address1(DEFAULT_ADDRESS_1)
             .address2(DEFAULT_ADDRESS_2)
             .address3(DEFAULT_ADDRESS_3)
@@ -195,7 +195,7 @@ public class CompanyResourceIntTest {
         List<Company> companyList = companyRepository.findAll();
         assertThat(companyList).hasSize(databaseSizeBeforeCreate + 1);
         Company testCompany = companyList.get(companyList.size() - 1);
-        assertThat(testCompany.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testCompany.getCompanyName()).isEqualTo(DEFAULT_COMPANY_NAME);
         assertThat(testCompany.getAddress1()).isEqualTo(DEFAULT_ADDRESS_1);
         assertThat(testCompany.getAddress2()).isEqualTo(DEFAULT_ADDRESS_2);
         assertThat(testCompany.getAddress3()).isEqualTo(DEFAULT_ADDRESS_3);
@@ -306,7 +306,7 @@ public class CompanyResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(company.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].companyName").value(hasItem(DEFAULT_COMPANY_NAME.toString())))
             .andExpect(jsonPath("$.[*].address1").value(hasItem(DEFAULT_ADDRESS_1.toString())))
             .andExpect(jsonPath("$.[*].address2").value(hasItem(DEFAULT_ADDRESS_2.toString())))
             .andExpect(jsonPath("$.[*].address3").value(hasItem(DEFAULT_ADDRESS_3.toString())))
@@ -334,7 +334,7 @@ public class CompanyResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(company.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
+            .andExpect(jsonPath("$.companyName").value(DEFAULT_COMPANY_NAME.toString()))
             .andExpect(jsonPath("$.address1").value(DEFAULT_ADDRESS_1.toString()))
             .andExpect(jsonPath("$.address2").value(DEFAULT_ADDRESS_2.toString()))
             .andExpect(jsonPath("$.address3").value(DEFAULT_ADDRESS_3.toString()))
@@ -353,41 +353,41 @@ public class CompanyResourceIntTest {
 
     @Test
     @Transactional
-    public void getAllCompaniesByNameIsEqualToSomething() throws Exception {
+    public void getAllCompaniesByCompanyNameIsEqualToSomething() throws Exception {
         // Initialize the database
         companyRepository.saveAndFlush(company);
 
-        // Get all the companyList where name equals to DEFAULT_NAME
-        defaultCompanyShouldBeFound("name.equals=" + DEFAULT_NAME);
+        // Get all the companyList where companyName equals to DEFAULT_COMPANY_NAME
+        defaultCompanyShouldBeFound("companyName.equals=" + DEFAULT_COMPANY_NAME);
 
-        // Get all the companyList where name equals to UPDATED_NAME
-        defaultCompanyShouldNotBeFound("name.equals=" + UPDATED_NAME);
+        // Get all the companyList where companyName equals to UPDATED_COMPANY_NAME
+        defaultCompanyShouldNotBeFound("companyName.equals=" + UPDATED_COMPANY_NAME);
     }
 
     @Test
     @Transactional
-    public void getAllCompaniesByNameIsInShouldWork() throws Exception {
+    public void getAllCompaniesByCompanyNameIsInShouldWork() throws Exception {
         // Initialize the database
         companyRepository.saveAndFlush(company);
 
-        // Get all the companyList where name in DEFAULT_NAME or UPDATED_NAME
-        defaultCompanyShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
+        // Get all the companyList where companyName in DEFAULT_COMPANY_NAME or UPDATED_COMPANY_NAME
+        defaultCompanyShouldBeFound("companyName.in=" + DEFAULT_COMPANY_NAME + "," + UPDATED_COMPANY_NAME);
 
-        // Get all the companyList where name equals to UPDATED_NAME
-        defaultCompanyShouldNotBeFound("name.in=" + UPDATED_NAME);
+        // Get all the companyList where companyName equals to UPDATED_COMPANY_NAME
+        defaultCompanyShouldNotBeFound("companyName.in=" + UPDATED_COMPANY_NAME);
     }
 
     @Test
     @Transactional
-    public void getAllCompaniesByNameIsNullOrNotNull() throws Exception {
+    public void getAllCompaniesByCompanyNameIsNullOrNotNull() throws Exception {
         // Initialize the database
         companyRepository.saveAndFlush(company);
 
-        // Get all the companyList where name is not null
-        defaultCompanyShouldBeFound("name.specified=true");
+        // Get all the companyList where companyName is not null
+        defaultCompanyShouldBeFound("companyName.specified=true");
 
-        // Get all the companyList where name is null
-        defaultCompanyShouldNotBeFound("name.specified=false");
+        // Get all the companyList where companyName is null
+        defaultCompanyShouldNotBeFound("companyName.specified=false");
     }
 
     @Test
@@ -943,7 +943,7 @@ public class CompanyResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(company.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].companyName").value(hasItem(DEFAULT_COMPANY_NAME)))
             .andExpect(jsonPath("$.[*].address1").value(hasItem(DEFAULT_ADDRESS_1)))
             .andExpect(jsonPath("$.[*].address2").value(hasItem(DEFAULT_ADDRESS_2)))
             .andExpect(jsonPath("$.[*].address3").value(hasItem(DEFAULT_ADDRESS_3)))
@@ -1005,7 +1005,7 @@ public class CompanyResourceIntTest {
         // Disconnect from session so that the updates on updatedCompany are not directly saved in db
         em.detach(updatedCompany);
         updatedCompany
-            .name(UPDATED_NAME)
+            .companyName(UPDATED_COMPANY_NAME)
             .address1(UPDATED_ADDRESS_1)
             .address2(UPDATED_ADDRESS_2)
             .address3(UPDATED_ADDRESS_3)
@@ -1031,7 +1031,7 @@ public class CompanyResourceIntTest {
         List<Company> companyList = companyRepository.findAll();
         assertThat(companyList).hasSize(databaseSizeBeforeUpdate);
         Company testCompany = companyList.get(companyList.size() - 1);
-        assertThat(testCompany.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testCompany.getCompanyName()).isEqualTo(UPDATED_COMPANY_NAME);
         assertThat(testCompany.getAddress1()).isEqualTo(UPDATED_ADDRESS_1);
         assertThat(testCompany.getAddress2()).isEqualTo(UPDATED_ADDRESS_2);
         assertThat(testCompany.getAddress3()).isEqualTo(UPDATED_ADDRESS_3);
@@ -1106,7 +1106,7 @@ public class CompanyResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(company.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].companyName").value(hasItem(DEFAULT_COMPANY_NAME)))
             .andExpect(jsonPath("$.[*].address1").value(hasItem(DEFAULT_ADDRESS_1)))
             .andExpect(jsonPath("$.[*].address2").value(hasItem(DEFAULT_ADDRESS_2)))
             .andExpect(jsonPath("$.[*].address3").value(hasItem(DEFAULT_ADDRESS_3)))

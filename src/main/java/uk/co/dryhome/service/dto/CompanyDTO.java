@@ -11,7 +11,7 @@ public class CompanyDTO implements Serializable {
 
     private Long id;
 
-    private String name;
+    private String companyName;
 
     @NotNull
     @Size(min = 1, max = 100)
@@ -64,12 +64,12 @@ public class CompanyDTO implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public String getAddress1() {
@@ -209,7 +209,7 @@ public class CompanyDTO implements Serializable {
     public String toString() {
         return "CompanyDTO{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
+            ", companyName='" + getCompanyName() + "'" +
             ", address1='" + getAddress1() + "'" +
             ", address2='" + getAddress2() + "'" +
             ", address3='" + getAddress3() + "'" +
