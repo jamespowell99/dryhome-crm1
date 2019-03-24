@@ -115,26 +115,20 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
                 <th className="hand" onClick={this.sort('id')}>
                   ID <FontAwesomeIcon icon="sort" />
                 </th>
+                <th className="hand" onClick={this.sort('type')}>
+                  Type <FontAwesomeIcon icon="sort" />
+                </th>
                 <th className="hand" onClick={this.sort('companyName')}>
                   Company Name <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={this.sort('address1')}>
                   Address 1 <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={this.sort('address2')}>
-                  Address 2 <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('address3')}>
-                  Address 3 <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={this.sort('town')}>
                   Town <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={this.sort('postCode')}>
                   Post Code <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('title')}>
-                  Title <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={this.sort('firstName')}>
                   First Name <FontAwesomeIcon icon="sort" />
@@ -151,18 +145,6 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
                 <th className="hand" onClick={this.sort('email')}>
                   Email <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={this.sort('products')}>
-                  Products <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('interested')}>
-                  Interested <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('paid')}>
-                  Paid <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={this.sort('type')}>
-                  Type <FontAwesomeIcon icon="sort" />
-                </th>
                 <th />
               </tr>
             </thead>
@@ -174,22 +156,16 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
                       {customer.id}
                     </Button>
                   </td>
+                  <td>{customer.type}</td>
                   <td>{customer.companyName}</td>
                   <td>{customer.address1}</td>
-                  <td>{customer.address2}</td>
-                  <td>{customer.address3}</td>
                   <td>{customer.town}</td>
                   <td>{customer.postCode}</td>
-                  <td>{customer.title}</td>
                   <td>{customer.firstName}</td>
                   <td>{customer.lastName}</td>
                   <td>{customer.tel}</td>
                   <td>{customer.mobile}</td>
                   <td>{customer.email}</td>
-                  <td>{customer.products}</td>
-                  <td>{customer.interested}</td>
-                  <td>{customer.paid}</td>
-                  <td>{customer.type}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${customer.id}`} color="info" size="sm">
