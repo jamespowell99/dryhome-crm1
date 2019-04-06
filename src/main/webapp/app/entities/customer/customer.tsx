@@ -25,11 +25,13 @@ export interface ICustomerProps extends StateProps, DispatchProps, RouteComponen
 
 export interface ICustomerState extends IPaginationBaseState {
   search: string;
+  customerType: string;
 }
 
 export class Customer extends React.Component<ICustomerProps, ICustomerState> {
   state: ICustomerState = {
     search: '',
+    customerType: 'ALL',
     ...getSortState(this.props.location, ITEMS_PER_PAGE)
   };
 
@@ -40,8 +42,12 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
   search = () => {
     if (this.state.search) {
       this.setState({ activePage: 1 }, () => {
-        const { activePage, itemsPerPage, sort, order, search } = this.state;
-        this.props.getSearchEntities(search, activePage - 1, itemsPerPage, `${sort},${order}`);
+        const { activePage, itemsPerPage, sort, order, search, customerType } = this.state;
+        let toSearch: string = search;
+        if (customerType !== 'ALL') {
+          toSearch = toSearch + ' AND type:' + customerType;
+        }
+        this.props.getSearchEntities(toSearch, activePage - 1, itemsPerPage, `${sort},${order}`);
       });
     }
   };
@@ -53,6 +59,10 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
   };
 
   handleSearch = event => this.setState({ search: event.target.value });
+
+  handleRadioChange = event => {
+    this.setState({ customerType: event.target.value });
+  };
 
   sort = prop => () => {
     this.setState(
@@ -72,9 +82,13 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
   handlePagination = activePage => this.setState({ activePage }, () => this.sortEntities());
 
   getEntities = () => {
-    const { activePage, itemsPerPage, sort, order, search } = this.state;
+    const { activePage, itemsPerPage, sort, order, search, customerType } = this.state;
     if (search) {
-      this.props.getSearchEntities(search, activePage - 1, itemsPerPage, `${sort},${order}`);
+      let toSearch: string = search;
+      if (customerType !== 'ALL') {
+        toSearch = toSearch + ' AND type:' + customerType;
+      }
+      this.props.getSearchEntities(toSearch, activePage - 1, itemsPerPage, `${sort},${order}`);
     } else {
       this.props.getEntities(activePage - 1, itemsPerPage, `${sort},${order}`);
     }
@@ -95,6 +109,13 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
           <Col sm="12">
             <AvForm onSubmit={this.search}>
               <AvGroup>
+                {/*todo style better??*/}
+                <label>All</label>
+                <input type="radio" name="customer_type" value="ALL" onChange={this.handleRadioChange} />
+                <label>Damp Proofers</label>
+                <input type="radio" name="customer_type" value="DAMP_PROOFER" onChange={this.handleRadioChange} />
+                <label>Domestic</label>
+                <input type="radio" name="customer_type" value="DOMESTIC" onChange={this.handleRadioChange} />
                 <InputGroup>
                   <AvInput type="text" name="search" value={this.state.search} onChange={this.handleSearch} placeholder="Search" />
                   <Button className="input-group-addon">
