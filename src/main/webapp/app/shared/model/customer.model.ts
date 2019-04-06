@@ -21,6 +21,7 @@ export interface ICustomer {
   interested?: string;
   paid?: number;
   type?: CompanyType;
+  notes?: any;
 }
 
 export const defaultValue: Readonly<ICustomer> = {};

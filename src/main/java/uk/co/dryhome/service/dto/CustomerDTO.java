@@ -3,6 +3,7 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
+import javax.persistence.Lob;
 import uk.co.dryhome.domain.enumeration.CompanyType;
 
 /**
@@ -58,6 +59,9 @@ public class CustomerDTO implements Serializable {
 
     @NotNull
     private CompanyType type;
+
+    @Lob
+    private String notes;
 
 
     public Long getId() {
@@ -196,6 +200,14 @@ public class CustomerDTO implements Serializable {
         this.type = type;
     }
 
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -237,6 +249,7 @@ public class CustomerDTO implements Serializable {
             ", interested='" + getInterested() + "'" +
             ", paid=" + getPaid() +
             ", type='" + getType() + "'" +
+            ", notes='" + getNotes() + "'" +
             "}";
     }
 }

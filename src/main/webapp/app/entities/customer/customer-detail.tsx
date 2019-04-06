@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
 // tslint:disable-next-line:no-unused-variable
-import { ICrudGetAction } from 'react-jhipster';
+import { ICrudGetAction, byteSize } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
@@ -92,6 +92,10 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps> {
               <span id="type">Type</span>
             </dt>
             <dd>{customerEntity.type}</dd>
+            <dt>
+              <span id="notes">Notes</span>
+            </dt>
+            <textarea id="customer-notes" readOnly name="notes" rows={15} cols={100} value={customerEntity.notes} />
           </dl>
           <Button tag={Link} to="/entity/customer" replace color="info">
             <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

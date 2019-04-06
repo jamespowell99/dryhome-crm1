@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
@@ -100,6 +101,9 @@ public class CustomerResourceIntTest {
 
     private static final CompanyType DEFAULT_TYPE = CompanyType.DAMP_PROOFER;
     private static final CompanyType UPDATED_TYPE = CompanyType.DOMESTIC;
+
+    private static final String DEFAULT_NOTES = "AAAAAAAAAA";
+    private static final String UPDATED_NOTES = "BBBBBBBBBB";
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -175,7 +179,8 @@ public class CustomerResourceIntTest {
             .products(DEFAULT_PRODUCTS)
             .interested(DEFAULT_INTERESTED)
             .paid(DEFAULT_PAID)
-            .type(DEFAULT_TYPE);
+            .type(DEFAULT_TYPE)
+            .notes(DEFAULT_NOTES);
         return customer;
     }
 
@@ -216,6 +221,7 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getInterested()).isEqualTo(DEFAULT_INTERESTED);
         assertThat(testCustomer.getPaid()).isEqualTo(DEFAULT_PAID);
         assertThat(testCustomer.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testCustomer.getNotes()).isEqualTo(DEFAULT_NOTES);
 
         // Validate the Customer in Elasticsearch
         verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
@@ -346,7 +352,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS.toString())))
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED.toString())))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
     }
     
     @Test
@@ -375,7 +382,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.products").value(DEFAULT_PRODUCTS.toString()))
             .andExpect(jsonPath("$.interested").value(DEFAULT_INTERESTED.toString()))
             .andExpect(jsonPath("$.paid").value(DEFAULT_PAID.intValue()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()));
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
+            .andExpect(jsonPath("$.notes").value(DEFAULT_NOTES.toString()));
     }
 
     @Test
@@ -1024,7 +1032,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS)))
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
 
         // Check, that the count call also returns 1
         restCustomerMockMvc.perform(get("/api/customers/count?sort=id,desc&" + filter))
@@ -1087,7 +1096,8 @@ public class CustomerResourceIntTest {
             .products(UPDATED_PRODUCTS)
             .interested(UPDATED_INTERESTED)
             .paid(UPDATED_PAID)
-            .type(UPDATED_TYPE);
+            .type(UPDATED_TYPE)
+            .notes(UPDATED_NOTES);
         CustomerDTO customerDTO = customerMapper.toDto(updatedCustomer);
 
         restCustomerMockMvc.perform(put("/api/customers")
@@ -1115,6 +1125,7 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getInterested()).isEqualTo(UPDATED_INTERESTED);
         assertThat(testCustomer.getPaid()).isEqualTo(UPDATED_PAID);
         assertThat(testCustomer.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testCustomer.getNotes()).isEqualTo(UPDATED_NOTES);
 
         // Validate the Customer in Elasticsearch
         verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
@@ -1190,7 +1201,8 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS)))
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
     }
 
     @Test

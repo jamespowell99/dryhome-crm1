@@ -4,11 +4,11 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col, Label } from 'reactstrap';
 import { AvForm, AvGroup, AvInput, AvField } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
-import { ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipster';
+import { ICrudGetAction, ICrudGetAllAction, setFileData, byteSize, ICrudPutAction } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
-import { getEntity, updateEntity, createEntity, reset } from './customer.reducer';
+import { getEntity, updateEntity, createEntity, setBlob, reset } from './customer.reducer';
 import { ICustomer } from 'app/shared/model/customer.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
@@ -42,6 +42,14 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
     }
   }
 
+  onBlobChange = (isAnImage, name) => event => {
+    setFileData(event, (contentType, data) => this.props.setBlob(name, data, contentType), isAnImage);
+  };
+
+  clearBlob = name => () => {
+    this.props.setBlob(name, undefined, undefined);
+  };
+
   saveEntity = (event, errors, values) => {
     if (errors.length === 0) {
       const { customerEntity } = this.props;
@@ -65,6 +73,8 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
   render() {
     const { customerEntity, loading, updating } = this.props;
     const { isNew } = this.state;
+
+    const { notes } = customerEntity;
 
     return (
       <div>
@@ -271,6 +281,12 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                     <option value="DOMESTIC">DOMESTIC</option>
                   </AvInput>
                 </AvGroup>
+                <AvGroup>
+                  <Label id="notesLabel" for="notes">
+                    Notes
+                  </Label>
+                  <AvInput id="customer-notes" type="textarea" name="notes" rows="15" />
+                </AvGroup>
                 <Button tag={Link} id="cancel-save" to="/entity/customer" replace color="info">
                   <FontAwesomeIcon icon="arrow-left" />
                   &nbsp;
@@ -300,6 +316,7 @@ const mapStateToProps = (storeState: IRootState) => ({
 const mapDispatchToProps = {
   getEntity,
   updateEntity,
+  setBlob,
   createEntity,
   reset
 };

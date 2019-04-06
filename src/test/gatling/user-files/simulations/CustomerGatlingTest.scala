@@ -88,6 +88,7 @@ class CustomerGatlingTest extends Simulation {
                 , "interested":"SAMPLE_TEXT"
                 , "paid":"0"
                 , "type":"DAMP_PROOFER"
+                , "notes":null
                 }""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_customer_url"))).exitHereIfFailed

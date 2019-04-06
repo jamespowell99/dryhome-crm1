@@ -93,6 +93,10 @@ public class Customer implements Serializable {
     @Column(name = "jhi_type", nullable = false)
     private CompanyType type;
 
+    @Lob
+    @Column(name = "notes")
+    private String notes;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
@@ -309,6 +313,19 @@ public class Customer implements Serializable {
     public void setType(CompanyType type) {
         this.type = type;
     }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public Customer notes(String notes) {
+        this.notes = notes;
+        return this;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -351,6 +368,7 @@ public class Customer implements Serializable {
             ", interested='" + getInterested() + "'" +
             ", paid=" + getPaid() +
             ", type='" + getType() + "'" +
+            ", notes='" + getNotes() + "'" +
             "}";
     }
 }
