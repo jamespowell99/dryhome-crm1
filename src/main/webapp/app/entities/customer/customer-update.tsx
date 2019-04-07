@@ -78,23 +78,36 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
 
     return (
       <div>
-        <Row className="justify-content-center">
-          <Col md="8">
+        <Row>
+          <Col>
             <h2 id="dryhomecrm1App.customer.home.createOrEditLabel">Create or edit a Customer</h2>
           </Col>
         </Row>
-        <Row className="justify-content-center">
-          <Col md="8">
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <AvForm model={isNew ? {} : customerEntity} onSubmit={this.saveEntity}>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <AvForm model={isNew ? {} : customerEntity} onSubmit={this.saveEntity}>
+            <Row>
+              <Col>
                 {!isNew ? (
                   <AvGroup>
                     <Label for="id">ID</Label>
                     <AvInput id="customer-id" type="text" className="form-control" name="id" required readOnly />
                   </AvGroup>
                 ) : null}
+                <AvGroup>
+                  <Label id="typeLabel">Type</Label>
+                  <AvInput
+                    id="customer-type"
+                    type="select"
+                    className="form-control"
+                    name="type"
+                    value={(!isNew && customerEntity.type) || 'DAMP_PROOFER'}
+                  >
+                    <option value="DAMP_PROOFER">DAMP_PROOFER</option>
+                    <option value="DOMESTIC">DOMESTIC</option>
+                  </AvInput>
+                </AvGroup>
                 <AvGroup>
                   <Label id="companyNameLabel" for="companyName">
                     Company Name
@@ -172,64 +185,80 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                     }}
                   />
                 </AvGroup>
-                <AvGroup>
-                  <Label id="titleLabel" for="title">
-                    Title
-                  </Label>
-                  <AvField
-                    id="customer-title"
-                    type="text"
-                    name="title"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="firstNameLabel" for="firstName">
-                    First Name
-                  </Label>
-                  <AvField
-                    id="customer-firstName"
-                    type="text"
-                    name="firstName"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="lastNameLabel" for="lastName">
-                    Last Name
-                  </Label>
-                  <AvField
-                    id="customer-lastName"
-                    type="text"
-                    name="lastName"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="telLabel" for="tel">
-                    Tel
-                  </Label>
-                  <AvField
-                    id="customer-tel"
-                    type="text"
-                    name="tel"
-                    validate={{
-                      maxLength: { value: 20, errorMessage: 'This field cannot be longer than 20 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="mobileLabel" for="mobile">
-                    Mobile
-                  </Label>
-                  <AvField id="customer-mobile" type="text" name="mobile" />
-                </AvGroup>
+              </Col>
+              <Col xs={6}>
+                <Row>
+                  <Col>
+                    <AvGroup>
+                      <Label id="titleLabel" for="title">
+                        Title
+                      </Label>
+                      <AvField
+                        id="customer-title"
+                        type="text"
+                        name="title"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                  </Col>
+                  <Col>
+                    <AvGroup>
+                      <Label id="firstNameLabel" for="firstName">
+                        First Name
+                      </Label>
+                      <AvField
+                        id="customer-firstName"
+                        type="text"
+                        name="firstName"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                  </Col>
+                  <Col>
+                    <AvGroup>
+                      <Label id="lastNameLabel" for="lastName">
+                        Last Name
+                      </Label>
+                      <AvField
+                        id="customer-lastName"
+                        type="text"
+                        name="lastName"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <AvGroup>
+                      <Label id="telLabel" for="tel">
+                        Tel
+                      </Label>
+                      <AvField
+                        id="customer-tel"
+                        type="text"
+                        name="tel"
+                        validate={{
+                          maxLength: { value: 20, errorMessage: 'This field cannot be longer than 20 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                  </Col>
+                  <Col>
+                    <AvGroup>
+                      <Label id="mobileLabel" for="mobile">
+                        Mobile
+                      </Label>
+                      <AvField id="customer-mobile" type="text" name="mobile" />
+                    </AvGroup>
+                  </Col>
+                </Row>
                 <AvGroup>
                   <Label id="emailLabel" for="email">
                     Email
@@ -243,6 +272,8 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                     }}
                   />
                 </AvGroup>
+              </Col>
+              <Col>
                 <AvGroup>
                   <Label id="productsLabel" for="products">
                     Products
@@ -268,19 +299,10 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                   </Label>
                   <AvField id="customer-paid" type="text" name="paid" />
                 </AvGroup>
-                <AvGroup>
-                  <Label id="typeLabel">Type</Label>
-                  <AvInput
-                    id="customer-type"
-                    type="select"
-                    className="form-control"
-                    name="type"
-                    value={(!isNew && customerEntity.type) || 'DAMP_PROOFER'}
-                  >
-                    <option value="DAMP_PROOFER">DAMP_PROOFER</option>
-                    <option value="DOMESTIC">DOMESTIC</option>
-                  </AvInput>
-                </AvGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
                 <AvGroup>
                   <Label id="notesLabel" for="notes">
                     Notes
@@ -297,10 +319,10 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                   <FontAwesomeIcon icon="save" />
                   &nbsp; Save
                 </Button>
-              </AvForm>
-            )}
-          </Col>
-        </Row>
+              </Col>
+            </Row>
+          </AvForm>
+        )}
       </div>
     );
   }
