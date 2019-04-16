@@ -3,6 +3,8 @@ package uk.co.dryhome.service.dto;
 import java.io.Serializable;
 import java.util.Objects;
 import uk.co.dryhome.domain.enumeration.CompanyType;
+import uk.co.dryhome.domain.enumeration.LeadType;
+import uk.co.dryhome.domain.enumeration.Status;
 import io.github.jhipster.service.filter.BooleanFilter;
 import io.github.jhipster.service.filter.DoubleFilter;
 import io.github.jhipster.service.filter.Filter;
@@ -25,6 +27,16 @@ public class CustomerCriteria implements Serializable {
      * Class for filtering CompanyType
      */
     public static class CompanyTypeFilter extends Filter<CompanyType> {
+    }
+    /**
+     * Class for filtering LeadType
+     */
+    public static class LeadTypeFilter extends Filter<LeadType> {
+    }
+    /**
+     * Class for filtering Status
+     */
+    public static class StatusFilter extends Filter<Status> {
     }
 
     private static final long serialVersionUID = 1L;
@@ -62,6 +74,30 @@ public class CustomerCriteria implements Serializable {
     private BigDecimalFilter paid;
 
     private CompanyTypeFilter type;
+
+    private LeadTypeFilter lead;
+
+    private StringFilter leadName;
+
+    private StringFilter leadTel;
+
+    private StringFilter leadMob;
+
+    private StatusFilter status;
+
+    private StringFilter enquiryProperty;
+
+    private StringFilter enquiryUnitPq;
+
+    private StringFilter enquiryInstPq;
+
+    private StringFilter saleProducts;
+
+    private StringFilter saleInvoiceDate;
+
+    private StringFilter saleInvoiceNumber;
+
+    private StringFilter saleInvoiceAmount;
 
     public LongFilter getId() {
         return id;
@@ -199,6 +235,102 @@ public class CustomerCriteria implements Serializable {
         this.type = type;
     }
 
+    public LeadTypeFilter getLead() {
+        return lead;
+    }
+
+    public void setLead(LeadTypeFilter lead) {
+        this.lead = lead;
+    }
+
+    public StringFilter getLeadName() {
+        return leadName;
+    }
+
+    public void setLeadName(StringFilter leadName) {
+        this.leadName = leadName;
+    }
+
+    public StringFilter getLeadTel() {
+        return leadTel;
+    }
+
+    public void setLeadTel(StringFilter leadTel) {
+        this.leadTel = leadTel;
+    }
+
+    public StringFilter getLeadMob() {
+        return leadMob;
+    }
+
+    public void setLeadMob(StringFilter leadMob) {
+        this.leadMob = leadMob;
+    }
+
+    public StatusFilter getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusFilter status) {
+        this.status = status;
+    }
+
+    public StringFilter getEnquiryProperty() {
+        return enquiryProperty;
+    }
+
+    public void setEnquiryProperty(StringFilter enquiryProperty) {
+        this.enquiryProperty = enquiryProperty;
+    }
+
+    public StringFilter getEnquiryUnitPq() {
+        return enquiryUnitPq;
+    }
+
+    public void setEnquiryUnitPq(StringFilter enquiryUnitPq) {
+        this.enquiryUnitPq = enquiryUnitPq;
+    }
+
+    public StringFilter getEnquiryInstPq() {
+        return enquiryInstPq;
+    }
+
+    public void setEnquiryInstPq(StringFilter enquiryInstPq) {
+        this.enquiryInstPq = enquiryInstPq;
+    }
+
+    public StringFilter getSaleProducts() {
+        return saleProducts;
+    }
+
+    public void setSaleProducts(StringFilter saleProducts) {
+        this.saleProducts = saleProducts;
+    }
+
+    public StringFilter getSaleInvoiceDate() {
+        return saleInvoiceDate;
+    }
+
+    public void setSaleInvoiceDate(StringFilter saleInvoiceDate) {
+        this.saleInvoiceDate = saleInvoiceDate;
+    }
+
+    public StringFilter getSaleInvoiceNumber() {
+        return saleInvoiceNumber;
+    }
+
+    public void setSaleInvoiceNumber(StringFilter saleInvoiceNumber) {
+        this.saleInvoiceNumber = saleInvoiceNumber;
+    }
+
+    public StringFilter getSaleInvoiceAmount() {
+        return saleInvoiceAmount;
+    }
+
+    public void setSaleInvoiceAmount(StringFilter saleInvoiceAmount) {
+        this.saleInvoiceAmount = saleInvoiceAmount;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -226,7 +358,19 @@ public class CustomerCriteria implements Serializable {
             Objects.equals(products, that.products) &&
             Objects.equals(interested, that.interested) &&
             Objects.equals(paid, that.paid) &&
-            Objects.equals(type, that.type);
+            Objects.equals(type, that.type) &&
+            Objects.equals(lead, that.lead) &&
+            Objects.equals(leadName, that.leadName) &&
+            Objects.equals(leadTel, that.leadTel) &&
+            Objects.equals(leadMob, that.leadMob) &&
+            Objects.equals(status, that.status) &&
+            Objects.equals(enquiryProperty, that.enquiryProperty) &&
+            Objects.equals(enquiryUnitPq, that.enquiryUnitPq) &&
+            Objects.equals(enquiryInstPq, that.enquiryInstPq) &&
+            Objects.equals(saleProducts, that.saleProducts) &&
+            Objects.equals(saleInvoiceDate, that.saleInvoiceDate) &&
+            Objects.equals(saleInvoiceNumber, that.saleInvoiceNumber) &&
+            Objects.equals(saleInvoiceAmount, that.saleInvoiceAmount);
     }
 
     @Override
@@ -248,7 +392,19 @@ public class CustomerCriteria implements Serializable {
         products,
         interested,
         paid,
-        type
+        type,
+        lead,
+        leadName,
+        leadTel,
+        leadMob,
+        status,
+        enquiryProperty,
+        enquiryUnitPq,
+        enquiryInstPq,
+        saleProducts,
+        saleInvoiceDate,
+        saleInvoiceNumber,
+        saleInvoiceAmount
         );
     }
 
@@ -272,6 +428,18 @@ public class CustomerCriteria implements Serializable {
                 (interested != null ? "interested=" + interested + ", " : "") +
                 (paid != null ? "paid=" + paid + ", " : "") +
                 (type != null ? "type=" + type + ", " : "") +
+                (lead != null ? "lead=" + lead + ", " : "") +
+                (leadName != null ? "leadName=" + leadName + ", " : "") +
+                (leadTel != null ? "leadTel=" + leadTel + ", " : "") +
+                (leadMob != null ? "leadMob=" + leadMob + ", " : "") +
+                (status != null ? "status=" + status + ", " : "") +
+                (enquiryProperty != null ? "enquiryProperty=" + enquiryProperty + ", " : "") +
+                (enquiryUnitPq != null ? "enquiryUnitPq=" + enquiryUnitPq + ", " : "") +
+                (enquiryInstPq != null ? "enquiryInstPq=" + enquiryInstPq + ", " : "") +
+                (saleProducts != null ? "saleProducts=" + saleProducts + ", " : "") +
+                (saleInvoiceDate != null ? "saleInvoiceDate=" + saleInvoiceDate + ", " : "") +
+                (saleInvoiceNumber != null ? "saleInvoiceNumber=" + saleInvoiceNumber + ", " : "") +
+                (saleInvoiceAmount != null ? "saleInvoiceAmount=" + saleInvoiceAmount + ", " : "") +
             "}";
     }
 

@@ -90,6 +90,54 @@
                 <constraints nullable="true" />
             </column>
 
+            <column name="jhi_lead" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="lead_name" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="lead_tel" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="lead_mob" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="enquiry_property" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="enquiry_unit_pq" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="enquiry_inst_pq" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="sale_products" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="sale_invoice_date" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="sale_invoice_number" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="sale_invoice_amount" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
         

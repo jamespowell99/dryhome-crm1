@@ -141,6 +141,42 @@ public class CustomerQueryService extends QueryService<Customer> {
             if (criteria.getType() != null) {
                 specification = specification.and(buildSpecification(criteria.getType(), Customer_.type));
             }
+            if (criteria.getLead() != null) {
+                specification = specification.and(buildSpecification(criteria.getLead(), Customer_.lead));
+            }
+            if (criteria.getLeadName() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getLeadName(), Customer_.leadName));
+            }
+            if (criteria.getLeadTel() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getLeadTel(), Customer_.leadTel));
+            }
+            if (criteria.getLeadMob() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getLeadMob(), Customer_.leadMob));
+            }
+            if (criteria.getStatus() != null) {
+                specification = specification.and(buildSpecification(criteria.getStatus(), Customer_.status));
+            }
+            if (criteria.getEnquiryProperty() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getEnquiryProperty(), Customer_.enquiryProperty));
+            }
+            if (criteria.getEnquiryUnitPq() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getEnquiryUnitPq(), Customer_.enquiryUnitPq));
+            }
+            if (criteria.getEnquiryInstPq() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getEnquiryInstPq(), Customer_.enquiryInstPq));
+            }
+            if (criteria.getSaleProducts() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getSaleProducts(), Customer_.saleProducts));
+            }
+            if (criteria.getSaleInvoiceDate() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getSaleInvoiceDate(), Customer_.saleInvoiceDate));
+            }
+            if (criteria.getSaleInvoiceNumber() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getSaleInvoiceNumber(), Customer_.saleInvoiceNumber));
+            }
+            if (criteria.getSaleInvoiceAmount() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getSaleInvoiceAmount(), Customer_.saleInvoiceAmount));
+            }
         }
         return specification;
     }

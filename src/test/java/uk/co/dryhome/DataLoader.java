@@ -28,7 +28,7 @@ public class DataLoader {
         HttpHeaders headers = new HttpHeaders();
         headers.put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfVVNFUiIsImV4cCI6MTU1NDY2NDQwM30.BCI3-EhZoH_b74V1oON8xv4e3nlSwC-kJk-FwfMB642fjEqnoZni6QnL8CPoPG2WFRYZTEooyZYQJrECWtj7Hg"));
         headers.setContentType(MediaType.APPLICATION_JSON);
-        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/api/authenticate", HttpMethod.POST, new HttpEntity<>("{\"username\":\"admin\",\"password\":\"admin\",\"rememberMe\":false}", headers), String.class);
+        ResponseEntity<String> response = restTemplate.exchange("http://localhost:9000/api/authenticate", HttpMethod.POST, new HttpEntity<>("{\"username\":\"admin\",\"password\":\"admin\",\"rememberMe\":false}", headers), String.class);
         assert response.getStatusCode() == HttpStatus.OK;
         response.getBody();
 

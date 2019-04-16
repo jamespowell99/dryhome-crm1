@@ -45,6 +45,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import uk.co.dryhome.domain.enumeration.CompanyType;
+import uk.co.dryhome.domain.enumeration.LeadType;
+import uk.co.dryhome.domain.enumeration.Status;
 /**
  * Test class for the CustomerResource REST controller.
  *
@@ -104,6 +106,42 @@ public class CustomerResourceIntTest {
 
     private static final String DEFAULT_NOTES = "AAAAAAAAAA";
     private static final String UPDATED_NOTES = "BBBBBBBBBB";
+
+    private static final LeadType DEFAULT_LEAD = LeadType.WEBSITE;
+    private static final LeadType UPDATED_LEAD = LeadType.FRIEND;
+
+    private static final String DEFAULT_LEAD_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_LEAD_NAME = "BBBBBBBBBB";
+
+    private static final String DEFAULT_LEAD_TEL = "AAAAAAAAAA";
+    private static final String UPDATED_LEAD_TEL = "BBBBBBBBBB";
+
+    private static final String DEFAULT_LEAD_MOB = "AAAAAAAAAA";
+    private static final String UPDATED_LEAD_MOB = "BBBBBBBBBB";
+
+    private static final Status DEFAULT_STATUS = Status.ENQUIRY;
+    private static final Status UPDATED_STATUS = Status.SALE;
+
+    private static final String DEFAULT_ENQUIRY_PROPERTY = "AAAAAAAAAA";
+    private static final String UPDATED_ENQUIRY_PROPERTY = "BBBBBBBBBB";
+
+    private static final String DEFAULT_ENQUIRY_UNIT_PQ = "AAAAAAAAAA";
+    private static final String UPDATED_ENQUIRY_UNIT_PQ = "BBBBBBBBBB";
+
+    private static final String DEFAULT_ENQUIRY_INST_PQ = "AAAAAAAAAA";
+    private static final String UPDATED_ENQUIRY_INST_PQ = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SALE_PRODUCTS = "AAAAAAAAAA";
+    private static final String UPDATED_SALE_PRODUCTS = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SALE_INVOICE_DATE = "AAAAAAAAAA";
+    private static final String UPDATED_SALE_INVOICE_DATE = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SALE_INVOICE_NUMBER = "AAAAAAAAAA";
+    private static final String UPDATED_SALE_INVOICE_NUMBER = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SALE_INVOICE_AMOUNT = "AAAAAAAAAA";
+    private static final String UPDATED_SALE_INVOICE_AMOUNT = "BBBBBBBBBB";
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -180,7 +218,19 @@ public class CustomerResourceIntTest {
             .interested(DEFAULT_INTERESTED)
             .paid(DEFAULT_PAID)
             .type(DEFAULT_TYPE)
-            .notes(DEFAULT_NOTES);
+            .notes(DEFAULT_NOTES)
+            .lead(DEFAULT_LEAD)
+            .leadName(DEFAULT_LEAD_NAME)
+            .leadTel(DEFAULT_LEAD_TEL)
+            .leadMob(DEFAULT_LEAD_MOB)
+            .status(DEFAULT_STATUS)
+            .enquiryProperty(DEFAULT_ENQUIRY_PROPERTY)
+            .enquiryUnitPq(DEFAULT_ENQUIRY_UNIT_PQ)
+            .enquiryInstPq(DEFAULT_ENQUIRY_INST_PQ)
+            .saleProducts(DEFAULT_SALE_PRODUCTS)
+            .saleInvoiceDate(DEFAULT_SALE_INVOICE_DATE)
+            .saleInvoiceNumber(DEFAULT_SALE_INVOICE_NUMBER)
+            .saleInvoiceAmount(DEFAULT_SALE_INVOICE_AMOUNT);
         return customer;
     }
 
@@ -222,6 +272,18 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getPaid()).isEqualTo(DEFAULT_PAID);
         assertThat(testCustomer.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testCustomer.getNotes()).isEqualTo(DEFAULT_NOTES);
+        assertThat(testCustomer.getLead()).isEqualTo(DEFAULT_LEAD);
+        assertThat(testCustomer.getLeadName()).isEqualTo(DEFAULT_LEAD_NAME);
+        assertThat(testCustomer.getLeadTel()).isEqualTo(DEFAULT_LEAD_TEL);
+        assertThat(testCustomer.getLeadMob()).isEqualTo(DEFAULT_LEAD_MOB);
+        assertThat(testCustomer.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testCustomer.getEnquiryProperty()).isEqualTo(DEFAULT_ENQUIRY_PROPERTY);
+        assertThat(testCustomer.getEnquiryUnitPq()).isEqualTo(DEFAULT_ENQUIRY_UNIT_PQ);
+        assertThat(testCustomer.getEnquiryInstPq()).isEqualTo(DEFAULT_ENQUIRY_INST_PQ);
+        assertThat(testCustomer.getSaleProducts()).isEqualTo(DEFAULT_SALE_PRODUCTS);
+        assertThat(testCustomer.getSaleInvoiceDate()).isEqualTo(DEFAULT_SALE_INVOICE_DATE);
+        assertThat(testCustomer.getSaleInvoiceNumber()).isEqualTo(DEFAULT_SALE_INVOICE_NUMBER);
+        assertThat(testCustomer.getSaleInvoiceAmount()).isEqualTo(DEFAULT_SALE_INVOICE_AMOUNT);
 
         // Validate the Customer in Elasticsearch
         verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
@@ -353,7 +415,19 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED.toString())))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
+            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())))
+            .andExpect(jsonPath("$.[*].lead").value(hasItem(DEFAULT_LEAD.toString())))
+            .andExpect(jsonPath("$.[*].leadName").value(hasItem(DEFAULT_LEAD_NAME.toString())))
+            .andExpect(jsonPath("$.[*].leadTel").value(hasItem(DEFAULT_LEAD_TEL.toString())))
+            .andExpect(jsonPath("$.[*].leadMob").value(hasItem(DEFAULT_LEAD_MOB.toString())))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].enquiryProperty").value(hasItem(DEFAULT_ENQUIRY_PROPERTY.toString())))
+            .andExpect(jsonPath("$.[*].enquiryUnitPq").value(hasItem(DEFAULT_ENQUIRY_UNIT_PQ.toString())))
+            .andExpect(jsonPath("$.[*].enquiryInstPq").value(hasItem(DEFAULT_ENQUIRY_INST_PQ.toString())))
+            .andExpect(jsonPath("$.[*].saleProducts").value(hasItem(DEFAULT_SALE_PRODUCTS.toString())))
+            .andExpect(jsonPath("$.[*].saleInvoiceDate").value(hasItem(DEFAULT_SALE_INVOICE_DATE.toString())))
+            .andExpect(jsonPath("$.[*].saleInvoiceNumber").value(hasItem(DEFAULT_SALE_INVOICE_NUMBER.toString())))
+            .andExpect(jsonPath("$.[*].saleInvoiceAmount").value(hasItem(DEFAULT_SALE_INVOICE_AMOUNT.toString())));
     }
     
     @Test
@@ -383,7 +457,19 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.interested").value(DEFAULT_INTERESTED.toString()))
             .andExpect(jsonPath("$.paid").value(DEFAULT_PAID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
-            .andExpect(jsonPath("$.notes").value(DEFAULT_NOTES.toString()));
+            .andExpect(jsonPath("$.notes").value(DEFAULT_NOTES.toString()))
+            .andExpect(jsonPath("$.lead").value(DEFAULT_LEAD.toString()))
+            .andExpect(jsonPath("$.leadName").value(DEFAULT_LEAD_NAME.toString()))
+            .andExpect(jsonPath("$.leadTel").value(DEFAULT_LEAD_TEL.toString()))
+            .andExpect(jsonPath("$.leadMob").value(DEFAULT_LEAD_MOB.toString()))
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
+            .andExpect(jsonPath("$.enquiryProperty").value(DEFAULT_ENQUIRY_PROPERTY.toString()))
+            .andExpect(jsonPath("$.enquiryUnitPq").value(DEFAULT_ENQUIRY_UNIT_PQ.toString()))
+            .andExpect(jsonPath("$.enquiryInstPq").value(DEFAULT_ENQUIRY_INST_PQ.toString()))
+            .andExpect(jsonPath("$.saleProducts").value(DEFAULT_SALE_PRODUCTS.toString()))
+            .andExpect(jsonPath("$.saleInvoiceDate").value(DEFAULT_SALE_INVOICE_DATE.toString()))
+            .andExpect(jsonPath("$.saleInvoiceNumber").value(DEFAULT_SALE_INVOICE_NUMBER.toString()))
+            .andExpect(jsonPath("$.saleInvoiceAmount").value(DEFAULT_SALE_INVOICE_AMOUNT.toString()));
     }
 
     @Test
@@ -1009,6 +1095,474 @@ public class CustomerResourceIntTest {
         // Get all the customerList where type is null
         defaultCustomerShouldNotBeFound("type.specified=false");
     }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where lead equals to DEFAULT_LEAD
+        defaultCustomerShouldBeFound("lead.equals=" + DEFAULT_LEAD);
+
+        // Get all the customerList where lead equals to UPDATED_LEAD
+        defaultCustomerShouldNotBeFound("lead.equals=" + UPDATED_LEAD);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where lead in DEFAULT_LEAD or UPDATED_LEAD
+        defaultCustomerShouldBeFound("lead.in=" + DEFAULT_LEAD + "," + UPDATED_LEAD);
+
+        // Get all the customerList where lead equals to UPDATED_LEAD
+        defaultCustomerShouldNotBeFound("lead.in=" + UPDATED_LEAD);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where lead is not null
+        defaultCustomerShouldBeFound("lead.specified=true");
+
+        // Get all the customerList where lead is null
+        defaultCustomerShouldNotBeFound("lead.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadName equals to DEFAULT_LEAD_NAME
+        defaultCustomerShouldBeFound("leadName.equals=" + DEFAULT_LEAD_NAME);
+
+        // Get all the customerList where leadName equals to UPDATED_LEAD_NAME
+        defaultCustomerShouldNotBeFound("leadName.equals=" + UPDATED_LEAD_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadName in DEFAULT_LEAD_NAME or UPDATED_LEAD_NAME
+        defaultCustomerShouldBeFound("leadName.in=" + DEFAULT_LEAD_NAME + "," + UPDATED_LEAD_NAME);
+
+        // Get all the customerList where leadName equals to UPDATED_LEAD_NAME
+        defaultCustomerShouldNotBeFound("leadName.in=" + UPDATED_LEAD_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadName is not null
+        defaultCustomerShouldBeFound("leadName.specified=true");
+
+        // Get all the customerList where leadName is null
+        defaultCustomerShouldNotBeFound("leadName.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadTelIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadTel equals to DEFAULT_LEAD_TEL
+        defaultCustomerShouldBeFound("leadTel.equals=" + DEFAULT_LEAD_TEL);
+
+        // Get all the customerList where leadTel equals to UPDATED_LEAD_TEL
+        defaultCustomerShouldNotBeFound("leadTel.equals=" + UPDATED_LEAD_TEL);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadTelIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadTel in DEFAULT_LEAD_TEL or UPDATED_LEAD_TEL
+        defaultCustomerShouldBeFound("leadTel.in=" + DEFAULT_LEAD_TEL + "," + UPDATED_LEAD_TEL);
+
+        // Get all the customerList where leadTel equals to UPDATED_LEAD_TEL
+        defaultCustomerShouldNotBeFound("leadTel.in=" + UPDATED_LEAD_TEL);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadTelIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadTel is not null
+        defaultCustomerShouldBeFound("leadTel.specified=true");
+
+        // Get all the customerList where leadTel is null
+        defaultCustomerShouldNotBeFound("leadTel.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadMobIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadMob equals to DEFAULT_LEAD_MOB
+        defaultCustomerShouldBeFound("leadMob.equals=" + DEFAULT_LEAD_MOB);
+
+        // Get all the customerList where leadMob equals to UPDATED_LEAD_MOB
+        defaultCustomerShouldNotBeFound("leadMob.equals=" + UPDATED_LEAD_MOB);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadMobIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadMob in DEFAULT_LEAD_MOB or UPDATED_LEAD_MOB
+        defaultCustomerShouldBeFound("leadMob.in=" + DEFAULT_LEAD_MOB + "," + UPDATED_LEAD_MOB);
+
+        // Get all the customerList where leadMob equals to UPDATED_LEAD_MOB
+        defaultCustomerShouldNotBeFound("leadMob.in=" + UPDATED_LEAD_MOB);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByLeadMobIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where leadMob is not null
+        defaultCustomerShouldBeFound("leadMob.specified=true");
+
+        // Get all the customerList where leadMob is null
+        defaultCustomerShouldNotBeFound("leadMob.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByStatusIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where status equals to DEFAULT_STATUS
+        defaultCustomerShouldBeFound("status.equals=" + DEFAULT_STATUS);
+
+        // Get all the customerList where status equals to UPDATED_STATUS
+        defaultCustomerShouldNotBeFound("status.equals=" + UPDATED_STATUS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByStatusIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where status in DEFAULT_STATUS or UPDATED_STATUS
+        defaultCustomerShouldBeFound("status.in=" + DEFAULT_STATUS + "," + UPDATED_STATUS);
+
+        // Get all the customerList where status equals to UPDATED_STATUS
+        defaultCustomerShouldNotBeFound("status.in=" + UPDATED_STATUS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByStatusIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where status is not null
+        defaultCustomerShouldBeFound("status.specified=true");
+
+        // Get all the customerList where status is null
+        defaultCustomerShouldNotBeFound("status.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryPropertyIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryProperty equals to DEFAULT_ENQUIRY_PROPERTY
+        defaultCustomerShouldBeFound("enquiryProperty.equals=" + DEFAULT_ENQUIRY_PROPERTY);
+
+        // Get all the customerList where enquiryProperty equals to UPDATED_ENQUIRY_PROPERTY
+        defaultCustomerShouldNotBeFound("enquiryProperty.equals=" + UPDATED_ENQUIRY_PROPERTY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryPropertyIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryProperty in DEFAULT_ENQUIRY_PROPERTY or UPDATED_ENQUIRY_PROPERTY
+        defaultCustomerShouldBeFound("enquiryProperty.in=" + DEFAULT_ENQUIRY_PROPERTY + "," + UPDATED_ENQUIRY_PROPERTY);
+
+        // Get all the customerList where enquiryProperty equals to UPDATED_ENQUIRY_PROPERTY
+        defaultCustomerShouldNotBeFound("enquiryProperty.in=" + UPDATED_ENQUIRY_PROPERTY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryPropertyIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryProperty is not null
+        defaultCustomerShouldBeFound("enquiryProperty.specified=true");
+
+        // Get all the customerList where enquiryProperty is null
+        defaultCustomerShouldNotBeFound("enquiryProperty.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryUnitPqIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryUnitPq equals to DEFAULT_ENQUIRY_UNIT_PQ
+        defaultCustomerShouldBeFound("enquiryUnitPq.equals=" + DEFAULT_ENQUIRY_UNIT_PQ);
+
+        // Get all the customerList where enquiryUnitPq equals to UPDATED_ENQUIRY_UNIT_PQ
+        defaultCustomerShouldNotBeFound("enquiryUnitPq.equals=" + UPDATED_ENQUIRY_UNIT_PQ);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryUnitPqIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryUnitPq in DEFAULT_ENQUIRY_UNIT_PQ or UPDATED_ENQUIRY_UNIT_PQ
+        defaultCustomerShouldBeFound("enquiryUnitPq.in=" + DEFAULT_ENQUIRY_UNIT_PQ + "," + UPDATED_ENQUIRY_UNIT_PQ);
+
+        // Get all the customerList where enquiryUnitPq equals to UPDATED_ENQUIRY_UNIT_PQ
+        defaultCustomerShouldNotBeFound("enquiryUnitPq.in=" + UPDATED_ENQUIRY_UNIT_PQ);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryUnitPqIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryUnitPq is not null
+        defaultCustomerShouldBeFound("enquiryUnitPq.specified=true");
+
+        // Get all the customerList where enquiryUnitPq is null
+        defaultCustomerShouldNotBeFound("enquiryUnitPq.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryInstPqIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryInstPq equals to DEFAULT_ENQUIRY_INST_PQ
+        defaultCustomerShouldBeFound("enquiryInstPq.equals=" + DEFAULT_ENQUIRY_INST_PQ);
+
+        // Get all the customerList where enquiryInstPq equals to UPDATED_ENQUIRY_INST_PQ
+        defaultCustomerShouldNotBeFound("enquiryInstPq.equals=" + UPDATED_ENQUIRY_INST_PQ);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryInstPqIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryInstPq in DEFAULT_ENQUIRY_INST_PQ or UPDATED_ENQUIRY_INST_PQ
+        defaultCustomerShouldBeFound("enquiryInstPq.in=" + DEFAULT_ENQUIRY_INST_PQ + "," + UPDATED_ENQUIRY_INST_PQ);
+
+        // Get all the customerList where enquiryInstPq equals to UPDATED_ENQUIRY_INST_PQ
+        defaultCustomerShouldNotBeFound("enquiryInstPq.in=" + UPDATED_ENQUIRY_INST_PQ);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersByEnquiryInstPqIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where enquiryInstPq is not null
+        defaultCustomerShouldBeFound("enquiryInstPq.specified=true");
+
+        // Get all the customerList where enquiryInstPq is null
+        defaultCustomerShouldNotBeFound("enquiryInstPq.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleProductsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleProducts equals to DEFAULT_SALE_PRODUCTS
+        defaultCustomerShouldBeFound("saleProducts.equals=" + DEFAULT_SALE_PRODUCTS);
+
+        // Get all the customerList where saleProducts equals to UPDATED_SALE_PRODUCTS
+        defaultCustomerShouldNotBeFound("saleProducts.equals=" + UPDATED_SALE_PRODUCTS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleProductsIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleProducts in DEFAULT_SALE_PRODUCTS or UPDATED_SALE_PRODUCTS
+        defaultCustomerShouldBeFound("saleProducts.in=" + DEFAULT_SALE_PRODUCTS + "," + UPDATED_SALE_PRODUCTS);
+
+        // Get all the customerList where saleProducts equals to UPDATED_SALE_PRODUCTS
+        defaultCustomerShouldNotBeFound("saleProducts.in=" + UPDATED_SALE_PRODUCTS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleProductsIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleProducts is not null
+        defaultCustomerShouldBeFound("saleProducts.specified=true");
+
+        // Get all the customerList where saleProducts is null
+        defaultCustomerShouldNotBeFound("saleProducts.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceDateIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceDate equals to DEFAULT_SALE_INVOICE_DATE
+        defaultCustomerShouldBeFound("saleInvoiceDate.equals=" + DEFAULT_SALE_INVOICE_DATE);
+
+        // Get all the customerList where saleInvoiceDate equals to UPDATED_SALE_INVOICE_DATE
+        defaultCustomerShouldNotBeFound("saleInvoiceDate.equals=" + UPDATED_SALE_INVOICE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceDateIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceDate in DEFAULT_SALE_INVOICE_DATE or UPDATED_SALE_INVOICE_DATE
+        defaultCustomerShouldBeFound("saleInvoiceDate.in=" + DEFAULT_SALE_INVOICE_DATE + "," + UPDATED_SALE_INVOICE_DATE);
+
+        // Get all the customerList where saleInvoiceDate equals to UPDATED_SALE_INVOICE_DATE
+        defaultCustomerShouldNotBeFound("saleInvoiceDate.in=" + UPDATED_SALE_INVOICE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceDateIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceDate is not null
+        defaultCustomerShouldBeFound("saleInvoiceDate.specified=true");
+
+        // Get all the customerList where saleInvoiceDate is null
+        defaultCustomerShouldNotBeFound("saleInvoiceDate.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceNumberIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceNumber equals to DEFAULT_SALE_INVOICE_NUMBER
+        defaultCustomerShouldBeFound("saleInvoiceNumber.equals=" + DEFAULT_SALE_INVOICE_NUMBER);
+
+        // Get all the customerList where saleInvoiceNumber equals to UPDATED_SALE_INVOICE_NUMBER
+        defaultCustomerShouldNotBeFound("saleInvoiceNumber.equals=" + UPDATED_SALE_INVOICE_NUMBER);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceNumberIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceNumber in DEFAULT_SALE_INVOICE_NUMBER or UPDATED_SALE_INVOICE_NUMBER
+        defaultCustomerShouldBeFound("saleInvoiceNumber.in=" + DEFAULT_SALE_INVOICE_NUMBER + "," + UPDATED_SALE_INVOICE_NUMBER);
+
+        // Get all the customerList where saleInvoiceNumber equals to UPDATED_SALE_INVOICE_NUMBER
+        defaultCustomerShouldNotBeFound("saleInvoiceNumber.in=" + UPDATED_SALE_INVOICE_NUMBER);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceNumberIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceNumber is not null
+        defaultCustomerShouldBeFound("saleInvoiceNumber.specified=true");
+
+        // Get all the customerList where saleInvoiceNumber is null
+        defaultCustomerShouldNotBeFound("saleInvoiceNumber.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceAmountIsEqualToSomething() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceAmount equals to DEFAULT_SALE_INVOICE_AMOUNT
+        defaultCustomerShouldBeFound("saleInvoiceAmount.equals=" + DEFAULT_SALE_INVOICE_AMOUNT);
+
+        // Get all the customerList where saleInvoiceAmount equals to UPDATED_SALE_INVOICE_AMOUNT
+        defaultCustomerShouldNotBeFound("saleInvoiceAmount.equals=" + UPDATED_SALE_INVOICE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceAmountIsInShouldWork() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceAmount in DEFAULT_SALE_INVOICE_AMOUNT or UPDATED_SALE_INVOICE_AMOUNT
+        defaultCustomerShouldBeFound("saleInvoiceAmount.in=" + DEFAULT_SALE_INVOICE_AMOUNT + "," + UPDATED_SALE_INVOICE_AMOUNT);
+
+        // Get all the customerList where saleInvoiceAmount equals to UPDATED_SALE_INVOICE_AMOUNT
+        defaultCustomerShouldNotBeFound("saleInvoiceAmount.in=" + UPDATED_SALE_INVOICE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCustomersBySaleInvoiceAmountIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        customerRepository.saveAndFlush(customer);
+
+        // Get all the customerList where saleInvoiceAmount is not null
+        defaultCustomerShouldBeFound("saleInvoiceAmount.specified=true");
+
+        // Get all the customerList where saleInvoiceAmount is null
+        defaultCustomerShouldNotBeFound("saleInvoiceAmount.specified=false");
+    }
     /**
      * Executes the search, and checks that the default entity is returned
      */
@@ -1033,7 +1587,19 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
+            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())))
+            .andExpect(jsonPath("$.[*].lead").value(hasItem(DEFAULT_LEAD.toString())))
+            .andExpect(jsonPath("$.[*].leadName").value(hasItem(DEFAULT_LEAD_NAME)))
+            .andExpect(jsonPath("$.[*].leadTel").value(hasItem(DEFAULT_LEAD_TEL)))
+            .andExpect(jsonPath("$.[*].leadMob").value(hasItem(DEFAULT_LEAD_MOB)))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].enquiryProperty").value(hasItem(DEFAULT_ENQUIRY_PROPERTY)))
+            .andExpect(jsonPath("$.[*].enquiryUnitPq").value(hasItem(DEFAULT_ENQUIRY_UNIT_PQ)))
+            .andExpect(jsonPath("$.[*].enquiryInstPq").value(hasItem(DEFAULT_ENQUIRY_INST_PQ)))
+            .andExpect(jsonPath("$.[*].saleProducts").value(hasItem(DEFAULT_SALE_PRODUCTS)))
+            .andExpect(jsonPath("$.[*].saleInvoiceDate").value(hasItem(DEFAULT_SALE_INVOICE_DATE)))
+            .andExpect(jsonPath("$.[*].saleInvoiceNumber").value(hasItem(DEFAULT_SALE_INVOICE_NUMBER)))
+            .andExpect(jsonPath("$.[*].saleInvoiceAmount").value(hasItem(DEFAULT_SALE_INVOICE_AMOUNT)));
 
         // Check, that the count call also returns 1
         restCustomerMockMvc.perform(get("/api/customers/count?sort=id,desc&" + filter))
@@ -1097,7 +1663,19 @@ public class CustomerResourceIntTest {
             .interested(UPDATED_INTERESTED)
             .paid(UPDATED_PAID)
             .type(UPDATED_TYPE)
-            .notes(UPDATED_NOTES);
+            .notes(UPDATED_NOTES)
+            .lead(UPDATED_LEAD)
+            .leadName(UPDATED_LEAD_NAME)
+            .leadTel(UPDATED_LEAD_TEL)
+            .leadMob(UPDATED_LEAD_MOB)
+            .status(UPDATED_STATUS)
+            .enquiryProperty(UPDATED_ENQUIRY_PROPERTY)
+            .enquiryUnitPq(UPDATED_ENQUIRY_UNIT_PQ)
+            .enquiryInstPq(UPDATED_ENQUIRY_INST_PQ)
+            .saleProducts(UPDATED_SALE_PRODUCTS)
+            .saleInvoiceDate(UPDATED_SALE_INVOICE_DATE)
+            .saleInvoiceNumber(UPDATED_SALE_INVOICE_NUMBER)
+            .saleInvoiceAmount(UPDATED_SALE_INVOICE_AMOUNT);
         CustomerDTO customerDTO = customerMapper.toDto(updatedCustomer);
 
         restCustomerMockMvc.perform(put("/api/customers")
@@ -1126,6 +1704,18 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getPaid()).isEqualTo(UPDATED_PAID);
         assertThat(testCustomer.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testCustomer.getNotes()).isEqualTo(UPDATED_NOTES);
+        assertThat(testCustomer.getLead()).isEqualTo(UPDATED_LEAD);
+        assertThat(testCustomer.getLeadName()).isEqualTo(UPDATED_LEAD_NAME);
+        assertThat(testCustomer.getLeadTel()).isEqualTo(UPDATED_LEAD_TEL);
+        assertThat(testCustomer.getLeadMob()).isEqualTo(UPDATED_LEAD_MOB);
+        assertThat(testCustomer.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testCustomer.getEnquiryProperty()).isEqualTo(UPDATED_ENQUIRY_PROPERTY);
+        assertThat(testCustomer.getEnquiryUnitPq()).isEqualTo(UPDATED_ENQUIRY_UNIT_PQ);
+        assertThat(testCustomer.getEnquiryInstPq()).isEqualTo(UPDATED_ENQUIRY_INST_PQ);
+        assertThat(testCustomer.getSaleProducts()).isEqualTo(UPDATED_SALE_PRODUCTS);
+        assertThat(testCustomer.getSaleInvoiceDate()).isEqualTo(UPDATED_SALE_INVOICE_DATE);
+        assertThat(testCustomer.getSaleInvoiceNumber()).isEqualTo(UPDATED_SALE_INVOICE_NUMBER);
+        assertThat(testCustomer.getSaleInvoiceAmount()).isEqualTo(UPDATED_SALE_INVOICE_AMOUNT);
 
         // Validate the Customer in Elasticsearch
         verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
@@ -1202,7 +1792,19 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
+            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())))
+            .andExpect(jsonPath("$.[*].lead").value(hasItem(DEFAULT_LEAD.toString())))
+            .andExpect(jsonPath("$.[*].leadName").value(hasItem(DEFAULT_LEAD_NAME)))
+            .andExpect(jsonPath("$.[*].leadTel").value(hasItem(DEFAULT_LEAD_TEL)))
+            .andExpect(jsonPath("$.[*].leadMob").value(hasItem(DEFAULT_LEAD_MOB)))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].enquiryProperty").value(hasItem(DEFAULT_ENQUIRY_PROPERTY)))
+            .andExpect(jsonPath("$.[*].enquiryUnitPq").value(hasItem(DEFAULT_ENQUIRY_UNIT_PQ)))
+            .andExpect(jsonPath("$.[*].enquiryInstPq").value(hasItem(DEFAULT_ENQUIRY_INST_PQ)))
+            .andExpect(jsonPath("$.[*].saleProducts").value(hasItem(DEFAULT_SALE_PRODUCTS)))
+            .andExpect(jsonPath("$.[*].saleInvoiceDate").value(hasItem(DEFAULT_SALE_INVOICE_DATE)))
+            .andExpect(jsonPath("$.[*].saleInvoiceNumber").value(hasItem(DEFAULT_SALE_INVOICE_NUMBER)))
+            .andExpect(jsonPath("$.[*].saleInvoiceAmount").value(hasItem(DEFAULT_SALE_INVOICE_AMOUNT)));
     }
 
     @Test

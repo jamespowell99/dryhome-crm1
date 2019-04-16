@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import javax.persistence.Lob;
 import uk.co.dryhome.domain.enumeration.CompanyType;
+import uk.co.dryhome.domain.enumeration.LeadType;
+import uk.co.dryhome.domain.enumeration.Status;
 
 /**
  * A DTO for the Customer entity.
@@ -62,6 +64,40 @@ public class CustomerDTO implements Serializable {
 
     @Lob
     private String notes;
+
+    private LeadType lead;
+
+    @Size(max = 100)
+    private String leadName;
+
+    @Size(max = 100)
+    private String leadTel;
+
+    @Size(max = 100)
+    private String leadMob;
+
+    private Status status;
+
+    @Size(max = 100)
+    private String enquiryProperty;
+
+    @Size(max = 100)
+    private String enquiryUnitPq;
+
+    @Size(max = 100)
+    private String enquiryInstPq;
+
+    @Size(max = 100)
+    private String saleProducts;
+
+    @Size(max = 100)
+    private String saleInvoiceDate;
+
+    @Size(max = 100)
+    private String saleInvoiceNumber;
+
+    @Size(max = 100)
+    private String saleInvoiceAmount;
 
 
     public Long getId() {
@@ -208,6 +244,102 @@ public class CustomerDTO implements Serializable {
         this.notes = notes;
     }
 
+    public LeadType getLead() {
+        return lead;
+    }
+
+    public void setLead(LeadType lead) {
+        this.lead = lead;
+    }
+
+    public String getLeadName() {
+        return leadName;
+    }
+
+    public void setLeadName(String leadName) {
+        this.leadName = leadName;
+    }
+
+    public String getLeadTel() {
+        return leadTel;
+    }
+
+    public void setLeadTel(String leadTel) {
+        this.leadTel = leadTel;
+    }
+
+    public String getLeadMob() {
+        return leadMob;
+    }
+
+    public void setLeadMob(String leadMob) {
+        this.leadMob = leadMob;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public String getEnquiryProperty() {
+        return enquiryProperty;
+    }
+
+    public void setEnquiryProperty(String enquiryProperty) {
+        this.enquiryProperty = enquiryProperty;
+    }
+
+    public String getEnquiryUnitPq() {
+        return enquiryUnitPq;
+    }
+
+    public void setEnquiryUnitPq(String enquiryUnitPq) {
+        this.enquiryUnitPq = enquiryUnitPq;
+    }
+
+    public String getEnquiryInstPq() {
+        return enquiryInstPq;
+    }
+
+    public void setEnquiryInstPq(String enquiryInstPq) {
+        this.enquiryInstPq = enquiryInstPq;
+    }
+
+    public String getSaleProducts() {
+        return saleProducts;
+    }
+
+    public void setSaleProducts(String saleProducts) {
+        this.saleProducts = saleProducts;
+    }
+
+    public String getSaleInvoiceDate() {
+        return saleInvoiceDate;
+    }
+
+    public void setSaleInvoiceDate(String saleInvoiceDate) {
+        this.saleInvoiceDate = saleInvoiceDate;
+    }
+
+    public String getSaleInvoiceNumber() {
+        return saleInvoiceNumber;
+    }
+
+    public void setSaleInvoiceNumber(String saleInvoiceNumber) {
+        this.saleInvoiceNumber = saleInvoiceNumber;
+    }
+
+    public String getSaleInvoiceAmount() {
+        return saleInvoiceAmount;
+    }
+
+    public void setSaleInvoiceAmount(String saleInvoiceAmount) {
+        this.saleInvoiceAmount = saleInvoiceAmount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -250,6 +382,18 @@ public class CustomerDTO implements Serializable {
             ", paid=" + getPaid() +
             ", type='" + getType() + "'" +
             ", notes='" + getNotes() + "'" +
+            ", lead='" + getLead() + "'" +
+            ", leadName='" + getLeadName() + "'" +
+            ", leadTel='" + getLeadTel() + "'" +
+            ", leadMob='" + getLeadMob() + "'" +
+            ", status='" + getStatus() + "'" +
+            ", enquiryProperty='" + getEnquiryProperty() + "'" +
+            ", enquiryUnitPq='" + getEnquiryUnitPq() + "'" +
+            ", enquiryInstPq='" + getEnquiryInstPq() + "'" +
+            ", saleProducts='" + getSaleProducts() + "'" +
+            ", saleInvoiceDate='" + getSaleInvoiceDate() + "'" +
+            ", saleInvoiceNumber='" + getSaleInvoiceNumber() + "'" +
+            ", saleInvoiceAmount='" + getSaleInvoiceAmount() + "'" +
             "}";
     }
 }

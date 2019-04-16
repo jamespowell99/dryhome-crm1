@@ -3,6 +3,16 @@ export const enum CompanyType {
   DOMESTIC = 'DOMESTIC'
 }
 
+export const enum LeadType {
+  WEBSITE = 'WEBSITE',
+  FRIEND = 'FRIEND'
+}
+
+export const enum Status {
+  ENQUIRY = 'ENQUIRY',
+  SALE = 'SALE'
+}
+
 export interface ICustomer {
   id?: number;
   companyName?: string;
@@ -22,6 +32,18 @@ export interface ICustomer {
   paid?: number;
   type?: CompanyType;
   notes?: any;
+  lead?: LeadType;
+  leadName?: string;
+  leadTel?: string;
+  leadMob?: string;
+  status?: Status;
+  enquiryProperty?: string;
+  enquiryUnitPq?: string;
+  enquiryInstPq?: string;
+  saleProducts?: string;
+  saleInvoiceDate?: string;
+  saleInvoiceNumber?: string;
+  saleInvoiceAmount?: string;
 }
 
 export const defaultValue: Readonly<ICustomer> = {};

@@ -89,6 +89,18 @@ class CustomerGatlingTest extends Simulation {
                 , "paid":"0"
                 , "type":"DAMP_PROOFER"
                 , "notes":null
+                , "lead":"WEBSITE"
+                , "leadName":"SAMPLE_TEXT"
+                , "leadTel":"SAMPLE_TEXT"
+                , "leadMob":"SAMPLE_TEXT"
+                , "status":"ENQUIRY"
+                , "enquiryProperty":"SAMPLE_TEXT"
+                , "enquiryUnitPq":"SAMPLE_TEXT"
+                , "enquiryInstPq":"SAMPLE_TEXT"
+                , "saleProducts":"SAMPLE_TEXT"
+                , "saleInvoiceDate":"SAMPLE_TEXT"
+                , "saleInvoiceNumber":"SAMPLE_TEXT"
+                , "saleInvoiceAmount":"SAMPLE_TEXT"
                 }""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_customer_url"))).exitHereIfFailed
