@@ -7,7 +7,7 @@ import { ICrudGetAction, byteSize } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
-import { getEntity } from './customer.reducer';
+import { getEntity } from '../customer.reducer';
 import { ICustomer } from 'app/shared/model/customer.model';
 // tslint:disable-next-line:no-unused-variable
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
@@ -26,14 +26,8 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps> {
         <Row>
           <Col>
             <h2>
-              Customer [<b>{customerEntity.id}</b>]
+              Damp Proofer [<b>{customerEntity.id}</b>]
             </h2>
-            <dl className="jh-entity-details">
-              <dt>
-                <span id="type">Type</span>
-              </dt>
-              <dd>{customerEntity.type}</dd>
-            </dl>
           </Col>
         </Row>
         <Row>
@@ -105,12 +99,12 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps> {
           </dl>
         </Row>
         <Row>
-          <Button tag={Link} to="/entity/customer" replace color="info">
+          <Button tag={Link} to="/entity/dampproofer" replace color="info">
             <FontAwesomeIcon icon="arrow-left" />
             <span className="d-none d-md-inline">Back</span>
           </Button>
           &nbsp;
-          <Button tag={Link} to={`/entity/customer/${customerEntity.id}/edit`} replace color="primary">
+          <Button tag={Link} to={`/entity/dampproofer/${customerEntity.id}/edit`} replace color="primary">
             <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
           </Button>
         </Row>

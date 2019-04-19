@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import uk.co.dryhome.domain.enumeration.CompanyType;
 
 import uk.co.dryhome.domain.enumeration.LeadType;
@@ -28,16 +30,18 @@ import uk.co.dryhome.domain.enumeration.Status;
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "company_name")
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     private String companyName;
 
     @NotNull
     @Size(min = 1, max = 100)
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     @Column(name = "address_1", length = 100, nullable = false)
     private String address1;
 
@@ -51,11 +55,13 @@ public class Customer implements Serializable {
 
     @NotNull
     @Size(min = 1, max = 50)
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     @Column(name = "town", length = 50, nullable = false)
     private String town;
 
     @NotNull
     @Size(min = 1, max = 20)
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     @Column(name = "post_code", length = 20, nullable = false)
     private String postCode;
 
@@ -64,22 +70,27 @@ public class Customer implements Serializable {
     private String title;
 
     @Size(max = 100)
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     @Column(name = "first_name", length = 100)
     private String firstName;
 
     @Size(max = 100)
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     @Column(name = "last_name", length = 100)
     private String lastName;
 
     @Size(max = 20)
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     @Column(name = "tel", length = 20)
     private String tel;
 
     @Column(name = "mobile")
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     private String mobile;
 
     @Size(max = 50)
     @Column(name = "email", length = 50)
+    @Field(fielddata = true, type = FieldType.Text, store = true)
     private String email;
 
     @Column(name = "products")

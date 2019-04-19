@@ -14,7 +14,7 @@ import passwordReset, { PasswordResetState } from 'app/modules/account/password-
 // prettier-ignore
 import customer, {
   CustomerState
-} from 'app/entities/customer/customer.reducer';
+} from 'app/entities/customer.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 export interface IRootState {

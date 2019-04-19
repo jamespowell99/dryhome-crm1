@@ -8,7 +8,7 @@ import { ICrudGetAction, ICrudGetAllAction, setFileData, byteSize, ICrudPutActio
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
-import { getEntity, updateEntity, createEntity, setBlob, reset } from './customer.reducer';
+import { getEntity, updateEntity, createEntity, setBlob, reset } from '../customer.reducer';
 import { ICustomer } from 'app/shared/model/customer.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
@@ -67,7 +67,7 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
   };
 
   handleClose = () => {
-    this.props.history.push('/entity/customer');
+    this.props.history.push('/entity/dampproofer');
   };
 
   render() {
@@ -80,7 +80,7 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
       <div>
         <Row>
           <Col>
-            <h2 id="dryhomecrm1App.customer.home.createOrEditLabel">Create or edit a Customer</h2>
+            <h2 id="dryhomecrm1App.customer.home.createOrEditLabel">Create or edit a Damp Proofer</h2>
           </Col>
         </Row>
         {loading ? (
@@ -96,17 +96,7 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                   </AvGroup>
                 ) : null}
                 <AvGroup>
-                  <Label id="typeLabel">Type</Label>
-                  <AvInput
-                    id="customer-type"
-                    type="select"
-                    className="form-control"
-                    name="type"
-                    value={(!isNew && customerEntity.type) || 'DAMP_PROOFER'}
-                  >
-                    <option value="DAMP_PROOFER">DAMP_PROOFER</option>
-                    <option value="DOMESTIC">DOMESTIC</option>
-                  </AvInput>
+                  <AvInput id="customer-type" type="text" hidden className="form-control" name="type" value="DAMP_PROOFER" />
                 </AvGroup>
                 <AvGroup>
                   <Label id="companyNameLabel" for="companyName">
@@ -309,7 +299,7 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                   </Label>
                   <AvInput id="customer-notes" type="textarea" name="notes" rows="15" />
                 </AvGroup>
-                <Button tag={Link} id="cancel-save" to="/entity/customer" replace color="info">
+                <Button tag={Link} id="cancel-save" to="/entity/dampproofer" replace color="info">
                   <FontAwesomeIcon icon="arrow-left" />
                   &nbsp;
                   <span className="d-none d-md-inline">Back</span>

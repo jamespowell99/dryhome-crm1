@@ -14,7 +14,7 @@ import reducer, {
   getEntity,
   updateEntity,
   reset
-} from 'app/entities/customer/customer.reducer';
+} from 'app/entities/customer.reducer';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import { ICustomer, defaultValue } from 'app/shared/model/customer.model';
 

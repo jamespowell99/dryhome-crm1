@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ICustomer } from 'app/shared/model/customer.model';
 import { IRootState } from 'app/shared/reducers';
-import { getEntity, deleteEntity } from './customer.reducer';
+import { getEntity, deleteEntity } from '../customer.reducer';
 
 export interface ICustomerDeleteDialogProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -31,7 +31,7 @@ export class CustomerDeleteDialog extends React.Component<ICustomerDeleteDialogP
     return (
       <Modal isOpen toggle={this.handleClose}>
         <ModalHeader toggle={this.handleClose}>Confirm delete operation</ModalHeader>
-        <ModalBody id="dryhomecrm1App.customer.delete.question">Are you sure you want to delete this Customer?</ModalBody>
+        <ModalBody id="dryhomecrm1App.customer.delete.question">Are you sure you want to delete this Dampproofer?</ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={this.handleClose}>
             <FontAwesomeIcon icon="ban" />
