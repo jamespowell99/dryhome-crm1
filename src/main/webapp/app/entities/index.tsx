@@ -6,6 +6,7 @@ import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 
 import Dampproofer from './dampproofer';
 import Domestic from './domestic';
+import Product from './product';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -14,6 +15,7 @@ const Routes = ({ match }) => (
       {/* prettier-ignore */}
       <ErrorBoundaryRoute path={`${match.url}/dampproofer`} component={Dampproofer} />
       <ErrorBoundaryRoute path={`${match.url}/domestic`} component={Domestic} />
+      <ErrorBoundaryRoute path={`${match.url}/product`} component={Product} />
       {/* jhipster-needle-add-route-path - JHipster will routes here */}
     </Switch>
   </div>

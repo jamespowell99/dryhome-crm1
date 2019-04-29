@@ -122,7 +122,7 @@ export const getSearchEntities: ICrudSearchAction<ICustomer> = (query, page, siz
   payload: axios.get<ICustomer>(`${apiSearchUrl}?query=${query}${sort ? `&page=${page}&size=${size}&sort=${sort}` : ''}`)
 });
 
-//todo this is being called in various places which loses the customer type. investigate and fix
+// todo this is being called in various places which loses the customer type. investigate and fix
 export const getEntities: ICrudGetAllAction<ICustomer> = (page, size, sort) => {
   const requestUrl = `${apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}` : ''}`;
   return {
