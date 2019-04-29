@@ -1,5 +1,8 @@
 package uk.co.dryhome.service;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.powtechconsulting.mailmerge.WordMerger;
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.repository.search.CustomerSearchRepository;
@@ -13,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URL;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -23,6 +28,9 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Service
 @Transactional
 public class CustomerService {
+    private final static Set<String> ALLOWED_DOCUMENTS =
+        ImmutableSet.of("dp-record", "remcon-prod-lit", "dom-record");
+
 
     private final Logger log = LoggerFactory.getLogger(CustomerService.class);
 
@@ -103,5 +111,22 @@ public class CustomerService {
         log.debug("Request to search for a page of Customers for query {}", query);
         return customerSearchRepository.search(queryStringQuery(query), pageable)
             .map(customerMapper::toDto);
+    }
+
+    public byte[] generateDocument(String documentName, Long id) {
+        log.debug("Request to create document {} for Customer : {}", documentName, id);
+
+        if (!ALLOWED_DOCUMENTS.contains(documentName)) {
+            throw new RuntimeException("unrecognised document name: " + documentName);
+        }
+
+        String name = documentName + ".docx";
+        URL resource = this.getClass().getClassLoader().getResource("document-templates/" + name);
+        if (resource == null ) {
+            throw new RuntimeException("file not found: " + name);
+        }
+        String fileName = resource.getFile();
+        Customer customer = customerRepository.getOne(id);
+        return new WordMerger().merge(fileName, customer.documentMappings());
     }
 }

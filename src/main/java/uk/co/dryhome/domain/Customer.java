@@ -1,24 +1,38 @@
 package uk.co.dryhome.domain;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import org.springframework.data.elasticsearch.annotations.Document;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Objects;
-
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import uk.co.dryhome.domain.enumeration.CompanyType;
-
 import uk.co.dryhome.domain.enumeration.LeadType;
-
 import uk.co.dryhome.domain.enumeration.Status;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A Customer.
@@ -601,5 +615,71 @@ public class Customer implements Serializable {
             ", saleInvoiceNumber='" + getSaleInvoiceNumber() + "'" +
             ", saleInvoiceAmount='" + getSaleInvoiceAmount() + "'" +
             "}";
+    }
+
+    public Map<String, String> documentMappings() {
+        Map<String, String> map = new HashMap<>();
+        map.put("companyName", companyName);
+        map.put("companyId", Long.toString(id));
+        map.put("customerId", Long.toString(id));
+        List<String> address = Stream.of(address1, address2, address3, town, postCode)
+            .filter(x -> !StringUtils.isEmpty(x))
+            .collect(Collectors.toList());
+        map.put("tel", tel);
+        map.put("mob", mobile);
+        String contact = title + " " + firstName + " " + lastName;
+        map.put("contact", contact);
+        map.put("paid", paid == null ? "" : new DecimalFormat("#0.##").format(paid));
+        map.put("products", products);
+        map.put("notes", notes);
+
+        map.put("firstName", firstName);
+
+        for (int i = 0; i < 5; i++) {
+            try {
+                map.put("address" + (i+1), address.get(i));
+            } catch (IndexOutOfBoundsException e) {
+                map.put("address" + (i+1), "");
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(contact);
+        for (int i = contact.length(); i < 100; i++) {
+            sb.append(" ");
+        }
+        Date now = new Date();
+
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("MMMM dd, yyyy");
+        String dateAsString = dateFormatter.format(now);
+        sb.append(dateAsString);
+
+        SimpleDateFormat dateFormatterDate = new SimpleDateFormat("dd/MM/yyyy");
+        map.put("currentDate", dateFormatterDate.format(now));
+
+        SimpleDateFormat dateFormatterTime = new SimpleDateFormat("hh:mm:ss");
+        map.put("currentTime", dateFormatterTime.format(now));
+
+
+        map.put("contactLine", sb.toString());
+
+        map.put("currentDate", dateAsString);
+
+        map.put("lead", lead.name());
+        map.put("leadName", leadName);
+        map.put("leadTel", leadTel);
+        map.put("leadMob", leadMob);
+
+        map.put("enquiryProperty", enquiryProperty);
+        map.put("enquiryUnitPq", enquiryUnitPq);
+        map.put("enquiryInstPq", enquiryInstPq);
+
+        map.put("saleProducts", saleProducts);
+        map.put("saleInvoiceDate", saleInvoiceDate);
+        map.put("saleInvoiceNumber", saleInvoiceNumber);
+        map.put("saleInvoiceAmount", saleInvoiceAmount);
+
+
+        return map;
     }
 }

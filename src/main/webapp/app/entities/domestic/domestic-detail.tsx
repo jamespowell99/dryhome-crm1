@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
+import { Button, Row, Col, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import axios from 'axios';
 // tslint:disable-next-line:no-unused-variable
 import { ICrudGetAction, byteSize } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,9 +15,46 @@ import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 
 export interface ICustomerDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
-export class CustomerDetail extends React.Component<ICustomerDetailProps> {
+export class CustomerDetail extends React.Component<ICustomerDetailProps, { dropdownOpen: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.toggle = this.toggle.bind(this);
+    this.state = {
+      dropdownOpen: false
+    };
+  }
+
   componentDidMount() {
     this.props.getEntity(this.props.match.params.id);
+  }
+
+  callDocument = event => {
+    const { customerEntity } = this.props;
+    const docName = event.target.id;
+    axios({
+      url: `api/document?id=${customerEntity.id}&documentName=${docName}`,
+      method: 'GET',
+      responseType: 'blob' // important
+    }).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const currentDate = new Date();
+      const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
+      const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
+      const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
+      link.setAttribute('download', `${customerEntity.lastName}-${customerEntity.firstName}-${docName}-${currentDateToUse}.docx`);
+      document.body.appendChild(link);
+      link.click();
+    });
+    // console.log('done');
+  };
+
+  toggle() {
+    this.setState({
+      dropdownOpen: !this.state.dropdownOpen
+    });
   }
 
   render() {
@@ -143,6 +181,16 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps> {
           <Button tag={Link} to={`/entity/domestic/${customerEntity.id}/edit`} replace color="primary">
             <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
           </Button>
+          <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+            <DropdownToggle caret color="primary">
+              Documents
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem onClick={this.callDocument} id={'dom-record'}>
+                Domestic Record
+              </DropdownItem>
+            </DropdownMenu>
+          </ButtonDropdown>
         </Row>
       </div>
     );
