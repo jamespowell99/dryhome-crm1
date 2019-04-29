@@ -1,0 +1,47 @@
+{
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "relationships": [
+        {
+            "relationshipName": "product",
+            "otherEntityName": "product",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "name"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "price",
+            "fieldType": "BigDecimal",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "quantity",
+            "fieldType": "Integer",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "notes",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "serialNumber",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20190429203119",
+    "dto": "no",
+    "searchEngine": "elasticsearch",
+    "service": "serviceClass",
+    "entityTableName": "order_item",
+    "databaseType": "sql",
+    "jpaMetamodelFiltering": false,
+    "pagination": "no"
+}

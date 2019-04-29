@@ -40,6 +40,7 @@ public class CacheConfiguration {
             cm.createCache(uk.co.dryhome.domain.User.class.getName() + ".authorities", jcacheConfiguration);
             cm.createCache(uk.co.dryhome.domain.Customer.class.getName(), jcacheConfiguration);
             cm.createCache(uk.co.dryhome.domain.Product.class.getName(), jcacheConfiguration);
+            cm.createCache(uk.co.dryhome.domain.OrderItem.class.getName(), jcacheConfiguration);
             // jhipster-needle-ehcache-add-entry
         };
     }
