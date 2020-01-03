@@ -165,6 +165,9 @@ export const getEntity: ICrudGetAction<ICustomer> = id => {
 };
 
 export const createEntity: ICrudPutAction<ICustomer> = entity => async dispatch => {
+  // remove any empty fields rather than pass them as empty strings
+  Object.keys(entity).forEach(key => entity[key] === '' && delete entity[key]);
+
   const result = await dispatch({
     type: ACTION_TYPES.CREATE_CUSTOMER,
     payload: axios.post(apiUrl, cleanEntity(entity))
@@ -174,6 +177,8 @@ export const createEntity: ICrudPutAction<ICustomer> = entity => async dispatch 
 };
 
 export const updateEntity: ICrudPutAction<ICustomer> = entity => async dispatch => {
+  // remove any empty fields rather than pass them as empty strings
+  Object.keys(entity).forEach(key => entity[key] === '' && delete entity[key]);
   const result = await dispatch({
     type: ACTION_TYPES.UPDATE_CUSTOMER,
     payload: axios.put(apiUrl, cleanEntity(entity))

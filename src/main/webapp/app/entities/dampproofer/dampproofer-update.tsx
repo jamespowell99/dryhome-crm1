@@ -76,6 +76,13 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
 
     const { notes } = customerEntity;
 
+    // explicitly set null fields to empty string, otherwise causes problems with validation
+    Object.keys(customerEntity).forEach(key => {
+      if (customerEntity[key] == null) {
+        customerEntity[key] = '';
+      }
+    });
+
     return (
       <div>
         <Row>
