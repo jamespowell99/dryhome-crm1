@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import uk.co.dryhome.domain.enumeration.CompanyType;
+import uk.co.dryhome.domain.enumeration.InterestedType;
 import uk.co.dryhome.domain.enumeration.LeadType;
 import uk.co.dryhome.domain.enumeration.Status;
 
@@ -110,9 +111,9 @@ public class Customer implements Serializable {
     @Column(name = "products")
     private String products;
 
-    @Size(max = 20)
-    @Column(name = "interested", length = 20)
-    private String interested;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "jhi_interested")
+    private InterestedType interested;
 
     @Column(name = "paid", precision = 10, scale = 2)
     private BigDecimal paid;
@@ -352,16 +353,16 @@ public class Customer implements Serializable {
         this.products = products;
     }
 
-    public String getInterested() {
+    public InterestedType getInterested() {
         return interested;
     }
 
-    public Customer interested(String interested) {
+    public Customer interested(InterestedType interested) {
         this.interested = interested;
         return this;
     }
 
-    public void setInterested(String interested) {
+    public void setInterested(InterestedType interested) {
         this.interested = interested;
     }
 

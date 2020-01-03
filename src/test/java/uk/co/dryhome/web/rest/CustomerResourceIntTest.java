@@ -3,6 +3,7 @@ package uk.co.dryhome.web.rest;
 import uk.co.dryhome.Dryhomecrm1App;
 
 import uk.co.dryhome.domain.Customer;
+import uk.co.dryhome.domain.enumeration.InterestedType;
 import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.repository.search.CustomerSearchRepository;
 import uk.co.dryhome.service.CustomerService;
@@ -95,8 +96,8 @@ public class CustomerResourceIntTest {
     private static final String DEFAULT_PRODUCTS = "AAAAAAAAAA";
     private static final String UPDATED_PRODUCTS = "BBBBBBBBBB";
 
-    private static final String DEFAULT_INTERESTED = "AAAAAAAAAA";
-    private static final String UPDATED_INTERESTED = "BBBBBBBBBB";
+    private static final InterestedType DEFAULT_INTERESTED = InterestedType.DNI;
+    private static final InterestedType UPDATED_INTERESTED = InterestedType.INT;
 
     private static final BigDecimal DEFAULT_PAID = new BigDecimal(1);
     private static final BigDecimal UPDATED_PAID = new BigDecimal(2);

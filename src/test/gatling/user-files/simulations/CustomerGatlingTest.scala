@@ -85,7 +85,7 @@ class CustomerGatlingTest extends Simulation {
                 , "mobile":"SAMPLE_TEXT"
                 , "email":"SAMPLE_TEXT"
                 , "products":"SAMPLE_TEXT"
-                , "interested":"SAMPLE_TEXT"
+                , "interested":"INT"
                 , "paid":"0"
                 , "type":"DAMP_PROOFER"
                 , "notes":null

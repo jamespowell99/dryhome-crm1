@@ -108,11 +108,8 @@
         },
         {
             "fieldName": "interested",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "maxlength"
-            ],
-            "fieldValidateRulesMaxlength": 20
+            "fieldType": "InterestedType",
+            "fieldValues": "INT,DNI"
         },
         {
             "fieldName": "paid",

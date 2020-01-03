@@ -15,6 +15,11 @@ export const enum Status {
   SALE = 'SALE'
 }
 
+export const enum InterestedType {
+  INT = 'INT',
+  DNI = 'D.N.I'
+}
+
 export interface ICustomer {
   id?: number;
   companyName?: string;
@@ -30,7 +35,7 @@ export interface ICustomer {
   mobile?: string;
   email?: string;
   products?: string;
-  interested?: string;
+  interested?: InterestedType;
   paid?: number;
   type?: CompanyType;
   notes?: any;

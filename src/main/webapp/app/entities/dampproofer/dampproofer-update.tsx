@@ -281,14 +281,11 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                   <Label id="interestedLabel" for="interested">
                     Interested
                   </Label>
-                  <AvField
-                    id="customer-interested"
-                    type="text"
-                    name="interested"
-                    validate={{
-                      maxLength: { value: 20, errorMessage: 'This field cannot be longer than 20 characters.' }
-                    }}
-                  />
+                  <AvInput id="customer-interested" type="select" name="interested" value={(!isNew && customerEntity.interested) || ''}>
+                    <option value="INT">INT</option>
+                    <option value="DNI">DNI</option>
+                    <option value="" />
+                  </AvInput>
                 </AvGroup>
                 <AvGroup>
                   <Label id="paidLabel" for="paid">

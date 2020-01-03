@@ -3,6 +3,7 @@ package uk.co.dryhome.service.dto;
 import java.io.Serializable;
 import java.util.Objects;
 import uk.co.dryhome.domain.enumeration.CompanyType;
+import uk.co.dryhome.domain.enumeration.InterestedType;
 import uk.co.dryhome.domain.enumeration.LeadType;
 import uk.co.dryhome.domain.enumeration.Status;
 import io.github.jhipster.service.filter.BooleanFilter;
@@ -38,6 +39,11 @@ public class CustomerCriteria implements Serializable {
      */
     public static class StatusFilter extends Filter<Status> {
     }
+    /**
+     * Class for filtering InterestedType
+     */
+    public static class InterestedTypeFilter extends Filter<InterestedType> {
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -69,7 +75,7 @@ public class CustomerCriteria implements Serializable {
 
     private StringFilter products;
 
-    private StringFilter interested;
+    private InterestedTypeFilter interested;
 
     private BigDecimalFilter paid;
 
@@ -211,11 +217,11 @@ public class CustomerCriteria implements Serializable {
         this.products = products;
     }
 
-    public StringFilter getInterested() {
+    public InterestedTypeFilter getInterested() {
         return interested;
     }
 
-    public void setInterested(StringFilter interested) {
+    public void setInterested(InterestedTypeFilter interested) {
         this.interested = interested;
     }
 
