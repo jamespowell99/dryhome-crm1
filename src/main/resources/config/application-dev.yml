@@ -40,6 +40,9 @@ spring:
         url: jdbc:h2:file:./target/h2db/db/dryhomecrm1;DB_CLOSE_DELAY=-1
         username: dryhomecrm1
         password:
+#        url: jdbc:postgresql://localhost:7432/dryhomecrm?currentSchema=dryhomecrm
+#        username: postgres
+#        password: docker
         hikari:
             poolName: Hikari
             auto-commit: false
@@ -49,6 +52,7 @@ spring:
     jpa:
         database-platform: io.github.jhipster.domain.util.FixedH2Dialect
         database: H2
+#        database: postgresql
         show-sql: true
         properties:
             hibernate.id.new_generator_mappings: true
@@ -57,6 +61,7 @@ spring:
             hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: true
             hibernate.cache.region.factory_class: io.github.jhipster.config.jcache.BeanClassLoaderAwareJCacheRegionFactory
+#            hibernate.default_schema: dryhomecrm
     data:
         elasticsearch:
             properties:
@@ -64,6 +69,7 @@ spring:
                     home: target/elasticsearch
     liquibase:
         contexts: dev
+#        default-schema: dryhomecrm
     mail:
         host: localhost
         port: 25

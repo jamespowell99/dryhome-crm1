@@ -108,7 +108,7 @@ public class CustomerResourceIntTest {
     private static final String UPDATED_NOTES = "BBBBBBBBBB";
 
     private static final LeadType DEFAULT_LEAD = LeadType.WEBSITE;
-    private static final LeadType UPDATED_LEAD = LeadType.FRIEND;
+    private static final LeadType UPDATED_LEAD = LeadType.DAMP_PROOFER;
 
     private static final String DEFAULT_LEAD_NAME = "AAAAAAAAAA";
     private static final String UPDATED_LEAD_NAME = "BBBBBBBBBB";
@@ -429,7 +429,7 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].saleInvoiceNumber").value(hasItem(DEFAULT_SALE_INVOICE_NUMBER.toString())))
             .andExpect(jsonPath("$.[*].saleInvoiceAmount").value(hasItem(DEFAULT_SALE_INVOICE_AMOUNT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getCustomer() throws Exception {

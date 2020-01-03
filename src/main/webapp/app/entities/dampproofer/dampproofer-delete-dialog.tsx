@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ICustomer } from 'app/shared/model/customer.model';
 import { IRootState } from 'app/shared/reducers';
-import { getEntity, deleteEntity } from '../customer.reducer';
+import { getEntity, deleteEntity } from 'app/entities/dampproofer/dampproofer.reducer';
 
 export interface ICustomerDeleteDialogProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 

@@ -665,7 +665,7 @@ public class Customer implements Serializable {
 
         map.put("currentDate", dateAsString);
 
-        map.put("lead", lead.name());
+        map.put("lead", lead == null ? null : lead.name());
         map.put("leadName", leadName);
         map.put("leadTel", leadTel);
         map.put("leadMob", leadMob);

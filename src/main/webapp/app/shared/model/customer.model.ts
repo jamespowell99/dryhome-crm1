@@ -5,7 +5,9 @@ export const enum CompanyType {
 
 export const enum LeadType {
   WEBSITE = 'WEBSITE',
-  FRIEND = 'FRIEND'
+  DAMP_PROOFER = 'DAMP_PROOFER',
+  OTHER = 'OTHER',
+  YELLOW_PAGES = 'YELLOW_PAGES'
 }
 
 export const enum Status {

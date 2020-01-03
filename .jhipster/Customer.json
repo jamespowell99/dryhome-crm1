@@ -134,7 +134,7 @@
 	    {
             "fieldName": "lead",
             "fieldType": "LeadType",
-            "fieldValues": "WEBSITE,FRIEND"
+            "fieldValues": "WEBSITE,DAMP_PROOFER,OTHER,WEBSITE,YELLOW_PAGES"
         },
         {
             "fieldName": "leadName",

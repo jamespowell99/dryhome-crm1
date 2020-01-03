@@ -1,6 +1,13 @@
+import axios from 'axios';
+import { ICrudGetAction, ICrudGetAllAction, ICrudPutAction, ICrudDeleteAction } from 'react-jhipster';
+import { ICrudSearchCustomerAction, ICrudGetAllCustomerAction } from 'app/entities/customer.redux-action-type';
+
+import { cleanEntity } from 'app/shared/util/entity-utils';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 
 import { ICustomer, defaultValue } from 'app/shared/model/customer.model';
+
+import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
 export const ACTION_TYPES = {
   SEARCH_CUSTOMERS: 'customer/SEARCH_CUSTOMERS',
@@ -107,3 +114,91 @@ export default (state: CustomerState = initialState, action): CustomerState => {
       return state;
   }
 };
+
+const apiUrl = 'api/customers';
+const apiSearchUrl = 'api/_search/customers';
+
+// Actions
+
+export const getSearchEntities: ICrudSearchCustomerAction<ICustomer> = (
+  searchId,
+  searchTown,
+  searchPostCode,
+  searchLastName,
+  searchTel,
+  searchMob,
+  type,
+  page,
+  size,
+  sort
+) => {
+  let requestUrl = `${apiUrl}?type.equals=${type}`;
+  requestUrl += `${searchId ? `&id.equals=${searchId}` : ''}`;
+  requestUrl += `${searchTown ? `&town.contains=${searchTown}` : ''}`;
+  requestUrl += `${searchPostCode ? `&postCode.contains=${searchPostCode}` : ''}`;
+  requestUrl += `${searchLastName ? `&lastName.contains=${searchLastName}` : ''}`;
+  requestUrl += `${searchTel ? `&tel.contains=${searchTel}` : ''}`;
+  requestUrl += `${searchMob ? `&mobile.contains=${searchMob}` : ''}`;
+  requestUrl += `${sort ? `&page=${page}&size=${size}&sort=${sort}` : ''}`;
+  return {
+    type: ACTION_TYPES.SEARCH_CUSTOMERS,
+    payload: axios.get<ICustomer>(requestUrl)
+  };
+};
+
+export const getEntities: ICrudGetAllCustomerAction<ICustomer> = (type, page, size, sort) => {
+  const requestUrl = `${apiUrl}?type.equals=${type}${sort ? `&page=${page}&size=${size}&sort=${sort}` : ''}`;
+  return {
+    type: ACTION_TYPES.FETCH_CUSTOMER_LIST,
+    payload: axios.get<ICustomer>(`${requestUrl}&cacheBuster=${new Date().getTime()}`)
+  };
+};
+
+export const getEntity: ICrudGetAction<ICustomer> = id => {
+  const requestUrl = `${apiUrl}/${id}`;
+  return {
+    type: ACTION_TYPES.FETCH_CUSTOMER,
+    payload: axios.get<ICustomer>(requestUrl)
+  };
+};
+
+export const createEntity: ICrudPutAction<ICustomer> = entity => async dispatch => {
+  const result = await dispatch({
+    type: ACTION_TYPES.CREATE_CUSTOMER,
+    payload: axios.post(apiUrl, cleanEntity(entity))
+  });
+  dispatch(getEntities('DOMESTIC', 0, ITEMS_PER_PAGE, 'id,desc'));
+  return result;
+};
+
+export const updateEntity: ICrudPutAction<ICustomer> = entity => async dispatch => {
+  const result = await dispatch({
+    type: ACTION_TYPES.UPDATE_CUSTOMER,
+    payload: axios.put(apiUrl, cleanEntity(entity))
+  });
+  dispatch(getEntities('DOMESTIC', 0, ITEMS_PER_PAGE, 'id,desc'));
+  return result;
+};
+
+export const deleteEntity: ICrudDeleteAction<ICustomer> = id => async dispatch => {
+  const requestUrl = `${apiUrl}/${id}`;
+  const result = await dispatch({
+    type: ACTION_TYPES.DELETE_CUSTOMER,
+    payload: axios.delete(requestUrl)
+  });
+  dispatch(getEntities('DOMESTIC', 0, ITEMS_PER_PAGE, 'id,desc'));
+  return result;
+};
+
+export const setBlob = (name, data, contentType?) => ({
+  type: ACTION_TYPES.SET_BLOB,
+  payload: {
+    name,
+    data,
+    contentType
+  }
+});
+
+export const reset = () => ({
+  type: ACTION_TYPES.RESET
+});

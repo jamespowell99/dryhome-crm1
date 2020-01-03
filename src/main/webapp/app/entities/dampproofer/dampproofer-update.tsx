@@ -8,7 +8,7 @@ import { ICrudGetAction, ICrudGetAllAction, setFileData, byteSize, ICrudPutActio
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
-import { getEntity, updateEntity, createEntity, setBlob, reset } from '../customer.reducer';
+import { getEntity, updateEntity, createEntity, setBlob, reset } from 'app/entities/dampproofer/dampproofer.reducer';
 import { ICustomer } from 'app/shared/model/customer.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
