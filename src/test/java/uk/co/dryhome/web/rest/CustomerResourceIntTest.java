@@ -3,7 +3,6 @@ package uk.co.dryhome.web.rest;
 import uk.co.dryhome.Dryhomecrm1App;
 
 import uk.co.dryhome.domain.Customer;
-import uk.co.dryhome.domain.enumeration.InterestedType;
 import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.repository.search.CustomerSearchRepository;
 import uk.co.dryhome.service.CustomerService;
@@ -45,6 +44,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import uk.co.dryhome.domain.enumeration.InterestedType;
 import uk.co.dryhome.domain.enumeration.CompanyType;
 import uk.co.dryhome.domain.enumeration.LeadType;
 import uk.co.dryhome.domain.enumeration.Status;
@@ -96,8 +96,8 @@ public class CustomerResourceIntTest {
     private static final String DEFAULT_PRODUCTS = "AAAAAAAAAA";
     private static final String UPDATED_PRODUCTS = "BBBBBBBBBB";
 
-    private static final InterestedType DEFAULT_INTERESTED = InterestedType.DNI;
-    private static final InterestedType UPDATED_INTERESTED = InterestedType.INT;
+    private static final InterestedType DEFAULT_INTERESTED = InterestedType.INT;
+    private static final InterestedType UPDATED_INTERESTED = InterestedType.DNI;
 
     private static final BigDecimal DEFAULT_PAID = new BigDecimal(1);
     private static final BigDecimal UPDATED_PAID = new BigDecimal(2);
@@ -430,7 +430,7 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].saleInvoiceNumber").value(hasItem(DEFAULT_SALE_INVOICE_NUMBER.toString())))
             .andExpect(jsonPath("$.[*].saleInvoiceAmount").value(hasItem(DEFAULT_SALE_INVOICE_AMOUNT.toString())));
     }
-
+    
     @Test
     @Transactional
     public void getCustomer() throws Exception {
@@ -1585,7 +1585,7 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].mobile").value(hasItem(DEFAULT_MOBILE)))
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS)))
-            .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
+            .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED.toString())))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())))
@@ -1790,7 +1790,7 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].mobile").value(hasItem(DEFAULT_MOBILE)))
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
             .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS)))
-            .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED)))
+            .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED.toString())))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())))

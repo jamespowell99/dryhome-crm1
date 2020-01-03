@@ -1,3 +1,8 @@
+export const enum InterestedType {
+  INT = 'INT',
+  DNI = 'DNI'
+}
+
 export const enum CompanyType {
   DAMP_PROOFER = 'DAMP_PROOFER',
   DOMESTIC = 'DOMESTIC'
@@ -13,11 +18,6 @@ export const enum LeadType {
 export const enum Status {
   ENQUIRY = 'ENQUIRY',
   SALE = 'SALE'
-}
-
-export const enum InterestedType {
-  INT = 'INT',
-  DNI = 'D.N.I'
 }
 
 export interface ICustomer {

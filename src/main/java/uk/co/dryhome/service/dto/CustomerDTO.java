@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 import javax.persistence.Lob;
+import uk.co.dryhome.domain.enumeration.InterestedType;
 import uk.co.dryhome.domain.enumeration.CompanyType;
 import uk.co.dryhome.domain.enumeration.LeadType;
 import uk.co.dryhome.domain.enumeration.Status;
@@ -54,8 +55,7 @@ public class CustomerDTO implements Serializable {
 
     private String products;
 
-    @Size(max = 20)
-    private String interested;
+    private InterestedType interested;
 
     private BigDecimal paid;
 
@@ -212,11 +212,11 @@ public class CustomerDTO implements Serializable {
         this.products = products;
     }
 
-    public String getInterested() {
+    public InterestedType getInterested() {
         return interested;
     }
 
-    public void setInterested(String interested) {
+    public void setInterested(InterestedType interested) {
         this.interested = interested;
     }
 
