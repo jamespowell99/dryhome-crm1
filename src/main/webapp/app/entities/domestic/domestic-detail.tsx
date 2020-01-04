@@ -59,7 +59,7 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, { drop
 
   render() {
     const { customerEntity } = this.props;
-    if (customerEntity.type !== 'DOMESTIC') {
+    if (customerEntity.type && customerEntity.type !== 'DOMESTIC') {
       return <h1>incorrect type - {customerEntity.type}</h1>;
     } else {
       return (

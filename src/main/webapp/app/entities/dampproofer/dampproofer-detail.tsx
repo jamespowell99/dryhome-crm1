@@ -16,12 +16,13 @@ import {
   TabPane,
   Nav,
   NavItem,
-  NavLink
+  NavLink,
+  Table
 } from 'reactstrap';
 import axios from 'axios';
 import classnames from 'classnames';
 // tslint:disable-next-line:no-unused-variable
-import { ICrudGetAction, byteSize } from 'react-jhipster';
+import { ICrudGetAction, byteSize, TextFormat, getPaginationItemsNumber, JhiPagination, IPaginationBaseState } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
@@ -29,23 +30,41 @@ import { getEntity } from 'app/entities/dampproofer/dampproofer.reducer';
 import { ICustomer } from 'app/shared/model/customer.model';
 // tslint:disable-next-line:no-unused-variable
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { getCustomerOrders } from '../customer.reducer';
+import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
+import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
 
 export interface ICustomerDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
-export class CustomerDetail extends React.Component<ICustomerDetailProps, { dropdownOpen: boolean; activeTab: string }> {
+export interface ICustomerDetailState extends IPaginationBaseState {
+  dropdownOpen: boolean;
+  activeTab: string;
+}
+
+export class CustomerDetail extends React.Component<ICustomerDetailProps, ICustomerDetailState> {
   constructor(props) {
     super(props);
 
     this.toggle = this.toggle.bind(this);
     this.state = {
       dropdownOpen: false,
-      activeTab: '1'
+      activeTab: '1',
+      ...getSortState(this.props.location, ITEMS_PER_PAGE)
     };
   }
 
   componentDidMount() {
     this.props.getEntity(this.props.match.params.id);
+    this.props.getCustomerOrders(this.props.match.params.id);
   }
+
+  sortEntities() {
+    const { activePage, itemsPerPage } = this.state;
+    this.props.getCustomerOrders(this.props.match.params.id, activePage - 1, itemsPerPage);
+    // this.props.history.push(`${this.props.location.pathname}?page=${this.state.activePage}&sort=${this.state.sort},${this.state.order}`);
+  }
+
+  handlePagination = activePage => this.setState({ activePage }, () => this.sortEntities());
 
   callDocument = event => {
     const { customerEntity } = this.props;
@@ -76,8 +95,8 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, { drop
   }
 
   render() {
-    const { customerEntity } = this.props;
-    if (customerEntity.type !== 'DAMP_PROOFER') {
+    const { customerEntity, customerOrders, totalOrders } = this.props;
+    if (customerEntity.type && customerEntity.type !== 'DAMP_PROOFER') {
       return <h1>incorrect type - {customerEntity.type}</h1>;
     } else {
       const toggle = tab => {
@@ -104,7 +123,7 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, { drop
                   toggle('2');
                 }}
               >
-                Orders
+                Orders ({totalOrders})
               </NavLink>
             </NavItem>
           </Nav>
@@ -187,21 +206,62 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, { drop
               </Row>
             </TabPane>
             <TabPane tabId="2">
-              <Row>
-                <Col sm="6">
-                  <Card body>
-                    <CardTitle>Special Title Treatment</CardTitle>
-                    <CardText>With supporting text below as a natural lead-in to additional content.</CardText>
-                    <Button>Go somewhere</Button>
-                  </Card>
-                </Col>
-                <Col sm="6">
-                  <Card body>
-                    <CardTitle>Special Title Treatment</CardTitle>
-                    <CardText>With supporting text below as a natural lead-in to additional content.</CardText>
-                    <Button>Go somewhere</Button>
-                  </Card>
-                </Col>
+              <div className="table-responsive">
+                <Table responsive>
+                  <thead>
+                    <tr>
+                      <th className="hand">Order Number</th>
+                      <th className="hand">Order Date</th>
+                      <th className="hand">Despatch Date</th>
+                      <th className="hand">Invoice Date</th>
+                      <th className="hand">Payment Date</th>
+                      <th className="hand">Invoice Number</th>
+                      <th className="hand">Total</th>
+
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customerOrders
+                      ? customerOrders.map((customerOrder, i) => (
+                          <tr key={`entity-${i}`}>
+                            <td>
+                              <Button tag={Link} to={`/entity/customer-order/${customerOrder.id}`} color="link" size="sm">
+                                {customerOrder.orderNumber}
+                              </Button>
+                            </td>
+                            <td>
+                              <TextFormat type="date" value={customerOrder.orderDate} format={APP_LOCAL_DATE_FORMAT} />
+                            </td>
+                            <td>
+                              <TextFormat type="date" value={customerOrder.despatchDate} format={APP_LOCAL_DATE_FORMAT} />
+                            </td>
+                            <td>
+                              <TextFormat type="date" value={customerOrder.invoiceDate} format={APP_LOCAL_DATE_FORMAT} />
+                            </td>
+                            <td>
+                              <TextFormat type="date" value={customerOrder.paymentDate} format={APP_LOCAL_DATE_FORMAT} />
+                            </td>
+                            <td>{customerOrder.invoiceNumber}</td>
+                            <td>
+                              £
+                              {customerOrder.orderTotal
+                                ? customerOrder.orderTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                : null}
+                            </td>
+                          </tr>
+                        ))
+                      : null}
+                  </tbody>
+                </Table>
+              </div>
+              <Row className="justify-content-center">
+                <JhiPagination
+                  items={getPaginationItemsNumber(totalOrders, this.state.itemsPerPage)}
+                  activePage={this.state.activePage}
+                  onSelect={this.handlePagination}
+                  maxButtons={5}
+                />
               </Row>
             </TabPane>
           </TabContent>
@@ -235,10 +295,12 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, { drop
 }
 
 const mapStateToProps = ({ customer }: IRootState) => ({
-  customerEntity: customer.entity
+  customerEntity: customer.entity,
+  customerOrders: customer.customerOrders,
+  totalOrders: customer.totalOrders
 });
 
-const mapDispatchToProps = { getEntity };
+const mapDispatchToProps = { getEntity, getCustomerOrders };
 
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ICrudGetAction, ICrudGetAllAction, ICrudPutAction, ICrudDeleteAction } from 'react-jhipster';
+import { ICrudGetAction, ICrudPutAction, ICrudDeleteAction } from 'react-jhipster';
 import { ICrudSearchCustomerAction, ICrudGetAllCustomerAction } from 'app/entities/customer.redux-action-type';
 
 import { cleanEntity } from 'app/shared/util/entity-utils';

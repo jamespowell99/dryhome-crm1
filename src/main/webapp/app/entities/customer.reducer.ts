@@ -1,6 +1,12 @@
+import axios from 'axios';
+
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 
 import { ICustomer, defaultValue } from 'app/shared/model/customer.model';
+
+import { ICustomerOrder } from 'app/shared/model/customer-order.model';
+
+import { ICrudGetOrdersByCustomerIdAction } from 'app/entities/customer.redux-action-type';
 
 export const ACTION_TYPES = {
   SEARCH_CUSTOMERS: 'customer/SEARCH_CUSTOMERS',
@@ -10,7 +16,8 @@ export const ACTION_TYPES = {
   UPDATE_CUSTOMER: 'customer/UPDATE_CUSTOMER',
   DELETE_CUSTOMER: 'customer/DELETE_CUSTOMER',
   SET_BLOB: 'customer/SET_BLOB',
-  RESET: 'customer/RESET'
+  RESET: 'customer/RESET',
+  FETCH_CUSTOMER_ORDER_LIST: 'customer/FETCH_CUSTOMER_ORDER_LIST'
 };
 
 const initialState = {
@@ -20,7 +27,11 @@ const initialState = {
   entity: defaultValue,
   updating: false,
   totalItems: 0,
-  updateSuccess: false
+  updateSuccess: false,
+  customerOrders: [] as ReadonlyArray<ICustomerOrder>,
+  totalOrders: 0,
+  retrievedCustomer: false,
+  retrievedCustomerOrders: false
 };
 
 export type CustomerState = Readonly<typeof initialState>;
@@ -32,11 +43,14 @@ export default (state: CustomerState = initialState, action): CustomerState => {
     case REQUEST(ACTION_TYPES.SEARCH_CUSTOMERS):
     case REQUEST(ACTION_TYPES.FETCH_CUSTOMER_LIST):
     case REQUEST(ACTION_TYPES.FETCH_CUSTOMER):
+    case REQUEST(ACTION_TYPES.FETCH_CUSTOMER_ORDER_LIST):
       return {
         ...state,
         errorMessage: null,
         updateSuccess: false,
-        loading: true
+        loading: true,
+        retrievedCustomer: false,
+        retrievedCustomerOrders: false
       };
     case REQUEST(ACTION_TYPES.CREATE_CUSTOMER):
     case REQUEST(ACTION_TYPES.UPDATE_CUSTOMER):
@@ -53,8 +67,11 @@ export default (state: CustomerState = initialState, action): CustomerState => {
     case FAILURE(ACTION_TYPES.CREATE_CUSTOMER):
     case FAILURE(ACTION_TYPES.UPDATE_CUSTOMER):
     case FAILURE(ACTION_TYPES.DELETE_CUSTOMER):
+    case FAILURE(ACTION_TYPES.FETCH_CUSTOMER_ORDER_LIST):
       return {
         ...state,
+        retrievedCustomer: false,
+        retrievedCustomerOrders: false,
         loading: false,
         updating: false,
         updateSuccess: false,
@@ -71,8 +88,17 @@ export default (state: CustomerState = initialState, action): CustomerState => {
     case SUCCESS(ACTION_TYPES.FETCH_CUSTOMER):
       return {
         ...state,
-        loading: false,
-        entity: action.payload.data
+        entity: action.payload.data,
+        retrievedCustomer: true,
+        loading: state.retrievedCustomerOrders
+      };
+    case SUCCESS(ACTION_TYPES.FETCH_CUSTOMER_ORDER_LIST):
+      return {
+        ...state,
+        retrievedCustomerOrders: true,
+        loading: state.retrievedCustomer,
+        customerOrders: action.payload.data,
+        totalOrders: action.payload.headers['x-total-count']
       };
     case SUCCESS(ACTION_TYPES.CREATE_CUSTOMER):
     case SUCCESS(ACTION_TYPES.UPDATE_CUSTOMER):
@@ -106,4 +132,12 @@ export default (state: CustomerState = initialState, action): CustomerState => {
     default:
       return state;
   }
+};
+
+export const getCustomerOrders: ICrudGetOrdersByCustomerIdAction<ICustomerOrder> = (customerId, page, size) => {
+  const requestUrl = `api/customer-orders?customerId.equals=${customerId}&sort=orderDate,desc${page ? `&page=${page}&size=${size}` : ''}`;
+  return {
+    type: ACTION_TYPES.FETCH_CUSTOMER_ORDER_LIST,
+    payload: axios.get<ICustomerOrder>(`${requestUrl}&cacheBuster=${new Date().getTime()}`)
+  };
 };
