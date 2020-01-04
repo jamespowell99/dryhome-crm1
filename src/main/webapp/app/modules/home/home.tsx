@@ -51,6 +51,9 @@ export class Home extends React.Component<IHomeProp> {
             <li>
               <a href="/#/entity/domestic">Domestic Customers</a>
             </li>
+            <li>
+              <a href="/#/entity/customer-order">Orders</a>
+            </li>
           </ul>
         </Col>
       </Row>

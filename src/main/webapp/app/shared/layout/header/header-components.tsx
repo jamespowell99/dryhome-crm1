@@ -40,3 +40,19 @@ export const Home = props => (
     </NavLink>
   </NavItem>
 );
+
+export const Orders = props => (
+  <NavItem>
+    <NavLink tag={Link} to="/entity/customer-order" className="d-flex align-items-center">
+      <span>Orders</span>
+    </NavLink>
+  </NavItem>
+);
+
+export const Products = props => (
+  <NavItem>
+    <NavLink tag={Link} to="/entity/product" className="d-flex align-items-center">
+      <span>Products</span>
+    </NavLink>
+  </NavItem>
+);

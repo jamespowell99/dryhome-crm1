@@ -1,19 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, InputGroup, Col, Row, Table } from 'reactstrap';
+import { Button, Col, Container, InputGroup, Row, Table } from 'reactstrap';
 import { AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
-import { ICrudSearchAction, ICrudGetAllAction, IPaginationBaseState, getPaginationItemsNumber, JhiPagination } from 'react-jhipster';
+import { getPaginationItemsNumber, IPaginationBaseState, JhiPagination } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
 
 import { IRootState } from 'app/shared/reducers';
-import { getSearchEntities, getEntities } from 'app/entities/domestic/domestic.reducer';
-import { ICustomer } from 'app/shared/model/customer.model';
+import { getEntities, getSearchEntities } from 'app/entities/domestic/domestic.reducer';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
 export interface ICustomerProps extends StateProps, DispatchProps, RouteComponentProps<{ url: string }> {}
@@ -66,7 +64,6 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
         } = this.state;
         this.props.getSearchEntities(
           searchId,
-          null,
           searchTown,
           searchPostCode,
           searchLastName,
@@ -140,7 +137,6 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
     if (searchId || searchTown || searchPostCode || searchLastName || searchTel || searchMob) {
       this.props.getSearchEntities(
         searchId,
-        null,
         searchTown,
         searchPostCode,
         searchLastName,
@@ -169,77 +165,84 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
         </h2>
         <Row>
           <Col sm="12">
-            <AvForm onSubmit={this.search}>
+            <AvForm onSubmit={this.search} className="border">
+              <span>Search</span>
               <AvGroup>
-                <InputGroup>
+                <Container>
                   <Row>
-                    <AvInput
-                      type="text"
-                      name="searchId"
-                      value={this.state.searchId}
-                      onChange={this.handleSearchIdChange}
-                      placeholder="Damp Proofer ID"
-                    />
+                    <Col>
+                      <AvInput
+                        type="text"
+                        name="searchId"
+                        value={this.state.searchId}
+                        onChange={this.handleSearchIdChange}
+                        placeholder="ID"
+                        className="m-1"
+                      />
+                      <AvInput
+                        type="text"
+                        name="searchLastName"
+                        value={this.state.searchLastName}
+                        onChange={this.handleSearchLastNameChange}
+                        placeholder="Last Name"
+                        className="m-1"
+                      />
+                    </Col>
+                    <Col>
+                      <AvInput
+                        type="text"
+                        name="searchTown"
+                        value={this.state.searchTown}
+                        onChange={this.handleSearchTownChange}
+                        placeholder="Town"
+                        className="m-1"
+                      />
+                      <AvInput
+                        type="text"
+                        name="searchTel"
+                        value={this.state.searchTel}
+                        onChange={this.handleSearchTelChange}
+                        className="m-1"
+                        placeholder="Tel"
+                      />
+                    </Col>
+                    <Col>
+                      <AvInput
+                        type="text"
+                        name="searchPostCode"
+                        value={this.state.searchPostCode}
+                        onChange={this.handleSearchPostCodeChange}
+                        className="m-1"
+                        placeholder="Post Code"
+                      />
+
+                      <AvInput
+                        type="text"
+                        name="searchMob"
+                        value={this.state.searchMob}
+                        onChange={this.handleSearchMobChange}
+                        placeholder="Mob"
+                        className="m-1"
+                      />
+                    </Col>
                   </Row>
-                  <Row>
-                    <AvInput
-                      type="text"
-                      name="searchTown"
-                      value={this.state.searchTown}
-                      onChange={this.handleSearchTownChange}
-                      placeholder="Town"
-                    />
-                  </Row>
-                  <Row>
-                    <AvInput
-                      type="text"
-                      name="searchPostCode"
-                      value={this.state.searchPostCode}
-                      onChange={this.handleSearchPostCodeChange}
-                      placeholder="Post Code"
-                    />
-                  </Row>
-                  <Row>
-                    <AvInput
-                      type="text"
-                      name="searchLastName"
-                      value={this.state.searchLastName}
-                      onChange={this.handleSearchLastNameChange}
-                      placeholder="Last Name"
-                    />
-                  </Row>
-                  <Row>
-                    <AvInput
-                      type="text"
-                      name="searchTel"
-                      value={this.state.searchTel}
-                      onChange={this.handleSearchTelChange}
-                      placeholder="Tel"
-                    />
-                  </Row>
-                  <Row>
-                    <AvInput
-                      type="text"
-                      name="searchMob"
-                      value={this.state.searchMob}
-                      onChange={this.handleSearchMobChange}
-                      placeholder="Mob"
-                    />
-                  </Row>
-                  <Button className="input-group-addon">
+                  <Button className="input-group-addon mx-1">
                     <FontAwesomeIcon icon="search" />
                   </Button>
                   <Button type="reset" className="input-group-addon" onClick={this.clear}>
                     <FontAwesomeIcon icon="trash" />
                   </Button>
-                </InputGroup>
+                  <Row>
+                    <span>{totalItems} Records</span>
+                  </Row>
+                </Container>
               </AvGroup>
             </AvForm>
           </Col>
         </Row>
-        <div className="table-responsive">
+        <div className="table-responsive table-sm mt-3">
           <Table responsive>
-            <thead>
+            <thead className="thead-light">
               <tr>
                 <th className="hand" onClick={this.sort('id')}>
                   ID <FontAwesomeIcon icon="sort" />
@@ -289,9 +292,6 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
                   <td>{customer.email}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
-                      <Button tag={Link} to={`${match.url}/${customer.id}`} color="info" size="sm">
-                        <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-                      </Button>
                       <Button tag={Link} to={`${match.url}/${customer.id}/edit`} color="primary" size="sm">
                         <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
                       </Button>
