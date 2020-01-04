@@ -10,6 +10,8 @@ import { IRootState } from 'app/shared/reducers';
 
 import { IProduct } from 'app/shared/model/product.model';
 import { getEntities as getProducts } from 'app/entities/product/product.reducer';
+import { ICustomerOrder } from 'app/shared/model/customer-order.model';
+import { getEntities as getCustomerOrders } from 'app/entities/customer-order/customer-order.reducer';
 import { getEntity, updateEntity, createEntity, reset } from './order-item.reducer';
 import { IOrderItem } from 'app/shared/model/order-item.model';
 // tslint:disable-next-line:no-unused-variable
@@ -21,6 +23,7 @@ export interface IOrderItemUpdateProps extends StateProps, DispatchProps, RouteC
 export interface IOrderItemUpdateState {
   isNew: boolean;
   productId: string;
+  customerOrderId: string;
 }
 
 export class OrderItemUpdate extends React.Component<IOrderItemUpdateProps, IOrderItemUpdateState> {
@@ -28,6 +31,7 @@ export class OrderItemUpdate extends React.Component<IOrderItemUpdateProps, IOrd
     super(props);
     this.state = {
       productId: '0',
+      customerOrderId: '0',
       isNew: !this.props.match.params || !this.props.match.params.id
     };
   }
@@ -46,6 +50,7 @@ export class OrderItemUpdate extends React.Component<IOrderItemUpdateProps, IOrd
     }
 
     this.props.getProducts();
+    this.props.getCustomerOrders();
   }
 
   saveEntity = (event, errors, values) => {
@@ -69,7 +74,7 @@ export class OrderItemUpdate extends React.Component<IOrderItemUpdateProps, IOrd
   };
 
   render() {
-    const { orderItemEntity, products, loading, updating } = this.props;
+    const { orderItemEntity, products, customerOrders, loading, updating } = this.props;
     const { isNew } = this.state;
 
     return (
@@ -150,6 +155,24 @@ export class OrderItemUpdate extends React.Component<IOrderItemUpdateProps, IOrd
                       : null}
                   </AvInput>
                 </AvGroup>
+                <AvGroup>
+                  <Label for="customerOrder.id">Customer Order</Label>
+                  <AvInput
+                    id="order-item-customerOrder"
+                    type="select"
+                    className="form-control"
+                    name="customerOrder.id"
+                    value={isNew ? customerOrders[0] && customerOrders[0].id : orderItemEntity.customerOrder.id}
+                  >
+                    {customerOrders
+                      ? customerOrders.map(otherEntity => (
+                          <option value={otherEntity.id} key={otherEntity.id}>
+                            {otherEntity.id}
+                          </option>
+                        ))
+                      : null}
+                  </AvInput>
+                </AvGroup>
                 <Button tag={Link} id="cancel-save" to="/entity/order-item" replace color="info">
                   <FontAwesomeIcon icon="arrow-left" />
                   &nbsp;
@@ -171,6 +194,7 @@ export class OrderItemUpdate extends React.Component<IOrderItemUpdateProps, IOrd
 
 const mapStateToProps = (storeState: IRootState) => ({
   products: storeState.product.entities,
+  customerOrders: storeState.customerOrder.entities,
   orderItemEntity: storeState.orderItem.entity,
   loading: storeState.orderItem.loading,
   updating: storeState.orderItem.updating,
@@ -179,6 +203,7 @@ const mapStateToProps = (storeState: IRootState) => ({
 
 const mapDispatchToProps = {
   getProducts,
+  getCustomerOrders,
   getEntity,
   updateEntity,
   createEntity,

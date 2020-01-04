@@ -674,4 +674,12 @@ public class Customer implements Serializable {
 
         return map;
     }
+
+    public String getName() {
+        if (type == CompanyType.DOMESTIC) {
+            return firstName + " " + lastName;
+        } else {
+            return companyName;
+        }
+    }
 }

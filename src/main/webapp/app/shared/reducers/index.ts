@@ -23,6 +23,10 @@ import product, {
 import orderItem, {
   OrderItemState
 } from 'app/entities/order-item/order-item.reducer';
+// prettier-ignore
+import customerOrder, {
+  CustomerOrderState
+} from 'app/entities/customer-order/customer-order.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 export interface IRootState {
@@ -38,6 +42,7 @@ export interface IRootState {
   readonly customer: CustomerState;
   readonly product: ProductState;
   readonly orderItem: OrderItemState;
+  readonly customerOrder: CustomerOrderState;
   /* jhipster-needle-add-reducer-type - JHipster will add reducer type here */
   readonly loadingBar: any;
 }
@@ -55,6 +60,7 @@ const rootReducer = combineReducers<IRootState>({
   customer,
   product,
   orderItem,
+  customerOrder,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
   loadingBar
 });

@@ -46,6 +46,8 @@ export class OrderItemDetail extends React.Component<IOrderItemDetailProps> {
             <dd>{orderItemEntity.serialNumber}</dd>
             <dt>Product</dt>
             <dd>{orderItemEntity.product ? orderItemEntity.product.name : ''}</dd>
+            <dt>Customer Order</dt>
+            <dd>{orderItemEntity.customerOrder ? orderItemEntity.customerOrder.id : ''}</dd>
           </dl>
           <Button tag={Link} to="/entity/order-item" replace color="info">
             <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

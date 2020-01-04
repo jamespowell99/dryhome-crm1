@@ -80,6 +80,7 @@ export class OrderItem extends React.Component<IOrderItemProps, IOrderItemState>
                 <th>Notes</th>
                 <th>Serial Number</th>
                 <th>Product</th>
+                <th>Customer Order</th>
                 <th />
               </tr>
             </thead>
@@ -96,6 +97,13 @@ export class OrderItem extends React.Component<IOrderItemProps, IOrderItemState>
                   <td>{orderItem.notes}</td>
                   <td>{orderItem.serialNumber}</td>
                   <td>{orderItem.product ? <Link to={`product/${orderItem.product.id}`}>{orderItem.product.name}</Link> : ''}</td>
+                  <td>
+                    {orderItem.customerOrder ? (
+                      <Link to={`customer-order/${orderItem.customerOrder.id}`}>{orderItem.customerOrder.id}</Link>
+                    ) : (
+                      ''
+                    )}
+                  </td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${orderItem.id}`} color="info" size="sm">

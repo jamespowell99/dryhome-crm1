@@ -4,6 +4,7 @@ import uk.co.dryhome.Dryhomecrm1App;
 
 import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.domain.Product;
+import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.repository.search.OrderItemSearchRepository;
 import uk.co.dryhome.service.OrderItemService;
@@ -121,6 +122,11 @@ public class OrderItemResourceIntTest {
         em.persist(product);
         em.flush();
         orderItem.setProduct(product);
+        // Add required entity
+        CustomerOrder customerOrder = CustomerOrderResourceIntTest.createEntity(em);
+        em.persist(customerOrder);
+        em.flush();
+        orderItem.setCustomerOrder(customerOrder);
         return orderItem;
     }
 

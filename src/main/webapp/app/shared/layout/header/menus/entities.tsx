@@ -24,6 +24,10 @@ export const EntitiesMenu = props => (
       <FontAwesomeIcon icon="asterisk" fixedWidth />
       &nbsp;Order Item
     </DropdownItem>
+    <DropdownItem tag={Link} to="/entity/customer-order">
+      <FontAwesomeIcon icon="asterisk" fixedWidth />
+      &nbsp;Customer Order
+    </DropdownItem>
     {/* jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here */}
   </NavDropdown>
 );

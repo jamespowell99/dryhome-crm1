@@ -9,7 +9,20 @@
             "relationshipValidateRules": [
                 "required"
             ],
-            "otherEntityField": "name"
+            "otherEntityField": "name",
+            "otherEntityRelationshipNameUndefined": true,
+            "otherEntityRelationshipName": "orderItem"
+        },
+        {
+            "relationshipName": "customerOrder",
+            "otherEntityName": "customerOrder",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "id",
+            "otherEntityRelationshipName": "orderItem",
+            "otherEntityRelationshipNameUndefined": true
         }
     ],
     "fields": [

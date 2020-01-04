@@ -1,4 +1,5 @@
 import { IProduct } from 'app/shared/model/product.model';
+import { ICustomerOrder } from 'app/shared/model/customer-order.model';
 
 export interface IOrderItem {
   id?: number;
@@ -6,7 +7,7 @@ export interface IOrderItem {
   quantity?: number;
   notes?: string;
   serialNumber?: string;
-  product?: IProduct;
+  product?: string;
 }
 
 export const defaultValue: Readonly<IOrderItem> = {};
