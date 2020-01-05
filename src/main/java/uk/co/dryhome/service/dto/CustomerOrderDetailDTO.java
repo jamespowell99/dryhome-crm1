@@ -65,6 +65,8 @@ public class CustomerOrderDetailDTO implements Serializable {
 
     private BigDecimal orderTotal;
 
+    private BigDecimal orderSubTotal;
+
     @Override
     public String toString() {
         return "CustomerOrderDetailDTO{" +
@@ -87,8 +89,72 @@ public class CustomerOrderDetailDTO implements Serializable {
             ", customerId=" + customerId +
             ", customerName='" + customerName + '\'' +
             ", orderTotal=" + orderTotal +
+            ", orderSubTotal=" + orderSubTotal +
+            ", vatAmount=" + vatAmount +
+            ", invoiceContact='" + invoiceContact + '\'' +
+            ", deliveryContact='" + deliveryContact + '\'' +
+            ", invoiceAddress=" + invoiceAddress +
+            ", deliveryAddress=" + deliveryAddress +
             ", items=" + items +
             '}';
+    }
+
+    public BigDecimal getOrderSubTotal() {
+        return orderSubTotal;
+    }
+
+    public void setOrderSubTotal(BigDecimal orderSubTotal) {
+        this.orderSubTotal = orderSubTotal;
+    }
+
+    public BigDecimal getVatAmount() {
+        return vatAmount;
+    }
+
+    public void setVatAmount(BigDecimal vatAmount) {
+        this.vatAmount = vatAmount;
+    }
+
+    private BigDecimal vatAmount;
+
+    private String invoiceContact;
+
+    private String deliveryContact;
+
+    private AddressDTO invoiceAddress;
+
+    private AddressDTO deliveryAddress;
+
+    public String getInvoiceContact() {
+        return invoiceContact;
+    }
+
+    public void setInvoiceContact(String invoiceContact) {
+        this.invoiceContact = invoiceContact;
+    }
+
+    public String getDeliveryContact() {
+        return deliveryContact;
+    }
+
+    public void setDeliveryContact(String deliveryContact) {
+        this.deliveryContact = deliveryContact;
+    }
+
+    public AddressDTO getInvoiceAddress() {
+        return invoiceAddress;
+    }
+
+    public void setInvoiceAddress(AddressDTO invoiceAddress) {
+        this.invoiceAddress = invoiceAddress;
+    }
+
+    public AddressDTO getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(AddressDTO deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
 
     public String getCustomerName() {

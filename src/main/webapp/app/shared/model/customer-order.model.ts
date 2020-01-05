@@ -8,6 +8,14 @@ export const enum OrderMethod {
   IN_PERSON = 'IN_PERSON'
 }
 
+export interface IAddress {
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  town?: string;
+  postCode?: string;
+}
+
 export interface ICustomerOrder {
   id?: number;
   orderNumber?: string;
@@ -29,7 +37,13 @@ export interface ICustomerOrder {
   customerId?: number;
   //  todo not sure if this should go here
   customerName?: string;
+  orderSubTotal?: number;
+  vatAmount?: number;
   orderTotal?: number;
+  invoiceContact?: string;
+  deliveryContact?: string;
+  invoiceAddress?: IAddress;
+  deliveryAddress?: IAddress;
 }
 
 export const defaultValue: Readonly<ICustomerOrder> = {};

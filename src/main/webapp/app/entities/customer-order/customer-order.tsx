@@ -8,12 +8,12 @@ import {
   ICrudSearchAction,
   ICrudGetAllAction,
   TextFormat,
-  getSortState,
   IPaginationBaseState,
   getPaginationItemsNumber,
   JhiPagination
 } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
 
 import { IRootState } from 'app/shared/reducers';
 import { getSearchEntities, getEntities } from './customer-order.reducer';

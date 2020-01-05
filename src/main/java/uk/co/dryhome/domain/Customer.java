@@ -682,4 +682,8 @@ public class Customer implements Serializable {
             return companyName;
         }
     }
+
+    public String getFullContactName() {
+        return title + " " + firstName + " " + lastName;
+    }
 }

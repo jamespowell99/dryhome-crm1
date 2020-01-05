@@ -1,16 +1,35 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, Table } from 'reactstrap';
+import {
+  Button,
+  ButtonDropdown,
+  Card,
+  CardBody,
+  CardHeader,
+  CardText,
+  CardTitle,
+  Col,
+  Container,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Nav,
+  NavItem,
+  NavLink,
+  Row,
+  TabContent,
+  Table,
+  TabPane
+} from 'reactstrap';
 // tslint:disable-next-line:no-unused-variable
-import { ICrudGetAction, TextFormat } from 'react-jhipster';
+import { TextFormat } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntity } from './customer-order.reducer';
-import { ICustomerOrder } from 'app/shared/model/customer-order.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 
 export interface ICustomerOrderDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -23,165 +42,228 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
     const { customerOrderEntity } = this.props;
     return (
       <div>
-        <Row>
-          <Col>
-            <h2>
-              Order{' '}
-              <b>
-                <span id="orderNumber">{customerOrderEntity.orderNumber}</span>
-              </b>
-            </h2>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <dl>
-              <dt>Customer</dt>
-              <dd>
-                {customerOrderEntity.customerName}({customerOrderEntity.customerId})
-              </dd>
+        <Container>
+          <Row>
+            <Col>
+              <h2>
+                Order{' '}
+                <b>
+                  <span id="orderNumber">{customerOrderEntity.orderNumber}</span>
+                </b>
+              </h2>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Card>
+                <CardHeader>Order Details</CardHeader>
+                <CardBody>
+                  <dl>
+                    <dt>Customer</dt>
+                    <dd>
+                      {customerOrderEntity.customerName}({customerOrderEntity.customerId})
+                    </dd>
 
-              <dt>
-                <span id="orderDate">Order Date</span>
-              </dt>
-              <dd>
-                <TextFormat value={customerOrderEntity.orderDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
-              </dd>
-              <dt>
-                <span id="despatchDate">Despatch Date</span>
-              </dt>
-              <dd>
-                <TextFormat value={customerOrderEntity.despatchDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
-              </dd>
-              <dt>
-                <span id="invoiceDate">Invoice Date</span>
-              </dt>
-              <dd>
-                <TextFormat value={customerOrderEntity.invoiceDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
-              </dd>
-              <dt>
-                <span id="placedBy">Placed By</span>
-              </dt>
-              <dd>{customerOrderEntity.placedBy}</dd>
-              <dt>
-                <span id="method">Method</span>
-              </dt>
-              <dd>{customerOrderEntity.method}</dd>
-              <dt>
-                <span id="invoiceNumber">Invoice Number</span>
-              </dt>
-              <dd>{customerOrderEntity.invoiceNumber}</dd>
-              <dt>
-                <span id="notes1">Notes 1</span>
-              </dt>
-              <dd>{customerOrderEntity.notes1}</dd>
-              <dt>
-                <span id="notes2">Notes 2</span>
-              </dt>
-              <dd>{customerOrderEntity.notes2}</dd>
-            </dl>
-          </Col>
-          <Col>
-            <dl>
-              <dt>
-                <span id="method">Invoice Contact / Address</span>
-              </dt>
-            </dl>
-          </Col>
-          <Col>
-            <dl>
-              <dt>
-                <span id="method">Invoice Contact / Address</span>
-              </dt>
-            </dl>
-          </Col>
-        </Row>
-        <Row>
-          <div className="table-responsive table-sm">
-            <Table responsive className="table-bordered">
-              <thead className="thead-light">
-                <tr>
-                  <th className="hand">ID</th>
-                  <th className="hand">Product</th>
-                  <th className="hand">Quantity</th>
-                  <th className="hand">Price</th>
-                  <th className="hand">notes</th>
-                  <th className="hand">serial number</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customerOrderEntity.items
-                  ? customerOrderEntity.items.map((item, i) => (
-                      <tr key={`entity-${i}`}>
-                        <td>{item.id}</td>
-                        <td>{item.product}</td>
-                        <td>{item.quantity}</td>
-                        <td>£{item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td>{item.notes}</td>
-                        <td>{item.serialNumber}</td>
-                      </tr>
-                    ))
-                  : null}
-              </tbody>
-            </Table>
-          </div>
-        </Row>
-        <Row>
-          <Col>
-            <dl>
-              <dt>
-                <span id="internalNotes">Internal Notes</span>
-              </dt>
-              <dd>{customerOrderEntity.internalNotes}</dd>
-            </dl>
-          </Col>
-          <Col>
-            <dl>
-              <dt>
-                <span id="paymentDate">Payment Date</span>
-              </dt>
-              <dd>
-                <TextFormat value={customerOrderEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
-              </dd>
-              <dt>
-                <span id="paymentStatus">Payment Status</span>
-              </dt>
-              <dd>{customerOrderEntity.paymentStatus}</dd>
-              <dt>
-                <span id="paymentType">Payment Type</span>
-              </dt>
-              <dd>{customerOrderEntity.paymentType}</dd>
-              <dt>
-                <span id="paymentAmount">Payment Amount</span>
-              </dt>
-              <dd>{customerOrderEntity.paymentAmount}</dd>
-            </dl>
-          </Col>
-          <Col>
-            <dl>
-              <dt>
-                <span id="vatRate">Vat Rate</span>
-              </dt>
-              <dd>{customerOrderEntity.vatRate ? customerOrderEntity.vatRate.toFixed(2) : null}%</dd>
-              <dt>
-                <span id="vatRate">Total</span>
-              </dt>
-              <dd>
-                £
-                {customerOrderEntity.orderTotal
-                  ? customerOrderEntity.orderTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                  : null}
-              </dd>
-            </dl>
-          </Col>
-        </Row>
-        <Button tag={Link} to="/entity/customer-order" replace color="info">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
-        <Button tag={Link} to={`/entity/customer-order/${customerOrderEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+                    <dt>
+                      <span id="orderDate">Order Date</span>
+                    </dt>
+                    <dd>
+                      <TextFormat value={customerOrderEntity.orderDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                    </dd>
+                    <dt>
+                      <span id="despatchDate">Despatch Date</span>
+                    </dt>
+                    <dd>
+                      <TextFormat value={customerOrderEntity.despatchDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                    </dd>
+                    <dt>
+                      <span id="invoiceDate">Invoice Date</span>
+                    </dt>
+                    <dd>
+                      <TextFormat value={customerOrderEntity.invoiceDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                    </dd>
+                    <dt>
+                      <span id="placedBy">Placed By</span>
+                    </dt>
+                    <dd>{customerOrderEntity.placedBy}</dd>
+                    <dt>
+                      <span id="method">Method</span>
+                    </dt>
+                    <dd>{customerOrderEntity.method}</dd>
+                    <dt>
+                      <span id="invoiceNumber">Invoice Number</span>
+                    </dt>
+                    <dd>{customerOrderEntity.invoiceNumber}</dd>
+                    <dt>
+                      <span id="notes1">Invoice Notes 1</span>
+                    </dt>
+                    <dd>{customerOrderEntity.notes1}</dd>
+                    <dt>
+                      <span id="notes2">Invoice Notes 2</span>
+                    </dt>
+                    <dd>{customerOrderEntity.notes2}</dd>
+                  </dl>
+                </CardBody>
+              </Card>
+            </Col>
+            <Col>
+              <Card>
+                <CardHeader>Invoice Contact / Address</CardHeader>
+                <CardBody>
+                  <dl>
+                    <dt>
+                      <span id="invoiceContact">Contact</span>
+                    </dt>
+                    <dd>{customerOrderEntity.invoiceContact}</dd>
+
+                    <dt>
+                      <span id="invoiceAddress">Address</span>
+                    </dt>
+                    <dd>{customerOrderEntity.invoiceAddress ? customerOrderEntity.invoiceAddress.address1 : null}</dd>
+                    <dd>{customerOrderEntity.invoiceAddress ? customerOrderEntity.invoiceAddress.address2 : null}</dd>
+                    <dd>{customerOrderEntity.invoiceAddress ? customerOrderEntity.invoiceAddress.address3 : null}</dd>
+                    <dd>{customerOrderEntity.invoiceAddress ? customerOrderEntity.invoiceAddress.town : null}</dd>
+                    <dd>{customerOrderEntity.invoiceAddress ? customerOrderEntity.invoiceAddress.postCode : null}</dd>
+                  </dl>
+                </CardBody>
+              </Card>
+            </Col>
+            <Col>
+              <Card>
+                <CardHeader>Delivery Contact / Address</CardHeader>
+                <CardBody>
+                  <dl>
+                    <dt>
+                      <span id="deliveryContact">Contact</span>
+                    </dt>
+                    <dd>{customerOrderEntity.deliveryContact}</dd>
+
+                    <dt>
+                      <span id="deliveryAddress">Address</span>
+                    </dt>
+                    <dd>{customerOrderEntity.deliveryAddress ? customerOrderEntity.deliveryAddress.address1 : null}</dd>
+                    <dd>{customerOrderEntity.deliveryAddress ? customerOrderEntity.deliveryAddress.address2 : null}</dd>
+                    <dd>{customerOrderEntity.deliveryAddress ? customerOrderEntity.deliveryAddress.address3 : null}</dd>
+                    <dd>{customerOrderEntity.deliveryAddress ? customerOrderEntity.deliveryAddress.town : null}</dd>
+                    <dd>{customerOrderEntity.deliveryAddress ? customerOrderEntity.deliveryAddress.postCode : null}</dd>
+                  </dl>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+          <Row className="mt-3">
+            <dt>
+              <span id="orderItems">OrderItems</span>
+            </dt>
+            <div className="table-responsive table-sm">
+              <Table responsive className="table-bordered">
+                <thead className="thead-light">
+                  <tr>
+                    <th className="hand">ID</th>
+                    <th className="hand">Product</th>
+                    <th className="hand">Quantity</th>
+                    <th className="hand">Price</th>
+                    <th className="hand">notes</th>
+                    <th className="hand">serial number</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customerOrderEntity.items
+                    ? customerOrderEntity.items.map((item, i) => (
+                        <tr key={`entity-${i}`}>
+                          <td>{item.id}</td>
+                          <td>{item.product}</td>
+                          <td>{item.quantity}</td>
+                          <td>£{item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td>{item.notes}</td>
+                          <td>{item.serialNumber}</td>
+                        </tr>
+                      ))
+                    : null}
+                </tbody>
+              </Table>
+            </div>
+          </Row>
+          <Row>
+            <Col>
+              <Card>
+                <CardHeader>Notes</CardHeader>
+                <CardBody>
+                  <dl>
+                    <dd>{customerOrderEntity.internalNotes}</dd>
+                  </dl>
+                </CardBody>
+              </Card>
+            </Col>
+            <Col>
+              <Card>
+                <CardHeader>Payment Details</CardHeader>
+                <CardBody>
+                  <dl>
+                    <dt>
+                      <span id="paymentDate">Payment Date</span>
+                    </dt>
+                    <dd>
+                      <TextFormat value={customerOrderEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                    </dd>
+                    <dt>
+                      <span id="paymentStatus">Payment Status</span>
+                    </dt>
+                    <dd>{customerOrderEntity.paymentStatus}</dd>
+                    <dt>
+                      <span id="paymentType">Payment Type</span>
+                    </dt>
+                    <dd>{customerOrderEntity.paymentType}</dd>
+                    <dt>
+                      <span id="paymentAmount">Payment Amount</span>
+                    </dt>
+                    <dd>{customerOrderEntity.paymentAmount}</dd>
+                  </dl>
+                </CardBody>
+              </Card>
+            </Col>
+            <Col>
+              <Card>
+                <CardHeader>Totals</CardHeader>
+                <CardBody>
+                  <dl>
+                    <dt>
+                      <span id="orderSubTotal">Sub Total</span>
+                    </dt>
+                    <dd>£{customerOrderEntity.orderSubTotal ? customerOrderEntity.orderSubTotal.toFixed(2) : null}</dd>
+                    <dt>
+                      <span id="vatRate">Vat</span>
+                    </dt>
+                    <dd>
+                      £{customerOrderEntity.vatAmount ? customerOrderEntity.vatAmount.toFixed(2) : null} (
+                      {customerOrderEntity.vatRate ? customerOrderEntity.vatRate.toFixed(1) : null}
+                      %)
+                    </dd>
+                    <dt>
+                      <span id="orderTotal">Total</span>
+                    </dt>
+                    <dd>
+                      £
+                      {customerOrderEntity.orderTotal
+                        ? customerOrderEntity.orderTotal.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })
+                        : null}
+                    </dd>
+                  </dl>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+          <Button tag={Link} to="/entity/customer-order" replace color="info">
+            <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
+          </Button>
+          &nbsp;
+          <Button tag={Link} to={`/entity/customer-order/${customerOrderEntity.id}/edit`} replace color="primary">
+            <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
+          </Button>
+        </Container>
       </div>
     );
   }

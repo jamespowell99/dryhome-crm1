@@ -24,6 +24,7 @@ import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.repository.search.CustomerOrderSearchRepository;
+import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
@@ -118,13 +119,32 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
                 }).collect(Collectors.toList());
                 customerOrderDetailDTO.setItems(items);
 
+                Customer customer = o.getCustomer();
+                customerOrderDetailDTO.setCustomerName(customer.getName());
+
                 BigDecimal orderSubTotal = orderItems.stream()
                     .map(oi -> oi.getPrice().multiply(BigDecimal.valueOf(oi.getQuantity())))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                customerOrderDetailDTO.setCustomerName(o.getCustomer().getName());
                 BigDecimal vatAmount = orderSubTotal.multiply(o.getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
+
+                customerOrderDetailDTO.setOrderSubTotal(orderSubTotal);
+                customerOrderDetailDTO.setVatAmount(vatAmount);
                 customerOrderDetailDTO.setOrderTotal(orderSubTotal.add(vatAmount));
+
+                //todo different contact?
+                customerOrderDetailDTO.setInvoiceContact(customer.getFullContactName());
+                customerOrderDetailDTO.setDeliveryContact(customer.getFullContactName());
+
+                AddressDTO customerAddress = new AddressDTO();
+                customerAddress.setAddress1(customer.getAddress1());
+                customerAddress.setAddress2(customer.getAddress2());
+                customerAddress.setAddress3(customer.getAddress3());
+                customerAddress.setTown(customer.getTown());
+                customerAddress.setPostCode(customer.getPostCode());
+                //todo allow different address
+                customerOrderDetailDTO.setInvoiceAddress(customerAddress);
+                customerOrderDetailDTO.setDeliveryAddress(customerAddress);
+
                 return customerOrderDetailDTO;});
     }
 

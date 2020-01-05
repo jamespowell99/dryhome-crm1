@@ -25,6 +25,17 @@ export class Home extends React.Component<IHomeProp> {
           {account && account.login ? (
             <div>
               <Alert color="success">You are logged in as user {account.login}.</Alert>
+              <ul>
+                <li>
+                  <a href="/#/entity/dampproofer">Damp Proofer Customers</a>
+                </li>
+                <li>
+                  <a href="/#/entity/domestic">Domestic Customers</a>
+                </li>
+                <li>
+                  <a href="/#/entity/customer-order">Orders</a>
+                </li>
+              </ul>
             </div>
           ) : (
             <div>
@@ -44,17 +55,6 @@ export class Home extends React.Component<IHomeProp> {
               </Alert>
             </div>
           )}
-          <ul>
-            <li>
-              <a href="/#/entity/dampproofer">Damp Proofer Customers</a>
-            </li>
-            <li>
-              <a href="/#/entity/domestic">Domestic Customers</a>
-            </li>
-            <li>
-              <a href="/#/entity/customer-order">Orders</a>
-            </li>
-          </ul>
         </Col>
       </Row>
     );

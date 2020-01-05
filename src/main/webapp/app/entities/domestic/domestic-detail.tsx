@@ -153,6 +153,25 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
                   </Col>
                   <Col>
                     <Card>
+                      <CardHeader>Contact Details</CardHeader>
+                      <CardBody>
+                        <dl>
+                          <dt>
+                            <span id="tel">Tel</span>
+                          </dt>
+                          <dd>{customerEntity.tel}</dd>
+                          <dt>
+                            <span id="mobile">Mobile</span>
+                          </dt>
+                          <dd>{customerEntity.mobile}</dd>
+                          <dt>
+                            <span id="email">Email</span>
+                          </dt>
+                          <dd>{customerEntity.email}</dd>
+                        </dl>
+                      </CardBody>
+                    </Card>
+                    <Card className="mt-3">
                       <CardHeader>Lead</CardHeader>
                       <CardBody>
                         <dl>
@@ -175,104 +194,87 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
                         </dl>
                       </CardBody>
                     </Card>
-                    <Row className="m-3">
-                      <dl>
-                        <dt>
-                          <span id="type">Status</span>
-                        </dt>
-                        <dd>{customerEntity.status}</dd>
-                      </dl>
-                    </Row>
                   </Col>
                 </Row>
                 <Row className="mt-3">
                   <Col>
                     <Card>
-                      <CardHeader>Contact Details</CardHeader>
                       <CardBody>
                         <dl>
                           <dt>
-                            <span id="tel">Tel</span>
+                            <span id="type">Status</span>
                           </dt>
-                          <dd>{customerEntity.tel}</dd>
-                          <dt>
-                            <span id="mobile">Mobile</span>
-                          </dt>
-                          <dd>{customerEntity.mobile}</dd>
-                          <dt>
-                            <span id="email">Email</span>
-                          </dt>
-                          <dd>{customerEntity.email}</dd>
+                          <dd>{customerEntity.status}</dd>
                         </dl>
+                        <Row>
+                          <Col>
+                            <Card>
+                              <CardHeader>Enquiry</CardHeader>
+                              <CardBody>
+                                <dl>
+                                  <dt>
+                                    <span id="type">Property</span>
+                                  </dt>
+                                  <dd>{customerEntity.enquiryProperty}</dd>
+                                  <dt>
+                                    <span id="type">Unit P/Q</span>
+                                  </dt>
+                                  <dd>{customerEntity.enquiryUnitPq}</dd>
+                                  <dt>
+                                    <span id="type">Inst P/Q</span>
+                                  </dt>
+                                  <dd>{customerEntity.enquiryInstPq}</dd>
+                                </dl>
+                              </CardBody>
+                            </Card>
+                          </Col>
+
+                          <Col>
+                            <Card>
+                              <CardHeader>Sale</CardHeader>
+                              <CardBody>
+                                <dl>
+                                  <dt>
+                                    <span id="type">Products</span>
+                                  </dt>
+                                  <dd>{customerEntity.saleProducts}</dd>
+                                  <dt>
+                                    <span id="type">Invoice Date</span>
+                                  </dt>
+                                  <dd>{customerEntity.saleInvoiceDate}</dd>
+                                  <dt>
+                                    <span id="type">Invoice Number</span>
+                                  </dt>
+                                  <dd>{customerEntity.saleInvoiceNumber}</dd>
+                                  <dt>
+                                    <span id="type">Amount</span>
+                                  </dt>
+                                  <dd>{customerEntity.saleInvoiceAmount}</dd>
+                                </dl>
+                              </CardBody>
+                            </Card>
+                          </Col>
+                        </Row>
                       </CardBody>
                     </Card>
-                  </Col>
-                  <Col>
-                    <Row>
-                      <Col>
-                        <Card>
-                          <CardHeader>Enquiry</CardHeader>
-                          <CardBody>
-                            <dl>
-                              <dt>
-                                <span id="type">Property</span>
-                              </dt>
-                              <dd>{customerEntity.enquiryProperty}</dd>
-                              <dt>
-                                <span id="type">Unit P/Q</span>
-                              </dt>
-                              <dd>{customerEntity.enquiryUnitPq}</dd>
-                              <dt>
-                                <span id="type">Inst P/Q</span>
-                              </dt>
-                              <dd>{customerEntity.enquiryInstPq}</dd>
-                            </dl>
-                          </CardBody>
-                        </Card>
-                      </Col>
-
-                      <Col>
-                        <Card>
-                          <CardHeader>Sale</CardHeader>
-                          <CardBody>
-                            <dl>
-                              <dt>
-                                <span id="type">Products</span>
-                              </dt>
-                              <dd>{customerEntity.saleProducts}</dd>
-                              <dt>
-                                <span id="type">Invoice Date</span>
-                              </dt>
-                              <dd>{customerEntity.saleInvoiceDate}</dd>
-                              <dt>
-                                <span id="type">Invoice Number</span>
-                              </dt>
-                              <dd>{customerEntity.saleInvoiceNumber}</dd>
-                              <dt>
-                                <span id="type">Amount</span>
-                              </dt>
-                              <dd>{customerEntity.saleInvoiceAmount}</dd>
-                            </dl>
-                          </CardBody>
-                        </Card>
-                      </Col>
-                    </Row>
+                    <Row />
                   </Col>
                 </Row>
 
-                <Row className="mt-3" />
+                <Row className="mt-3">
+                  <Col>
+                    <dl>
+                      <dt>
+                        {' '}
+                        <span id="notes">Notes</span>
+                      </dt>
+                      <dd>
+                        <textarea id="customer-notes" readOnly name="notes" rows={15} cols={100} value={customerEntity.notes} />
+                      </dd>
+                    </dl>
+                  </Col>
+                </Row>
               </Container>
-              <Row>
-                <dl>
-                  <dt>
-                    {' '}
-                    <span id="notes">Notes</span>
-                  </dt>
-                  <dd>
-                    <textarea id="customer-notes" readOnly name="notes" rows={15} cols={100} value={customerEntity.notes} />
-                  </dd>
-                </dl>
-              </Row>
             </TabPane>
             <TabPane tabId="2">
               <Link to={`/new`} className="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
