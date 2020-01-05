@@ -35,7 +35,8 @@ import { getEntity } from 'app/entities/domestic/domestic.reducer';
 
 export interface ICustomerDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
-export interface ICustomerDetailState extends IPaginationBaseState {
+export interface ICustomerDetailState {
+  // todo extend IPaginationBaseState
   dropdownOpen: boolean;
   activeTab: string;
 }

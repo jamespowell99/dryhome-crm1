@@ -122,6 +122,7 @@ const apiSearchUrl = 'api/_search/customers';
 
 export const getSearchEntities: ICrudSearchCustomerAction<ICustomer> = (
   searchId,
+  searchCompanyName,
   searchTown,
   searchPostCode,
   searchLastName,

@@ -64,6 +64,7 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
         } = this.state;
         this.props.getSearchEntities(
           searchId,
+          null,
           searchTown,
           searchPostCode,
           searchLastName,
@@ -137,6 +138,7 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
     if (searchId || searchTown || searchPostCode || searchLastName || searchTel || searchMob) {
       this.props.getSearchEntities(
         searchId,
+        null,
         searchTown,
         searchPostCode,
         searchLastName,
