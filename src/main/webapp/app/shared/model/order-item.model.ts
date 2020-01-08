@@ -8,6 +8,7 @@ export interface IOrderItem {
   notes?: string;
   serialNumber?: string;
   product?: string;
+  productId?: number;
 }
 
 export const defaultValue: Readonly<IOrderItem> = {};

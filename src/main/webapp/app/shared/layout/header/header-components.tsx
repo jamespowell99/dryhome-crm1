@@ -56,3 +56,19 @@ export const Products = props => (
     </NavLink>
   </NavItem>
 );
+
+export const DampProofers = props => (
+  <NavItem>
+    <NavLink tag={Link} to="/entity/dampproofer" className="d-flex align-items-center">
+      <span>Damp Proofers</span>
+    </NavLink>
+  </NavItem>
+);
+
+export const Domestics = props => (
+  <NavItem>
+    <NavLink tag={Link} to="/entity/domestic" className="d-flex align-items-center">
+      <span>Domestics</span>
+    </NavLink>
+  </NavItem>
+);

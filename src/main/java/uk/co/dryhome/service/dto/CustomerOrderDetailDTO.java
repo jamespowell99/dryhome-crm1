@@ -67,6 +67,9 @@ public class CustomerOrderDetailDTO implements Serializable {
 
     private BigDecimal orderSubTotal;
 
+    @Size(min = 1, max = 5)
+    private List<OrderItemDTO> items = new ArrayList<>();
+
     @Override
     public String toString() {
         return "CustomerOrderDetailDTO{" +
@@ -172,8 +175,6 @@ public class CustomerOrderDetailDTO implements Serializable {
     public void setOrderTotal(BigDecimal orderTotal) {
         this.orderTotal = orderTotal;
     }
-
-    private List<OrderItemDTO> items = new ArrayList<>();
 
     public Long getId() {
         return id;

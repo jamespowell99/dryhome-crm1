@@ -1,21 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, Label } from 'reactstrap';
-import { AvForm, AvGroup, AvInput, AvField } from 'availity-reactstrap-validation';
+import { Button, Col, Label, Row, Table } from 'reactstrap';
+import { AvField, AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
+import { getEntities as getProducts } from 'app/entities/product/product.reducer';
 // tslint:disable-next-line:no-unused-variable
-import { ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
-
-import { ICustomer } from 'app/shared/model/customer.model';
 // todo this will need to be all types of customer, or not at all
-import { getEntities as getCustomers } from 'app/entities/dampproofer/dampproofer.reducer';
-import { getEntity, updateEntity, createEntity, reset } from './customer-order.reducer';
-import { ICustomerOrder } from 'app/shared/model/customer-order.model';
+import { getEntity as getCustomer } from 'app/entities/dampproofer/dampproofer.reducer';
+import { addOrderItem, clearOrderItems, createEntity, getEntity, reset, updateEntity } from './customer-order.reducer';
+
 // tslint:disable-next-line:no-unused-variable
-import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface ICustomerOrderUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -34,26 +30,32 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
   }
 
   componentWillUpdate(nextProps, nextState) {
-    if (nextProps.updateSuccess !== this.props.updateSuccess && nextProps.updateSuccess) {
-      this.handleClose();
+    if (nextProps.updateSuccess !== this.props.updateSuccess && nextProps.updateSuccess && nextProps.customerOrderEntity.id) {
+      this.handleClose(nextProps.customerOrderEntity.id);
     }
   }
 
   componentDidMount() {
     if (this.state.isNew) {
       this.props.reset();
+      // todo this will need to be all types of customer, or not at all
+      // todo this is horrible - improve
+      const search = this.props.location.search;
+      const n = search.lastIndexOf('customerId=');
+      const result = search.substring(n + 11);
+      this.props.getCustomer(result); // todo what if null?
     } else {
       this.props.getEntity(this.props.match.params.id);
     }
 
-    // todo this will need to be all types of customer, or not at all
-    this.props.getCustomers('DAMP_PROOFER');
+    this.props.getProducts();
   }
 
   saveEntity = (event, errors, values) => {
     if (errors.length === 0) {
       const { customerOrderEntity } = this.props;
       const entity = {
+        customerId: this.props.customerEntity.id,
         ...customerOrderEntity,
         ...values
       };
@@ -66,13 +68,27 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
     }
   };
 
-  handleClose = () => {
-    this.props.history.push('/entity/customer-order');
+  handleClose = customerOrderId => {
+    this.props.history.push('/entity/customer-order/' + customerOrderId);
   };
 
   render() {
-    const { customerOrderEntity, customers, loading, updating } = this.props;
+    const { customerOrderEntity, customerEntity, loading, updating, products } = this.props;
     const { isNew } = this.state;
+
+    const clearItems = () => {
+      this.props.clearOrderItems();
+    };
+    const addItem = () => {
+      this.props.addOrderItem();
+    };
+
+    // explicitly set null fields to empty string, otherwise causes problems with validation
+    Object.keys(customerOrderEntity).forEach(key => {
+      if (customerOrderEntity[key] == null) {
+        customerOrderEntity[key] = '';
+      }
+    });
 
     return (
       <div>
@@ -86,13 +102,35 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
             {loading ? (
               <p>Loading...</p>
             ) : (
-              <AvForm model={isNew ? {} : customerOrderEntity} onSubmit={this.saveEntity}>
+              // todo default vatRate and product to config?
+              <AvForm model={isNew ? { items: [{ productId: 6 }], vatRate: 20 } : customerOrderEntity} onSubmit={this.saveEntity}>
                 {!isNew ? (
                   <AvGroup>
                     <Label for="id">ID</Label>
                     <AvInput id="customer-order-id" type="text" className="form-control" name="id" required readOnly />
                   </AvGroup>
                 ) : null}
+                {!isNew ? (
+                  <AvGroup>
+                    <Label for="customerName">Customer</Label>
+                    <AvInput id="customer-name" type="text" className="form-control" name="customerName" required readOnly />
+                    <AvInput id="customer-id" type="text" className="form-control" name="customerId" required readOnly hidden />
+                  </AvGroup>
+                ) : (
+                  <AvGroup>
+                    <Label for="customerName">Customer</Label>
+                    <input id="customer-name" type="text" className="form-control" value={customerEntity.companyName} required readOnly />
+                    <input
+                      id="customer-id"
+                      type="text"
+                      className="form-control"
+                      value={customerEntity.customerId}
+                      required
+                      readOnly
+                      hidden
+                    />
+                  </AvGroup>
+                )}
                 <AvGroup>
                   <Label id="orderNumberLabel" for="orderNumber">
                     Order Number
@@ -258,18 +296,83 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                     <option value="IN_PERSON">IN_PERSON</option>
                   </AvInput>
                 </AvGroup>
-                <AvGroup>
-                  <Label for="customer.id">Customer</Label>
-                  <AvInput id="customer-order-customer" type="select" className="form-control" name="customerId">
-                    {customers
-                      ? customers.map(otherEntity => (
-                          <option value={otherEntity.id} key={otherEntity.id}>
-                            {otherEntity.id}
-                          </option>
-                        ))
-                      : null}
-                  </AvInput>
-                </AvGroup>
+                <div className="table-responsive table-sm">
+                  <Table responsive className="table-bordered">
+                    <thead className="thead-light">
+                      <tr>
+                        <th className="hand">ID</th>
+                        <th className="hand">Product</th>
+                        <th className="hand">Quantity</th>
+                        <th className="hand">Price</th>
+                        <th className="hand">notes</th>
+                        <th className="hand">serial number</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customerOrderEntity.items
+                        ? customerOrderEntity.items.map((item, i) => (
+                            <tr key={`entity-${i}`}>
+                              <td>
+                                <AvField id={'customer-order-item-id-' + i} type="text" name={'items[' + i + '].id'} disabled />
+                              </td>
+                              <td>
+                                <AvGroup>
+                                  <AvInput
+                                    id={'customer-order-item-product-' + i}
+                                    type="select"
+                                    className="form-control"
+                                    name={'items[' + i + '].productId'}
+                                  >
+                                    {products
+                                      ? products.map(otherEntity => (
+                                          <option value={otherEntity.id} key={otherEntity.id}>
+                                            {otherEntity.name}
+                                          </option>
+                                        ))
+                                      : null}
+                                  </AvInput>
+                                </AvGroup>
+                              </td>
+                              <td>
+                                <AvField
+                                  id={'customer-order-item-qty-' + i}
+                                  type="text"
+                                  name={'items[' + i + '].quantity'}
+                                  validate={{
+                                    required: { value: true, errorMessage: 'This field is required.' }
+                                  }}
+                                />
+                              </td>
+                              <td>
+                                <AvField
+                                  id={'customer-order-item-price-' + i}
+                                  type="text"
+                                  name={'items[' + i + '].price'}
+                                  validate={{
+                                    required: { value: true, errorMessage: 'This field is required.' }
+                                  }}
+                                />
+                              </td>
+                              <td>
+                                <AvField id={'customer-order-item-notes-' + i} type="text" name={'items[' + i + '].notes'} />
+                              </td>
+                              <td>
+                                <AvField id={'customer-order-item-serialNumber-' + i} type="text" name={'items[' + i + '].serialNumber'} />
+                              </td>
+                            </tr>
+                          ))
+                        : null}
+                    </tbody>
+                  </Table>
+                  <Button id="clearItems" onClick={clearItems} replace color="danger">
+                    <FontAwesomeIcon icon="trash" />
+                    clear
+                  </Button>
+                  <Button id="addItem" onClick={addItem} replace color="info">
+                    <FontAwesomeIcon icon="plus" />
+                    add
+                  </Button>
+                </div>
                 <Button tag={Link} id="cancel-save" to="/entity/customer-order" replace color="info">
                   <FontAwesomeIcon icon="arrow-left" />
                   &nbsp;
@@ -290,7 +393,8 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
 }
 
 const mapStateToProps = (storeState: IRootState) => ({
-  customers: storeState.customer.entities,
+  products: storeState.product.entities,
+  customerEntity: storeState.customer.entity,
   customerOrderEntity: storeState.customerOrder.entity,
   loading: storeState.customerOrder.loading,
   updating: storeState.customerOrder.updating,
@@ -298,11 +402,14 @@ const mapStateToProps = (storeState: IRootState) => ({
 });
 
 const mapDispatchToProps = {
-  getCustomers,
+  getProducts,
+  getCustomer,
   getEntity,
   updateEntity,
   createEntity,
-  reset
+  reset,
+  clearOrderItems,
+  addOrderItem
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

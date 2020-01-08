@@ -82,7 +82,7 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
         return customerOrderRepository.findAll(specification, page)
             .map(x -> {
                 CustomerOrderSummaryDTO summaryDto = customerOrderMapper.toSummaryDto(x);
-                List<OrderItem> orderItems = orderItemRepository.findByCustomerOrderId(x.getId());
+                List<OrderItem> orderItems = orderItemRepository.findByCustomerOrderIdOrderById(x.getId());
                 BigDecimal orderSubTotal = orderItems.stream()
                     .map(oi -> oi.getPrice().multiply(BigDecimal.valueOf(oi.getQuantity())))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -105,7 +105,7 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
         return customerOrderRepository.findById(id)
             .map( o -> {
                 CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(o);
-                List<OrderItem> orderItems = orderItemRepository.findByCustomerOrderId(o.getId());
+                List<OrderItem> orderItems = orderItemRepository.findByCustomerOrderIdOrderById(o.getId());
                 List<OrderItemDTO> items = orderItems.stream().map(oi -> {
                     //todo use mapper?
                     OrderItemDTO orderItemDTO = new OrderItemDTO();
@@ -115,6 +115,7 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
                     orderItemDTO.setNotes(oi.getNotes());
                     orderItemDTO.setSerialNumber(oi.getSerialNumber());
                     orderItemDTO.setProduct(oi.getProduct().getName());
+                    orderItemDTO.setProductId(oi.getProduct().getId());
                     return orderItemDTO;
                 }).collect(Collectors.toList());
                 customerOrderDetailDTO.setItems(items);

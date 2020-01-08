@@ -12,4 +12,5 @@ public class OrderItemDTO {
     private String notes;
     private String serialNumber;
     private String product;
+    private Long productId;
 }

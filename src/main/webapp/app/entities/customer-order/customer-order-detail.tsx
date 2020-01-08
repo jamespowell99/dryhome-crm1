@@ -174,7 +174,12 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
                           <td>{item.id}</td>
                           <td>{item.product}</td>
                           <td>{item.quantity}</td>
-                          <td>£{item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td>
+                            £
+                            {item.price
+                              ? item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                              : null}
+                          </td>
                           <td>{item.notes}</td>
                           <td>{item.serialNumber}</td>
                         </tr>

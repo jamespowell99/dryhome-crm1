@@ -56,12 +56,12 @@ public class CustomerOrderResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/customer-orders")
-    public ResponseEntity<CustomerOrderDTO> createCustomerOrder(@Valid @RequestBody CustomerOrderDTO customerOrderDTO) throws URISyntaxException {
-        log.debug("REST request to save CustomerOrder : {}", customerOrderDTO);
-        if (customerOrderDTO.getId() != null) {
+    public ResponseEntity<CustomerOrderDetailDTO> createCustomerOrder(@Valid @RequestBody CustomerOrderDetailDTO customerOrderDetailDTO) throws URISyntaxException {
+        log.debug("REST request to save CustomerOrder : {}", customerOrderDetailDTO);
+        if (customerOrderDetailDTO.getId() != null) {
             throw new BadRequestAlertException("A new customerOrder cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        CustomerOrderDTO result = customerOrderService.save(customerOrderDTO);
+        CustomerOrderDetailDTO result = customerOrderService.save(customerOrderDetailDTO);
         return ResponseEntity.created(new URI("/api/customer-orders/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -70,21 +70,21 @@ public class CustomerOrderResource {
     /**
      * PUT  /customer-orders : Updates an existing customerOrder.
      *
-     * @param customerOrderDTO the customerOrderDTO to update
+     * @param CustomerOrderDetailDTO the CustomerOrderDetailDTO to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated customerOrderDTO,
      * or with status 400 (Bad Request) if the customerOrderDTO is not valid,
      * or with status 500 (Internal Server Error) if the customerOrderDTO couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/customer-orders")
-    public ResponseEntity<CustomerOrderDTO> updateCustomerOrder(@Valid @RequestBody CustomerOrderDTO customerOrderDTO) throws URISyntaxException {
-        log.debug("REST request to update CustomerOrder : {}", customerOrderDTO);
-        if (customerOrderDTO.getId() == null) {
+    public ResponseEntity<CustomerOrderDetailDTO> updateCustomerOrder(@Valid @RequestBody CustomerOrderDetailDTO customerOrderDetailDTO) throws URISyntaxException {
+        log.debug("REST request to update CustomerOrder : {}", customerOrderDetailDTO);
+        if (customerOrderDetailDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        CustomerOrderDTO result = customerOrderService.save(customerOrderDTO);
+        CustomerOrderDetailDTO result = customerOrderService.save(customerOrderDetailDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, customerOrderDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, customerOrderDetailDTO.getId().toString()))
             .body(result);
     }
 

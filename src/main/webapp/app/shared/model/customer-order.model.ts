@@ -45,5 +45,5 @@ export interface ICustomerOrder {
   invoiceAddress?: IAddress;
   deliveryAddress?: IAddress;
 }
-
-export const defaultValue: Readonly<ICustomerOrder> = {};
+// todo move vatRate to constant
+export const defaultValue: Readonly<ICustomerOrder> = { items: [{}], vatRate: 20 };

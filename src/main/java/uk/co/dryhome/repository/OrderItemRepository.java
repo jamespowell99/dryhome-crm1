@@ -13,6 +13,6 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
-    List<OrderItem> findByCustomerOrderId(Long customerOrderId);
+    List<OrderItem> findByCustomerOrderIdOrderById(Long customerOrderId);
 
 }

@@ -20,6 +20,10 @@ public interface CustomerOrderMapper extends EntityMapper<CustomerOrderDTO, Cust
     @Mapping(source = "customerId", target = "customer")
     CustomerOrder toEntity(CustomerOrderDTO customerOrderDTO);
 
+    @Mapping(target = "items", ignore = true)
+    @Mapping(source = "customerId", target = "customer")
+    CustomerOrder detailToEntity(CustomerOrderDetailDTO customerOrderDetailDTO);
+
     @Mapping(source = "customer.id", target = "customerId")
     CustomerOrderSummaryDTO toSummaryDto(CustomerOrder customerOrder);
 

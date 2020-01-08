@@ -7,7 +7,6 @@ import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 import Dampproofer from './dampproofer';
 import Domestic from './domestic';
 import Product from './product';
-import OrderItem from './order-item';
 import CustomerOrder from './customer-order';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
@@ -18,7 +17,6 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}/dampproofer`} component={Dampproofer} />
       <ErrorBoundaryRoute path={`${match.url}/domestic`} component={Domestic} />
       <ErrorBoundaryRoute path={`${match.url}/product`} component={Product} />
-      <ErrorBoundaryRoute path={`${match.url}/order-item`} component={OrderItem} />
       <ErrorBoundaryRoute path={`${match.url}/customer-order`} component={CustomerOrder} />
       {/* jhipster-needle-add-route-path - JHipster will routes here */}
     </Switch>

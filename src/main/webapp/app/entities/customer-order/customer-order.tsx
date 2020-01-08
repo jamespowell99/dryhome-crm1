@@ -85,13 +85,7 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
     const { customerOrderList, match, totalItems } = this.props;
     return (
       <div>
-        <h2 id="customer-order-heading">
-          Customer Orders
-          <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create new Customer Order
-          </Link>
-        </h2>
+        <h2 id="customer-order-heading">Customer Orders</h2>
         <Row>
           <Col sm="12">
             <AvForm onSubmit={this.search}>

@@ -6,6 +6,8 @@ import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util'
 
 import { ICustomerOrder, defaultValue } from 'app/shared/model/customer-order.model';
 
+import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
+
 export const ACTION_TYPES = {
   SEARCH_CUSTOMERORDERS: 'customerOrder/SEARCH_CUSTOMERORDERS',
   FETCH_CUSTOMERORDER_LIST: 'customerOrder/FETCH_CUSTOMERORDER_LIST',
@@ -13,7 +15,9 @@ export const ACTION_TYPES = {
   CREATE_CUSTOMERORDER: 'customerOrder/CREATE_CUSTOMERORDER',
   UPDATE_CUSTOMERORDER: 'customerOrder/UPDATE_CUSTOMERORDER',
   DELETE_CUSTOMERORDER: 'customerOrder/DELETE_CUSTOMERORDER',
-  RESET: 'customerOrder/RESET'
+  RESET: 'customerOrder/RESET',
+  CLEAR_ORDER_ITEMS: 'customerOrder/CLEAR_ORDER_ITEMS',
+  ADD_ORDER_ITEM: 'customerOrder/ADD_ORDER_ITEM'
 };
 
 const initialState = {
@@ -96,6 +100,16 @@ export default (state: CustomerOrderState = initialState, action): CustomerOrder
       return {
         ...initialState
       };
+    case ACTION_TYPES.CLEAR_ORDER_ITEMS:
+      state.entity.items.splice(0, state.entity.items.length);
+      return {
+        ...state
+      };
+    case ACTION_TYPES.ADD_ORDER_ITEM:
+      state.entity.items.push({ productId: 6 }); // default product id to config
+      return {
+        ...state
+      };
     default:
       return state;
   }
@@ -128,20 +142,24 @@ export const getEntity: ICrudGetAction<ICustomerOrder> = id => {
 };
 
 export const createEntity: ICrudPutAction<ICustomerOrder> = entity => async dispatch => {
+  // remove any empty fields rather than pass them as empty strings
+  Object.keys(entity).forEach(key => entity[key] === '' && delete entity[key]);
   const result = await dispatch({
     type: ACTION_TYPES.CREATE_CUSTOMERORDER,
     payload: axios.post(apiUrl, cleanEntity(entity))
   });
-  dispatch(getEntities());
+  dispatch(getEntities(0, ITEMS_PER_PAGE, 'id,desc'));
   return result;
 };
 
 export const updateEntity: ICrudPutAction<ICustomerOrder> = entity => async dispatch => {
+  // remove any empty fields rather than pass them as empty strings
+  Object.keys(entity).forEach(key => entity[key] === '' && delete entity[key]);
   const result = await dispatch({
     type: ACTION_TYPES.UPDATE_CUSTOMERORDER,
     payload: axios.put(apiUrl, cleanEntity(entity))
   });
-  dispatch(getEntities());
+  dispatch(getEntities(0, ITEMS_PER_PAGE, 'id,desc'));
   return result;
 };
 
@@ -151,10 +169,18 @@ export const deleteEntity: ICrudDeleteAction<ICustomerOrder> = id => async dispa
     type: ACTION_TYPES.DELETE_CUSTOMERORDER,
     payload: axios.delete(requestUrl)
   });
-  dispatch(getEntities());
+  dispatch(getEntities(0, ITEMS_PER_PAGE, 'id,desc'));
   return result;
 };
 
 export const reset = () => ({
   type: ACTION_TYPES.RESET
+});
+
+export const clearOrderItems = () => ({
+  type: ACTION_TYPES.CLEAR_ORDER_ITEMS
+});
+
+export const addOrderItem = () => ({
+  type: ACTION_TYPES.ADD_ORDER_ITEM
 });
