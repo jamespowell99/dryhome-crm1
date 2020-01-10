@@ -6,7 +6,6 @@ import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.repository.CustomerOrderRepository;
-import uk.co.dryhome.repository.search.CustomerOrderSearchRepository;
 import uk.co.dryhome.service.CustomerOrderService;
 import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
@@ -41,7 +40,6 @@ import java.util.List;
 
 import static uk.co.dryhome.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -110,14 +108,6 @@ public class CustomerOrderResourceIntTest {
 
     @Autowired
     private CustomerOrderService customerOrderService;
-
-    /**
-     * This repository is mocked in the uk.co.dryhome.repository.search test package.
-     *
-     * @see uk.co.dryhome.repository.search.CustomerOrderSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private CustomerOrderSearchRepository mockCustomerOrderSearchRepository;
 
     @Autowired
     private CustomerOrderQueryService customerOrderQueryService;
@@ -221,8 +211,6 @@ public class CustomerOrderResourceIntTest {
         assertThat(testCustomerOrder.getPlacedBy()).isEqualTo(DEFAULT_PLACED_BY);
         assertThat(testCustomerOrder.getMethod()).isEqualTo(DEFAULT_METHOD);
 
-        // Validate the CustomerOrder in Elasticsearch
-        verify(mockCustomerOrderSearchRepository, times(1)).save(testCustomerOrder);
     }
 
     @Test
@@ -244,8 +232,6 @@ public class CustomerOrderResourceIntTest {
         List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
         assertThat(customerOrderList).hasSize(databaseSizeBeforeCreate);
 
-        // Validate the CustomerOrder in Elasticsearch
-        verify(mockCustomerOrderSearchRepository, times(0)).save(customerOrder);
     }
 
     @Test
@@ -332,7 +318,7 @@ public class CustomerOrderResourceIntTest {
             .andExpect(jsonPath("$.[*].placedBy").value(hasItem(DEFAULT_PLACED_BY.toString())))
             .andExpect(jsonPath("$.[*].method").value(hasItem(DEFAULT_METHOD.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getCustomerOrder() throws Exception {
@@ -1203,8 +1189,6 @@ public class CustomerOrderResourceIntTest {
         assertThat(testCustomerOrder.getPlacedBy()).isEqualTo(UPDATED_PLACED_BY);
         assertThat(testCustomerOrder.getMethod()).isEqualTo(UPDATED_METHOD);
 
-        // Validate the CustomerOrder in Elasticsearch
-        verify(mockCustomerOrderSearchRepository, times(1)).save(testCustomerOrder);
     }
 
     @Test
@@ -1225,8 +1209,6 @@ public class CustomerOrderResourceIntTest {
         List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
         assertThat(customerOrderList).hasSize(databaseSizeBeforeUpdate);
 
-        // Validate the CustomerOrder in Elasticsearch
-        verify(mockCustomerOrderSearchRepository, times(0)).save(customerOrder);
     }
 
     @Test
@@ -1246,37 +1228,6 @@ public class CustomerOrderResourceIntTest {
         List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
         assertThat(customerOrderList).hasSize(databaseSizeBeforeDelete - 1);
 
-        // Validate the CustomerOrder in Elasticsearch
-        verify(mockCustomerOrderSearchRepository, times(1)).deleteById(customerOrder.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchCustomerOrder() throws Exception {
-        // Initialize the database
-        customerOrderRepository.saveAndFlush(customerOrder);
-        when(mockCustomerOrderSearchRepository.search(queryStringQuery("id:" + customerOrder.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(customerOrder), PageRequest.of(0, 1), 1));
-        // Search the customerOrder
-        restCustomerOrderMockMvc.perform(get("/api/_search/customer-orders?query=id:" + customerOrder.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(customerOrder.getId().intValue())))
-            .andExpect(jsonPath("$.[*].orderNumber").value(hasItem(DEFAULT_ORDER_NUMBER)))
-            .andExpect(jsonPath("$.[*].orderDate").value(hasItem(DEFAULT_ORDER_DATE.toString())))
-            .andExpect(jsonPath("$.[*].notes1").value(hasItem(DEFAULT_NOTES_1)))
-            .andExpect(jsonPath("$.[*].notes2").value(hasItem(DEFAULT_NOTES_2)))
-            .andExpect(jsonPath("$.[*].despatchDate").value(hasItem(DEFAULT_DESPATCH_DATE.toString())))
-            .andExpect(jsonPath("$.[*].invoiceDate").value(hasItem(DEFAULT_INVOICE_DATE.toString())))
-            .andExpect(jsonPath("$.[*].paymentDate").value(hasItem(DEFAULT_PAYMENT_DATE.toString())))
-            .andExpect(jsonPath("$.[*].vatRate").value(hasItem(DEFAULT_VAT_RATE.intValue())))
-            .andExpect(jsonPath("$.[*].internalNotes").value(hasItem(DEFAULT_INTERNAL_NOTES)))
-            .andExpect(jsonPath("$.[*].invoiceNumber").value(hasItem(DEFAULT_INVOICE_NUMBER)))
-            .andExpect(jsonPath("$.[*].paymentStatus").value(hasItem(DEFAULT_PAYMENT_STATUS)))
-            .andExpect(jsonPath("$.[*].paymentType").value(hasItem(DEFAULT_PAYMENT_TYPE)))
-            .andExpect(jsonPath("$.[*].paymentAmount").value(hasItem(DEFAULT_PAYMENT_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].placedBy").value(hasItem(DEFAULT_PLACED_BY)))
-            .andExpect(jsonPath("$.[*].method").value(hasItem(DEFAULT_METHOD.toString())));
     }
 
     @Test

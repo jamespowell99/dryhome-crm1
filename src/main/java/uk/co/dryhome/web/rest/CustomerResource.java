@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 /**
  * REST controller for managing Customer.
  */
@@ -143,24 +141,8 @@ public class CustomerResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 
-    /**
-     * SEARCH  /_search/customers?query=:query : search for the customer corresponding
-     * to the query.
-     *
-     * @param query the query of the customer search
-     * @param pageable the pagination information
-     * @return the result of the search
-     */
-    @GetMapping("/_search/customers")
-    public ResponseEntity<List<CustomerDTO>> searchCustomers(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of Customers for query {}", query);
-        Page<CustomerDTO> page = customerService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/customers");
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    @GetMapping("/document")
-    public void document(@RequestParam String documentName, @RequestParam Long id, HttpServletResponse response) {
+    @GetMapping("/customers/{id}/document")
+    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
         log.debug("REST request to create document {} for customer : {}", documentName, id);
         byte[] document = customerService.generateDocument(documentName, id);
 

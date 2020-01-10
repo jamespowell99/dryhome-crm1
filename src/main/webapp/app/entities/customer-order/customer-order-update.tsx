@@ -92,287 +92,321 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
 
     return (
       <div>
-        <Row className="justify-content-center">
+        <Row>
           <Col md="8">
             <h2 id="dryhomecrm1App.customerOrder.home.createOrEditLabel">Create or edit a CustomerOrder</h2>
           </Col>
         </Row>
-        <Row className="justify-content-center">
-          <Col md="8">
+        <Row>
+          <Col>
             {loading ? (
               <p>Loading...</p>
             ) : (
-              // todo default vatRate and product to config?
               <AvForm model={isNew ? { items: [{ productId: 6 }], vatRate: 20 } : customerOrderEntity} onSubmit={this.saveEntity}>
-                {!isNew ? (
-                  <AvGroup>
-                    <Label for="id">ID</Label>
-                    <AvInput id="customer-order-id" type="text" className="form-control" name="id" required readOnly />
-                  </AvGroup>
-                ) : null}
-                {!isNew ? (
-                  <AvGroup>
-                    <Label for="customerName">Customer</Label>
-                    <AvInput id="customer-name" type="text" className="form-control" name="customerName" required readOnly />
-                    <AvInput id="customer-id" type="text" className="form-control" name="customerId" required readOnly hidden />
-                  </AvGroup>
-                ) : (
-                  <AvGroup>
-                    <Label for="customerName">Customer</Label>
-                    <input id="customer-name" type="text" className="form-control" value={customerEntity.companyName} required readOnly />
-                    <input
-                      id="customer-id"
-                      type="text"
-                      className="form-control"
-                      value={customerEntity.customerId}
-                      required
-                      readOnly
-                      hidden
-                    />
-                  </AvGroup>
-                )}
-                <AvGroup>
-                  <Label id="orderNumberLabel" for="orderNumber">
-                    Order Number
-                  </Label>
-                  <AvField
-                    id="customer-order-orderNumber"
-                    type="text"
-                    name="orderNumber"
-                    validate={{
-                      required: { value: true, errorMessage: 'This field is required.' },
-                      maxLength: { value: 10, errorMessage: 'This field cannot be longer than 10 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="orderDateLabel" for="orderDate">
-                    Order Date
-                  </Label>
-                  <AvField
-                    id="customer-order-orderDate"
-                    type="date"
-                    className="form-control"
-                    name="orderDate"
-                    validate={{
-                      required: { value: true, errorMessage: 'This field is required.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="notes1Label" for="notes1">
-                    Notes 1
-                  </Label>
-                  <AvField
-                    id="customer-order-notes1"
-                    type="text"
-                    name="notes1"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="notes2Label" for="notes2">
-                    Notes 2
-                  </Label>
-                  <AvField
-                    id="customer-order-notes2"
-                    type="text"
-                    name="notes2"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="despatchDateLabel" for="despatchDate">
-                    Despatch Date
-                  </Label>
-                  <AvField id="customer-order-despatchDate" type="date" className="form-control" name="despatchDate" />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="invoiceDateLabel" for="invoiceDate">
-                    Invoice Date
-                  </Label>
-                  <AvField id="customer-order-invoiceDate" type="date" className="form-control" name="invoiceDate" />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="paymentDateLabel" for="paymentDate">
-                    Payment Date
-                  </Label>
-                  <AvField id="customer-order-paymentDate" type="date" className="form-control" name="paymentDate" />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="vatRateLabel" for="vatRate">
-                    Vat Rate
-                  </Label>
-                  <AvField
-                    id="customer-order-vatRate"
-                    type="text"
-                    name="vatRate"
-                    validate={{
-                      required: { value: true, errorMessage: 'This field is required.' },
-                      number: { value: true, errorMessage: 'This field should be a number.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="internalNotesLabel" for="internalNotes">
-                    Internal Notes
-                  </Label>
-                  <AvField id="customer-order-internalNotes" type="text" name="internalNotes" />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="invoiceNumberLabel" for="invoiceNumber">
-                    Invoice Number
-                  </Label>
-                  <AvField
-                    id="customer-order-invoiceNumber"
-                    type="text"
-                    name="invoiceNumber"
-                    validate={{
-                      maxLength: { value: 10, errorMessage: 'This field cannot be longer than 10 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="paymentStatusLabel" for="paymentStatus">
-                    Payment Status
-                  </Label>
-                  <AvField
-                    id="customer-order-paymentStatus"
-                    type="text"
-                    name="paymentStatus"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="paymentTypeLabel" for="paymentType">
-                    Payment Type
-                  </Label>
-                  <AvField
-                    id="customer-order-paymentType"
-                    type="text"
-                    name="paymentType"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="paymentAmountLabel" for="paymentAmount">
-                    Payment Amount
-                  </Label>
-                  <AvField id="customer-order-paymentAmount" type="text" name="paymentAmount" />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="placedByLabel" for="placedBy">
-                    Placed By
-                  </Label>
-                  <AvField
-                    id="customer-order-placedBy"
-                    type="text"
-                    name="placedBy"
-                    validate={{
-                      maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="methodLabel">Method</Label>
-                  <AvInput
-                    id="customer-order-method"
-                    type="select"
-                    className="form-control"
-                    name="method"
-                    value={(!isNew && customerOrderEntity.method) || 'PHONE'}
-                  >
-                    <option value="PHONE">PHONE</option>
-                    <option value="FAX">FAX</option>
-                    <option value="EMAIL">EMAIL</option>
-                    <option value="IN_PERSON">IN_PERSON</option>
-                  </AvInput>
-                </AvGroup>
-                <div className="table-responsive table-sm">
-                  <Table responsive className="table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th className="hand">ID</th>
-                        <th className="hand">Product</th>
-                        <th className="hand">Quantity</th>
-                        <th className="hand">Price</th>
-                        <th className="hand">notes</th>
-                        <th className="hand">serial number</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {customerOrderEntity.items
-                        ? customerOrderEntity.items.map((item, i) => (
-                            <tr key={`entity-${i}`}>
-                              <td>
-                                <AvField id={'customer-order-item-id-' + i} type="text" name={'items[' + i + '].id'} disabled />
-                              </td>
-                              <td>
-                                <AvGroup>
-                                  <AvInput
-                                    id={'customer-order-item-product-' + i}
-                                    type="select"
-                                    className="form-control"
-                                    name={'items[' + i + '].productId'}
-                                  >
-                                    {products
-                                      ? products.map(otherEntity => (
-                                          <option value={otherEntity.id} key={otherEntity.id}>
-                                            {otherEntity.name}
-                                          </option>
-                                        ))
-                                      : null}
-                                  </AvInput>
-                                </AvGroup>
-                              </td>
-                              <td>
-                                <AvField
-                                  id={'customer-order-item-qty-' + i}
-                                  type="text"
-                                  name={'items[' + i + '].quantity'}
-                                  validate={{
-                                    required: { value: true, errorMessage: 'This field is required.' }
-                                  }}
-                                />
-                              </td>
-                              <td>
-                                <AvField
-                                  id={'customer-order-item-price-' + i}
-                                  type="text"
-                                  name={'items[' + i + '].price'}
-                                  validate={{
-                                    required: { value: true, errorMessage: 'This field is required.' }
-                                  }}
-                                />
-                              </td>
-                              <td>
-                                <AvField id={'customer-order-item-notes-' + i} type="text" name={'items[' + i + '].notes'} />
-                              </td>
-                              <td>
-                                <AvField id={'customer-order-item-serialNumber-' + i} type="text" name={'items[' + i + '].serialNumber'} />
-                              </td>
-                            </tr>
-                          ))
-                        : null}
-                    </tbody>
-                  </Table>
-                  <Button id="clearItems" onClick={clearItems} replace color="danger">
-                    <FontAwesomeIcon icon="trash" />
-                    clear
-                  </Button>
-                  <Button id="addItem" onClick={addItem} replace color="info">
-                    <FontAwesomeIcon icon="plus" />
-                    add
-                  </Button>
-                </div>
+                {/*// todo default vatRate and product to config?*/}
+                <Row>
+                  <Col className="border mx-1">
+                    <span>Order Details</span>
+                    {!isNew ? (
+                      <AvGroup>
+                        <Label for="id">ID</Label>
+                        <AvInput id="customer-order-id" type="text" className="form-control" name="id" required readOnly />
+                      </AvGroup>
+                    ) : null}
+                    {!isNew ? (
+                      <AvGroup>
+                        <Label for="customerName">Customer</Label>
+                        <AvInput id="customer-name" type="text" className="form-control" name="customerName" required readOnly />
+                        <AvInput id="customer-id" type="text" className="form-control" name="customerId" required readOnly hidden />
+                      </AvGroup>
+                    ) : (
+                      <AvGroup>
+                        <Label for="customerName">Customer</Label>
+                        <input
+                          id="customer-name"
+                          type="text"
+                          className="form-control"
+                          value={customerEntity.companyName}
+                          required
+                          readOnly
+                        />
+                        <input
+                          id="customer-id"
+                          type="text"
+                          className="form-control"
+                          value={customerEntity.customerId}
+                          required
+                          readOnly
+                          hidden
+                        />
+                      </AvGroup>
+                    )}
+                    <AvGroup>
+                      <Label id="orderNumberLabel" for="orderNumber">
+                        Order Number
+                      </Label>
+                      <AvField
+                        id="customer-order-orderNumber"
+                        type="text"
+                        name="orderNumber"
+                        validate={{
+                          required: { value: true, errorMessage: 'This field is required.' },
+                          maxLength: { value: 10, errorMessage: 'This field cannot be longer than 10 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="orderDateLabel" for="orderDate">
+                        Order Date
+                      </Label>
+                      <AvField
+                        id="customer-order-orderDate"
+                        type="date"
+                        className="form-control"
+                        name="orderDate"
+                        validate={{
+                          required: { value: true, errorMessage: 'This field is required.' }
+                        }}
+                      />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="despatchDateLabel" for="despatchDate">
+                        Despatch Date
+                      </Label>
+                      <AvField id="customer-order-despatchDate" type="date" className="form-control" name="despatchDate" />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="invoiceDateLabel" for="invoiceDate">
+                        Invoice Date
+                      </Label>
+                      <AvField id="customer-order-invoiceDate" type="date" className="form-control" name="invoiceDate" />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="placedByLabel" for="placedBy">
+                        Placed By
+                      </Label>
+                      <AvField
+                        id="customer-order-placedBy"
+                        type="text"
+                        name="placedBy"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="methodLabel">Method</Label>
+                      <AvInput
+                        id="customer-order-method"
+                        type="select"
+                        className="form-control"
+                        name="method"
+                        value={(!isNew && customerOrderEntity.method) || 'PHONE'}
+                      >
+                        <option value="PHONE">PHONE</option>
+                        <option value="FAX">FAX</option>
+                        <option value="EMAIL">EMAIL</option>
+                        <option value="IN_PERSON">IN_PERSON</option>
+                      </AvInput>
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="invoiceNumberLabel" for="invoiceNumber">
+                        Invoice Number
+                      </Label>
+                      <AvField
+                        id="customer-order-invoiceNumber"
+                        type="text"
+                        name="invoiceNumber"
+                        validate={{
+                          maxLength: { value: 10, errorMessage: 'This field cannot be longer than 10 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="notes1Label" for="notes1">
+                        Invoice Notes 1
+                      </Label>
+                      <AvField
+                        id="customer-order-notes1"
+                        type="text"
+                        name="notes1"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="notes2Label" for="notes2">
+                        Invoice Notes 2
+                      </Label>
+                      <AvField
+                        id="customer-order-notes2"
+                        type="text"
+                        name="notes2"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                  </Col>
+
+                  <Col className="border mx-1">
+                    <span>Invoice Contact / Address</span>
+                  </Col>
+                  <Col className="border mx-1">
+                    <span>Delivery Contact / Address</span>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <div className="table-responsive table-sm m-2">
+                      <b>Order Items</b>
+                      <Table responsive className="table-bordered">
+                        <thead className="thead-light">
+                          <tr>
+                            <th className="hand">Product</th>
+                            <th className="hand">Quantity</th>
+                            <th className="hand">Price</th>
+                            <th className="hand">notes</th>
+                            <th className="hand">serial number</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {customerOrderEntity.items
+                            ? customerOrderEntity.items.map((item, i) => (
+                                <tr key={`entity-${i}`}>
+                                  <td>
+                                    <AvGroup>
+                                      <AvInput
+                                        id={'customer-order-item-product-' + i}
+                                        type="select"
+                                        className="form-control"
+                                        name={'items[' + i + '].productId'}
+                                      >
+                                        {products
+                                          ? products.map(otherEntity => (
+                                              <option value={otherEntity.id} key={otherEntity.id}>
+                                                {otherEntity.name}
+                                              </option>
+                                            ))
+                                          : null}
+                                      </AvInput>
+                                    </AvGroup>
+                                  </td>
+                                  <td>
+                                    <AvField
+                                      id={'customer-order-item-qty-' + i}
+                                      type="text"
+                                      name={'items[' + i + '].quantity'}
+                                      validate={{
+                                        required: { value: true, errorMessage: 'This field is required.' }
+                                      }}
+                                    />
+                                  </td>
+                                  <td>
+                                    <AvField
+                                      id={'customer-order-item-price-' + i}
+                                      type="text"
+                                      name={'items[' + i + '].price'}
+                                      validate={{
+                                        required: { value: true, errorMessage: 'This field is required.' }
+                                      }}
+                                    />
+                                  </td>
+                                  <td>
+                                    <AvField id={'customer-order-item-notes-' + i} type="text" name={'items[' + i + '].notes'} />
+                                  </td>
+                                  <td>
+                                    <AvField
+                                      id={'customer-order-item-serialNumber-' + i}
+                                      type="text"
+                                      name={'items[' + i + '].serialNumber'}
+                                    />
+                                  </td>
+                                  <AvField id={'customer-order-item-id-' + i} type="text" name={'items[' + i + '].id'} disabled hidden />
+                                </tr>
+                              ))
+                            : null}
+                        </tbody>
+                      </Table>
+                      <Button id="clearItems" onClick={clearItems} replace color="danger">
+                        <FontAwesomeIcon icon="trash" />
+                        clear
+                      </Button>
+                      <Button id="addItem" onClick={addItem} replace color="info">
+                        <FontAwesomeIcon icon="plus" />
+                        add
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col className="border mx-1">
+                    <b>Internal Notes</b>
+                    <AvGroup>
+                      <AvInput id="customer-order-internalNotes" type="textarea" name="internalNotes" rows="15" />
+                    </AvGroup>
+                  </Col>
+                  <Col className="border mx-1">
+                    <b>Payment Details</b>
+                    <AvGroup>
+                      <Label id="paymentDateLabel" for="paymentDate">
+                        Payment Date
+                      </Label>
+                      <AvField id="customer-order-paymentDate" type="date" className="form-control" name="paymentDate" />
+                    </AvGroup>
+
+                    <AvGroup>
+                      <Label id="paymentStatusLabel" for="paymentStatus">
+                        Payment Status
+                      </Label>
+                      <AvField
+                        id="customer-order-paymentStatus"
+                        type="text"
+                        name="paymentStatus"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="paymentTypeLabel" for="paymentType">
+                        Payment Type
+                      </Label>
+                      <AvField
+                        id="customer-order-paymentType"
+                        type="text"
+                        name="paymentType"
+                        validate={{
+                          maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
+                        }}
+                      />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="paymentAmountLabel" for="paymentAmount">
+                        Payment Amount
+                      </Label>
+                      <AvField id="customer-order-paymentAmount" type="text" name="paymentAmount" />
+                    </AvGroup>
+                  </Col>
+                  <Col className="border mx-1">
+                    <b>Totals</b>
+                    <AvGroup>
+                      <Label id="vatRateLabel" for="vatRate">
+                        Vat Rate
+                      </Label>
+                      <AvField
+                        id="customer-order-vatRate"
+                        type="text"
+                        name="vatRate"
+                        validate={{
+                          required: { value: true, errorMessage: 'This field is required.' },
+                          number: { value: true, errorMessage: 'This field should be a number.' }
+                        }}
+                      />
+                    </AvGroup>
+                  </Col>
+                </Row>
                 <Button tag={Link} id="cancel-save" to="/entity/customer-order" replace color="info">
                   <FontAwesomeIcon icon="arrow-left" />
                   &nbsp;

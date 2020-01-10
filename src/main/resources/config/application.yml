@@ -60,8 +60,6 @@ management:
                 auto-time-requests: true
 
 spring:
-    autoconfigure:
-        exclude: org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
     application:
         name: dryhomecrm1
     profiles:
@@ -140,3 +138,9 @@ jhipster:
 # ===================================================================
 
 # application:
+dryhome:
+    merge-docs:
+      s3-region: eu-west-1
+      s3-bucket-name: "dryhome-prod-merge-docs"
+      aws-access-key: "AKIAUZ4OPH3DCVDO5NEG"
+      aws-secret-key: "REMOVED"

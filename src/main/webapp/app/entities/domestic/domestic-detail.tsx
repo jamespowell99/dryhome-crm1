@@ -60,7 +60,7 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
     const { customerEntity } = this.props;
     const docName = event.target.id;
     axios({
-      url: `api/document?id=${customerEntity.id}&documentName=${docName}`,
+      url: `api/customers/${customerEntity.id}/document?documentName=${docName}`,
       method: 'GET',
       responseType: 'blob' // important
     }).then(response => {

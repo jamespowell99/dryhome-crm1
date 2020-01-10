@@ -4,7 +4,6 @@ import uk.co.dryhome.Dryhomecrm1App;
 
 import uk.co.dryhome.domain.Product;
 import uk.co.dryhome.repository.ProductRepository;
-import uk.co.dryhome.repository.search.ProductSearchRepository;
 import uk.co.dryhome.service.ProductService;
 import uk.co.dryhome.service.dto.ProductDTO;
 import uk.co.dryhome.service.mapper.ProductMapper;
@@ -34,7 +33,6 @@ import java.util.List;
 
 import static uk.co.dryhome.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -63,14 +61,6 @@ public class ProductResourceIntTest {
 
     @Autowired
     private ProductService productService;
-
-    /**
-     * This repository is mocked in the uk.co.dryhome.repository.search test package.
-     *
-     * @see uk.co.dryhome.repository.search.ProductSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private ProductSearchRepository mockProductSearchRepository;
 
     @Autowired
     private ProductQueryService productQueryService;
@@ -143,8 +133,6 @@ public class ProductResourceIntTest {
         assertThat(testProduct.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testProduct.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
 
-        // Validate the Product in Elasticsearch
-        verify(mockProductSearchRepository, times(1)).save(testProduct);
     }
 
     @Test
@@ -166,8 +154,6 @@ public class ProductResourceIntTest {
         List<Product> productList = productRepository.findAll();
         assertThat(productList).hasSize(databaseSizeBeforeCreate);
 
-        // Validate the Product in Elasticsearch
-        verify(mockProductSearchRepository, times(0)).save(product);
     }
 
     @Test
@@ -203,7 +189,7 @@ public class ProductResourceIntTest {
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getProduct() throws Exception {
@@ -369,8 +355,6 @@ public class ProductResourceIntTest {
         assertThat(testProduct.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testProduct.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
 
-        // Validate the Product in Elasticsearch
-        verify(mockProductSearchRepository, times(1)).save(testProduct);
     }
 
     @Test
@@ -391,8 +375,6 @@ public class ProductResourceIntTest {
         List<Product> productList = productRepository.findAll();
         assertThat(productList).hasSize(databaseSizeBeforeUpdate);
 
-        // Validate the Product in Elasticsearch
-        verify(mockProductSearchRepository, times(0)).save(product);
     }
 
     @Test
@@ -412,24 +394,6 @@ public class ProductResourceIntTest {
         List<Product> productList = productRepository.findAll();
         assertThat(productList).hasSize(databaseSizeBeforeDelete - 1);
 
-        // Validate the Product in Elasticsearch
-        verify(mockProductSearchRepository, times(1)).deleteById(product.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchProduct() throws Exception {
-        // Initialize the database
-        productRepository.saveAndFlush(product);
-        when(mockProductSearchRepository.search(queryStringQuery("id:" + product.getId())))
-            .thenReturn(Collections.singletonList(product));
-        // Search the product
-        restProductMockMvc.perform(get("/api/_search/products?query=id:" + product.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
     }
 
     @Test

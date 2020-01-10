@@ -12,7 +12,6 @@ import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.repository.ProductRepository;
-import uk.co.dryhome.repository.search.CustomerOrderSearchRepository;
 import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.OrderItemDTO;
@@ -23,7 +22,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 /**
  * Service Implementation for managing CustomerOrder.
@@ -37,10 +35,8 @@ public class CustomerOrderService {
 
     private final CustomerOrderRepository customerOrderRepository;
     private final CustomerOrderMapper customerOrderMapper;
-    private final CustomerOrderSearchRepository customerOrderSearchRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
-
 
     /**
      * Save a customerOrder.
@@ -98,7 +94,6 @@ public class CustomerOrderService {
         orderItemRepository.deleteAll(itemsToDelete);
 
         CustomerOrderDetailDTO result = customerOrderMapper.toDetailDto(savedCustomerOrder);
-        customerOrderSearchRepository.save(savedCustomerOrder);
         return result;
     }
 
@@ -123,21 +118,8 @@ public class CustomerOrderService {
      */
     public void delete(Long id) {
         log.debug("Request to delete CustomerOrder : {}", id);
+        orderItemRepository.deleteByCustomerOrderId(id);
         customerOrderRepository.deleteById(id);
-        customerOrderSearchRepository.deleteById(id);
     }
 
-    /**
-     * Search for the customerOrder corresponding to the query.
-     *
-     * @param query the query of the search
-     * @param pageable the pagination information
-     * @return the list of entities
-     */
-    @Transactional(readOnly = true)
-    public Page<CustomerOrderDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of CustomerOrders for query {}", query);
-        return customerOrderSearchRepository.search(queryStringQuery(query), pageable)
-            .map(customerOrderMapper::toDto);
-    }
 }

@@ -15,4 +15,6 @@ import java.util.List;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     List<OrderItem> findByCustomerOrderIdOrderById(Long customerOrderId);
 
+    int deleteByCustomerOrderId(Long customerOrderId);
+
 }

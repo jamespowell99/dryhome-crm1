@@ -2,7 +2,6 @@ package uk.co.dryhome.service;
 
 import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.repository.OrderItemRepository;
-import uk.co.dryhome.repository.search.OrderItemSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing OrderItem.
@@ -27,11 +24,8 @@ public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
 
-    private final OrderItemSearchRepository orderItemSearchRepository;
-
-    public OrderItemService(OrderItemRepository orderItemRepository, OrderItemSearchRepository orderItemSearchRepository) {
+    public OrderItemService(OrderItemRepository orderItemRepository) {
         this.orderItemRepository = orderItemRepository;
-        this.orderItemSearchRepository = orderItemSearchRepository;
     }
 
     /**
@@ -43,7 +37,6 @@ public class OrderItemService {
     public OrderItem save(OrderItem orderItem) {
         log.debug("Request to save OrderItem : {}", orderItem);
         OrderItem result = orderItemRepository.save(orderItem);
-        orderItemSearchRepository.save(result);
         return result;
     }
 
@@ -79,20 +72,6 @@ public class OrderItemService {
     public void delete(Long id) {
         log.debug("Request to delete OrderItem : {}", id);
         orderItemRepository.deleteById(id);
-        orderItemSearchRepository.deleteById(id);
     }
 
-    /**
-     * Search for the orderItem corresponding to the query.
-     *
-     * @param query the query of the search
-     * @return the list of entities
-     */
-    @Transactional(readOnly = true)
-    public List<OrderItem> search(String query) {
-        log.debug("Request to search OrderItems for query {}", query);
-        return StreamSupport
-            .stream(orderItemSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
-    }
 }

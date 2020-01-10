@@ -4,7 +4,6 @@ import uk.co.dryhome.Dryhomecrm1App;
 
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.repository.CustomerRepository;
-import uk.co.dryhome.repository.search.CustomerSearchRepository;
 import uk.co.dryhome.service.CustomerService;
 import uk.co.dryhome.service.dto.CustomerDTO;
 import uk.co.dryhome.service.mapper.CustomerMapper;
@@ -38,7 +37,6 @@ import java.util.List;
 
 import static uk.co.dryhome.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -153,13 +151,6 @@ public class CustomerResourceIntTest {
     @Autowired
     private CustomerService customerService;
 
-    /**
-     * This repository is mocked in the uk.co.dryhome.repository.search test package.
-     *
-     * @see uk.co.dryhome.repository.search.CustomerSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private CustomerSearchRepository mockCustomerSearchRepository;
 
     @Autowired
     private CustomerQueryService customerQueryService;
@@ -286,8 +277,6 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getSaleInvoiceNumber()).isEqualTo(DEFAULT_SALE_INVOICE_NUMBER);
         assertThat(testCustomer.getSaleInvoiceAmount()).isEqualTo(DEFAULT_SALE_INVOICE_AMOUNT);
 
-        // Validate the Customer in Elasticsearch
-        verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
     }
 
     @Test
@@ -309,8 +298,6 @@ public class CustomerResourceIntTest {
         List<Customer> customerList = customerRepository.findAll();
         assertThat(customerList).hasSize(databaseSizeBeforeCreate);
 
-        // Validate the Customer in Elasticsearch
-        verify(mockCustomerSearchRepository, times(0)).save(customer);
     }
 
     @Test
@@ -430,7 +417,7 @@ public class CustomerResourceIntTest {
             .andExpect(jsonPath("$.[*].saleInvoiceNumber").value(hasItem(DEFAULT_SALE_INVOICE_NUMBER.toString())))
             .andExpect(jsonPath("$.[*].saleInvoiceAmount").value(hasItem(DEFAULT_SALE_INVOICE_AMOUNT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getCustomer() throws Exception {
@@ -1718,8 +1705,6 @@ public class CustomerResourceIntTest {
         assertThat(testCustomer.getSaleInvoiceNumber()).isEqualTo(UPDATED_SALE_INVOICE_NUMBER);
         assertThat(testCustomer.getSaleInvoiceAmount()).isEqualTo(UPDATED_SALE_INVOICE_AMOUNT);
 
-        // Validate the Customer in Elasticsearch
-        verify(mockCustomerSearchRepository, times(1)).save(testCustomer);
     }
 
     @Test
@@ -1740,8 +1725,6 @@ public class CustomerResourceIntTest {
         List<Customer> customerList = customerRepository.findAll();
         assertThat(customerList).hasSize(databaseSizeBeforeUpdate);
 
-        // Validate the Customer in Elasticsearch
-        verify(mockCustomerSearchRepository, times(0)).save(customer);
     }
 
     @Test
@@ -1761,52 +1744,8 @@ public class CustomerResourceIntTest {
         List<Customer> customerList = customerRepository.findAll();
         assertThat(customerList).hasSize(databaseSizeBeforeDelete - 1);
 
-        // Validate the Customer in Elasticsearch
-        verify(mockCustomerSearchRepository, times(1)).deleteById(customer.getId());
     }
 
-    @Test
-    @Transactional
-    public void searchCustomer() throws Exception {
-        // Initialize the database
-        customerRepository.saveAndFlush(customer);
-        when(mockCustomerSearchRepository.search(queryStringQuery("id:" + customer.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(customer), PageRequest.of(0, 1), 1));
-        // Search the customer
-        restCustomerMockMvc.perform(get("/api/_search/customers?query=id:" + customer.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(customer.getId().intValue())))
-            .andExpect(jsonPath("$.[*].companyName").value(hasItem(DEFAULT_COMPANY_NAME)))
-            .andExpect(jsonPath("$.[*].address1").value(hasItem(DEFAULT_ADDRESS_1)))
-            .andExpect(jsonPath("$.[*].address2").value(hasItem(DEFAULT_ADDRESS_2)))
-            .andExpect(jsonPath("$.[*].address3").value(hasItem(DEFAULT_ADDRESS_3)))
-            .andExpect(jsonPath("$.[*].town").value(hasItem(DEFAULT_TOWN)))
-            .andExpect(jsonPath("$.[*].postCode").value(hasItem(DEFAULT_POST_CODE)))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
-            .andExpect(jsonPath("$.[*].firstName").value(hasItem(DEFAULT_FIRST_NAME)))
-            .andExpect(jsonPath("$.[*].lastName").value(hasItem(DEFAULT_LAST_NAME)))
-            .andExpect(jsonPath("$.[*].tel").value(hasItem(DEFAULT_TEL)))
-            .andExpect(jsonPath("$.[*].mobile").value(hasItem(DEFAULT_MOBILE)))
-            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
-            .andExpect(jsonPath("$.[*].products").value(hasItem(DEFAULT_PRODUCTS)))
-            .andExpect(jsonPath("$.[*].interested").value(hasItem(DEFAULT_INTERESTED.toString())))
-            .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())))
-            .andExpect(jsonPath("$.[*].lead").value(hasItem(DEFAULT_LEAD.toString())))
-            .andExpect(jsonPath("$.[*].leadName").value(hasItem(DEFAULT_LEAD_NAME)))
-            .andExpect(jsonPath("$.[*].leadTel").value(hasItem(DEFAULT_LEAD_TEL)))
-            .andExpect(jsonPath("$.[*].leadMob").value(hasItem(DEFAULT_LEAD_MOB)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
-            .andExpect(jsonPath("$.[*].enquiryProperty").value(hasItem(DEFAULT_ENQUIRY_PROPERTY)))
-            .andExpect(jsonPath("$.[*].enquiryUnitPq").value(hasItem(DEFAULT_ENQUIRY_UNIT_PQ)))
-            .andExpect(jsonPath("$.[*].enquiryInstPq").value(hasItem(DEFAULT_ENQUIRY_INST_PQ)))
-            .andExpect(jsonPath("$.[*].saleProducts").value(hasItem(DEFAULT_SALE_PRODUCTS)))
-            .andExpect(jsonPath("$.[*].saleInvoiceDate").value(hasItem(DEFAULT_SALE_INVOICE_DATE)))
-            .andExpect(jsonPath("$.[*].saleInvoiceNumber").value(hasItem(DEFAULT_SALE_INVOICE_NUMBER)))
-            .andExpect(jsonPath("$.[*].saleInvoiceAmount").value(hasItem(DEFAULT_SALE_INVOICE_AMOUNT)));
-    }
 
     @Test
     @Transactional

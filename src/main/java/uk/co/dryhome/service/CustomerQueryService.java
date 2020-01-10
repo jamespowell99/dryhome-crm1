@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.domain.*; // for static metamodels
 import uk.co.dryhome.repository.CustomerRepository;
-import uk.co.dryhome.repository.search.CustomerSearchRepository;
 import uk.co.dryhome.service.dto.CustomerCriteria;
 import uk.co.dryhome.service.dto.CustomerDTO;
 import uk.co.dryhome.service.mapper.CustomerMapper;
@@ -38,12 +37,9 @@ public class CustomerQueryService extends QueryService<Customer> {
 
     private final CustomerMapper customerMapper;
 
-    private final CustomerSearchRepository customerSearchRepository;
-
-    public CustomerQueryService(CustomerRepository customerRepository, CustomerMapper customerMapper, CustomerSearchRepository customerSearchRepository) {
+    public CustomerQueryService(CustomerRepository customerRepository, CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
-        this.customerSearchRepository = customerSearchRepository;
     }
 
     /**

@@ -1,13 +1,17 @@
 package uk.co.dryhome.service;
 
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.JoinType;
 
+import com.google.common.collect.ImmutableSet;
+import com.powtechconsulting.mailmerge.WordMerger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -23,7 +27,6 @@ import uk.co.dryhome.domain.*; // for static metamodels
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
-import uk.co.dryhome.repository.search.CustomerOrderSearchRepository;
 import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDTO;
@@ -41,6 +44,8 @@ import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 @Service
 @Transactional(readOnly = true)
 public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
+    private final static Set<String> ALLOWED_DOCUMENTS =
+        ImmutableSet.of("customer-invoice", "accountant-invoice", "file-invoice");
 
     private final Logger log = LoggerFactory.getLogger(CustomerOrderQueryService.class);
 
@@ -50,11 +55,15 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
 
     private final OrderItemRepository orderItemRepository;
 
+    private final MergeDocService mergeDocService;
+
+
     public CustomerOrderQueryService(CustomerOrderRepository customerOrderRepository, CustomerOrderMapper customerOrderMapper,
-                                     OrderItemRepository orderItemRepository) {
+                                     OrderItemRepository orderItemRepository, MergeDocService mergeDocService) {
         this.customerOrderRepository = customerOrderRepository;
         this.customerOrderMapper = customerOrderMapper;
         this.orderItemRepository = orderItemRepository;
+        this.mergeDocService = mergeDocService;
     }
 
     /**
@@ -123,14 +132,9 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
                 Customer customer = o.getCustomer();
                 customerOrderDetailDTO.setCustomerName(customer.getName());
 
-                BigDecimal orderSubTotal = orderItems.stream()
-                    .map(oi -> oi.getPrice().multiply(BigDecimal.valueOf(oi.getQuantity())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-                BigDecimal vatAmount = orderSubTotal.multiply(o.getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
-
-                customerOrderDetailDTO.setOrderSubTotal(orderSubTotal);
-                customerOrderDetailDTO.setVatAmount(vatAmount);
-                customerOrderDetailDTO.setOrderTotal(orderSubTotal.add(vatAmount));
+                customerOrderDetailDTO.setOrderSubTotal(o.getSubTotal());
+                customerOrderDetailDTO.setVatAmount(o.getVatAmount());
+                customerOrderDetailDTO.setOrderTotal(o.getTotal());
 
                 //todo different contact?
                 customerOrderDetailDTO.setInvoiceContact(customer.getFullContactName());
@@ -159,6 +163,19 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
         log.debug("count by criteria : {}", criteria);
         final Specification<CustomerOrder> specification = createSpecification(criteria);
         return customerOrderRepository.count(specification);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] generateDocument(String documentName, Long id) {
+        log.debug("Request to create document {} for Customer Order : {}", documentName, id);
+
+        if (!ALLOWED_DOCUMENTS.contains(documentName)) {
+            throw new RuntimeException("unrecognised document name: " + documentName);
+        }
+
+        String name = documentName + ".docx";
+        CustomerOrder customer = customerOrderRepository.getOne(id);
+        return new WordMerger().merge(mergeDocService.getFile(name), customer.documentMappings());
     }
 
     /**

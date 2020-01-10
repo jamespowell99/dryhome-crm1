@@ -3,7 +3,6 @@ package uk.co.dryhome.service;
 import uk.co.dryhome.Dryhomecrm1App;
 import uk.co.dryhome.config.Constants;
 import uk.co.dryhome.domain.User;
-import uk.co.dryhome.repository.search.UserSearchRepository;
 import uk.co.dryhome.repository.UserRepository;
 import uk.co.dryhome.service.dto.UserDTO;
 import uk.co.dryhome.service.util.RandomUtil;
@@ -48,14 +47,6 @@ public class UserServiceIntTest {
 
     @Autowired
     private UserService userService;
-
-    /**
-     * This repository is mocked in the uk.co.dryhome.repository.search test package.
-     *
-     * @see uk.co.dryhome.repository.search.UserSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private UserSearchRepository mockUserSearchRepository;
 
     @Autowired
     private AuditingHandler auditingHandler;
@@ -170,8 +161,6 @@ public class UserServiceIntTest {
         users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
         assertThat(users).isEmpty();
 
-        // Verify Elasticsearch mock
-        verify(mockUserSearchRepository, times(1)).delete(user);
     }
 
     @Test
@@ -202,8 +191,6 @@ public class UserServiceIntTest {
         userService.removeNotActivatedUsers();
         assertThat(userRepository.findOneByLogin("johndoe")).isNotPresent();
 
-        // Verify Elasticsearch mock
-        verify(mockUserSearchRepository, times(1)).delete(user);
     }
 
 }

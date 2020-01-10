@@ -6,7 +6,6 @@ import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.domain.Product;
 import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.repository.OrderItemRepository;
-import uk.co.dryhome.repository.search.OrderItemSearchRepository;
 import uk.co.dryhome.service.OrderItemService;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
 
@@ -33,7 +32,6 @@ import java.util.List;
 
 import static uk.co.dryhome.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -65,14 +63,6 @@ public class OrderItemResourceIntTest {
 
     @Autowired
     private OrderItemService orderItemService;
-
-    /**
-     * This repository is mocked in the uk.co.dryhome.repository.search test package.
-     *
-     * @see uk.co.dryhome.repository.search.OrderItemSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private OrderItemSearchRepository mockOrderItemSearchRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -155,8 +145,6 @@ public class OrderItemResourceIntTest {
         assertThat(testOrderItem.getNotes()).isEqualTo(DEFAULT_NOTES);
         assertThat(testOrderItem.getSerialNumber()).isEqualTo(DEFAULT_SERIAL_NUMBER);
 
-        // Validate the OrderItem in Elasticsearch
-        verify(mockOrderItemSearchRepository, times(1)).save(testOrderItem);
     }
 
     @Test
@@ -177,8 +165,6 @@ public class OrderItemResourceIntTest {
         List<OrderItem> orderItemList = orderItemRepository.findAll();
         assertThat(orderItemList).hasSize(databaseSizeBeforeCreate);
 
-        // Validate the OrderItem in Elasticsearch
-        verify(mockOrderItemSearchRepository, times(0)).save(orderItem);
     }
 
     @Test
@@ -233,7 +219,7 @@ public class OrderItemResourceIntTest {
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())))
             .andExpect(jsonPath("$.[*].serialNumber").value(hasItem(DEFAULT_SERIAL_NUMBER.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getOrderItem() throws Exception {
@@ -264,8 +250,6 @@ public class OrderItemResourceIntTest {
     public void updateOrderItem() throws Exception {
         // Initialize the database
         orderItemService.save(orderItem);
-        // As the test used the service layer, reset the Elasticsearch mock repository
-        reset(mockOrderItemSearchRepository);
 
         int databaseSizeBeforeUpdate = orderItemRepository.findAll().size();
 
@@ -293,8 +277,6 @@ public class OrderItemResourceIntTest {
         assertThat(testOrderItem.getNotes()).isEqualTo(UPDATED_NOTES);
         assertThat(testOrderItem.getSerialNumber()).isEqualTo(UPDATED_SERIAL_NUMBER);
 
-        // Validate the OrderItem in Elasticsearch
-        verify(mockOrderItemSearchRepository, times(1)).save(testOrderItem);
     }
 
     @Test
@@ -314,8 +296,6 @@ public class OrderItemResourceIntTest {
         List<OrderItem> orderItemList = orderItemRepository.findAll();
         assertThat(orderItemList).hasSize(databaseSizeBeforeUpdate);
 
-        // Validate the OrderItem in Elasticsearch
-        verify(mockOrderItemSearchRepository, times(0)).save(orderItem);
     }
 
     @Test
@@ -335,26 +315,6 @@ public class OrderItemResourceIntTest {
         List<OrderItem> orderItemList = orderItemRepository.findAll();
         assertThat(orderItemList).hasSize(databaseSizeBeforeDelete - 1);
 
-        // Validate the OrderItem in Elasticsearch
-        verify(mockOrderItemSearchRepository, times(1)).deleteById(orderItem.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchOrderItem() throws Exception {
-        // Initialize the database
-        orderItemService.save(orderItem);
-        when(mockOrderItemSearchRepository.search(queryStringQuery("id:" + orderItem.getId())))
-            .thenReturn(Collections.singletonList(orderItem));
-        // Search the orderItem
-        restOrderItemMockMvc.perform(get("/api/_search/order-items?query=id:" + orderItem.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(orderItem.getId().intValue())))
-            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE.intValue())))
-            .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES)))
-            .andExpect(jsonPath("$.[*].serialNumber").value(hasItem(DEFAULT_SERIAL_NUMBER)));
     }
 
     @Test

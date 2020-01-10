@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import uk.co.dryhome.domain.Product;
 import uk.co.dryhome.domain.*; // for static metamodels
 import uk.co.dryhome.repository.ProductRepository;
-import uk.co.dryhome.repository.search.ProductSearchRepository;
 import uk.co.dryhome.service.dto.ProductCriteria;
 import uk.co.dryhome.service.dto.ProductDTO;
 import uk.co.dryhome.service.mapper.ProductMapper;
@@ -38,12 +37,9 @@ public class ProductQueryService extends QueryService<Product> {
 
     private final ProductMapper productMapper;
 
-    private final ProductSearchRepository productSearchRepository;
-
-    public ProductQueryService(ProductRepository productRepository, ProductMapper productMapper, ProductSearchRepository productSearchRepository) {
+    public ProductQueryService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.productSearchRepository = productSearchRepository;
     }
 
     /**

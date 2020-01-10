@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 /**
  * REST controller for managing Product.
  */
@@ -132,17 +130,5 @@ public class ProductResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 
-    /**
-     * SEARCH  /_search/products?query=:query : search for the product corresponding
-     * to the query.
-     *
-     * @param query the query of the product search
-     * @return the result of the search
-     */
-    @GetMapping("/_search/products")
-    public List<ProductDTO> searchProducts(@RequestParam String query) {
-        log.debug("REST request to search Products for query {}", query);
-        return productService.search(query);
-    }
 
 }

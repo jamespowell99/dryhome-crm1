@@ -3,21 +3,36 @@ package uk.co.dryhome.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
-import org.springframework.data.elasticsearch.annotations.Document;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import uk.co.dryhome.domain.enumeration.OrderMethod;
+
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 /**
  * A CustomerOrder.
@@ -25,11 +40,10 @@ import uk.co.dryhome.domain.enumeration.OrderMethod;
 @Entity
 @Table(name = "customer_order")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Document(indexName = "customerorder")
 public class CustomerOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -381,5 +395,92 @@ public class CustomerOrder implements Serializable {
             ", placedBy='" + getPlacedBy() + "'" +
             ", method='" + getMethod() + "'" +
             "}";
+    }
+
+    public BigDecimal getSubTotal() {
+        return items.stream().map(OrderItem::getSubTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getVatAmount() {
+        return getSubTotal().multiply(getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
+
+    }
+
+    public BigDecimal getTotal() {
+        return getSubTotal().add(getVatAmount());
+    }
+
+    private String fieldToString(String field) {
+        return firstNonNull(field, "");
+    }
+
+    public Map<String, String> documentMappings() {
+        Map<String, String> map = new HashMap<>();
+        map.put("invceNo", fieldToString(invoiceNumber));
+        map.put("orderNo", fieldToString(orderNumber));
+//        SimpleDateFormat dateFormatterDate = new SimpleDateFormat("dd/MM/yyyy");
+//        map.put("invoiceDate", dateFormatterDate.format(invoiceDate));
+        map.put("invoiceDate", invoiceDate == null ? "" : invoiceDate.toString()); //todo format properly
+        map.put("ref", fieldToString(placedBy));
+        map.put("customerName", customer.getName());
+        List<String> address = Stream.of(customer.getAddress1(), customer.getAddress2(), customer.getAddress3(), customer.getTown(), customer.getPostCode())
+            .filter(x -> !StringUtils.isEmpty(x))
+            .collect(Collectors.toList());
+        for (int i = 0; i < 5; i++) {
+            try {
+                map.put("address" + (i+1), address.get(i));
+            } catch (IndexOutOfBoundsException e) {
+                map.put("address" + (i+1), "");
+            }
+        }
+
+        map.put("delAddress1", map.get("address1"));
+        map.put("delAddress2", map.get("address2"));
+        map.put("delAddress3", map.get("address3"));
+        map.put("delAddress4", map.get("address4"));
+
+        map.put("notes1", fieldToString(notes1));
+        map.put("notes2", fieldToString(notes2));
+
+        map.put("telNo", firstNonNull(customer.getTel(), customer.getMobile(), ""));
+
+
+        ArrayList<OrderItem> orderedItems = new ArrayList<>(items);
+        orderedItems.sort(Comparator.comparing(OrderItem::getId));
+
+        for (int i = 1; i <= 5; i++) {
+            if (orderedItems.size() >= i) {
+            OrderItem item = orderedItems.get(i-1);
+                map.put("item" + i, item.getProduct().getName());
+                map.put("qt" + i, item.getQuantity().toString());
+                map.put("price" + i, item.getPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                map.put("total" + i, item.getSubTotal().setScale(2, BigDecimal.ROUND_UP).toString());
+            } else {
+                map.put("item" + i, "");
+                map.put("qt" + i, "");
+                map.put("price" + i, "");
+                map.put("total" + i, "");
+            }
+        }
+
+        map.put("subtl", getSubTotal().setScale(2, BigDecimal.ROUND_UP).toString());
+        map.put("vat", getVatAmount().setScale(2, BigDecimal.ROUND_UP).toString());
+        map.put("total", getTotal().setScale(2, BigDecimal.ROUND_UP).toString());
+        map.put("vrt", new DecimalFormat("#0.#").format(vatRate));
+
+
+        //todo complete
+        map.put("paymentDetailsHeader", "");
+        map.put("paymentStatus", "");
+
+        map.put("paymentTypeLabel", "");
+        map.put("paymentType", "");
+        map.put("paymentDateLabel", "");
+        map.put("paymentDate", "");
+        map.put("paymentAmountLabel", "");
+        map.put("paymentAmount", "");
+
+        return map;
     }
 }

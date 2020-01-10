@@ -18,15 +18,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing CustomerOrder.
@@ -141,20 +143,21 @@ public class CustomerOrderResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 
-    /**
-     * SEARCH  /_search/customer-orders?query=:query : search for the customerOrder corresponding
-     * to the query.
-     *
-     * @param query the query of the customerOrder search
-     * @param pageable the pagination information
-     * @return the result of the search
-     */
-    @GetMapping("/_search/customer-orders")
-    public ResponseEntity<List<CustomerOrderDTO>> searchCustomerOrders(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of CustomerOrders for query {}", query);
-        Page<CustomerOrderDTO> page = customerOrderService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/customer-orders");
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    @GetMapping("/customer-orders/{id}/document")
+    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
+        log.debug("REST request to create document {} for customer order : {}", documentName, id);
+        byte[] document = customerOrderQueryService.generateDocument(documentName, id);
+
+        try {
+            // get your file as InputStream
+            InputStream is = new ByteArrayInputStream(document);
+            // copy it to response's OutputStream
+            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+            response.flushBuffer();
+        } catch (IOException ex) {
+            log.info("Error writing file to output stream. Filename was '{}'", documentName, ex);
+            throw new RuntimeException("IOError writing file to output stream");
+        }
     }
 
 }

@@ -30,12 +30,57 @@ import { IRootState } from 'app/shared/reducers';
 import { getEntity } from './customer-order.reducer';
 // tslint:disable-next-line:no-unused-variable
 import { APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import axios from 'axios';
 
 export interface ICustomerOrderDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
-export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailProps> {
+export interface ICustomerOrderDetailState {
+  dropdownOpen: boolean;
+}
+
+export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailProps, ICustomerOrderDetailState> {
+  constructor(props) {
+    super(props);
+
+    this.toggle = this.toggle.bind(this);
+    this.state = {
+      dropdownOpen: false
+    };
+  }
+
   componentDidMount() {
     this.props.getEntity(this.props.match.params.id);
+  }
+
+  callDocument = event => {
+    const { customerOrderEntity } = this.props;
+    const docName = event.target.id;
+    axios({
+      url: `api/customer-orders/${customerOrderEntity.id}/document?documentName=${docName}`,
+      method: 'GET',
+      responseType: 'blob' // important
+    }).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const currentDate = new Date();
+      const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
+      const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
+      const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
+      link.setAttribute(
+        'download',
+        `${customerOrderEntity.customerName}-${customerOrderEntity.orderNumber}-${docName}-${currentDateToUse}.docx`
+      );
+      document.body.appendChild(link);
+      link.click();
+    });
+    // console.log('done');
+  };
+
+  toggle() {
+    this.setState({
+      dropdownOpen: !this.state.dropdownOpen
+    });
   }
 
   render() {
@@ -152,42 +197,44 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
             </Col>
           </Row>
           <Row className="mt-3">
-            <dt>
-              <span id="orderItems">OrderItems</span>
-            </dt>
-            <div className="table-responsive table-sm">
-              <Table responsive className="table-bordered">
-                <thead className="thead-light">
-                  <tr>
-                    <th className="hand">ID</th>
-                    <th className="hand">Product</th>
-                    <th className="hand">Quantity</th>
-                    <th className="hand">Price</th>
-                    <th className="hand">notes</th>
-                    <th className="hand">serial number</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {customerOrderEntity.items
-                    ? customerOrderEntity.items.map((item, i) => (
-                        <tr key={`entity-${i}`}>
-                          <td>{item.id}</td>
-                          <td>{item.product}</td>
-                          <td>{item.quantity}</td>
-                          <td>
-                            £
-                            {item.price
-                              ? item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                              : null}
-                          </td>
-                          <td>{item.notes}</td>
-                          <td>{item.serialNumber}</td>
-                        </tr>
-                      ))
-                    : null}
-                </tbody>
-              </Table>
-            </div>
+            <Col className="mx-2">
+              <dt>
+                <span id="orderItems">Items</span>
+              </dt>
+              <div className="table-responsive table-sm">
+                <Table responsive className="table-bordered">
+                  <thead className="thead-light">
+                    <tr>
+                      <th className="hand">ID</th>
+                      <th className="hand">Product</th>
+                      <th className="hand">Quantity</th>
+                      <th className="hand">Price</th>
+                      <th className="hand">notes</th>
+                      <th className="hand">serial number</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customerOrderEntity.items
+                      ? customerOrderEntity.items.map((item, i) => (
+                          <tr key={`entity-${i}`}>
+                            <td>{item.id}</td>
+                            <td>{item.product}</td>
+                            <td>{item.quantity}</td>
+                            <td>
+                              £
+                              {item.price
+                                ? item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                : null}
+                            </td>
+                            <td>{item.notes}</td>
+                            <td>{item.serialNumber}</td>
+                          </tr>
+                        ))
+                      : null}
+                  </tbody>
+                </Table>
+              </div>
+            </Col>
           </Row>
           <Row>
             <Col>
@@ -268,6 +315,22 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
           <Button tag={Link} to={`/entity/customer-order/${customerOrderEntity.id}/edit`} replace color="primary">
             <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
           </Button>
+          <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+            <DropdownToggle caret color="primary">
+              Documents
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem onClick={this.callDocument} id={'customer-invoice'}>
+                Customer Invoice
+              </DropdownItem>
+              <DropdownItem onClick={this.callDocument} id={'accountant-invoice'}>
+                Accountant Invoice
+              </DropdownItem>
+              <DropdownItem onClick={this.callDocument} id={'file-invoice'}>
+                File Invoice
+              </DropdownItem>
+            </DropdownMenu>
+          </ButtonDropdown>
         </Container>
       </div>
     );

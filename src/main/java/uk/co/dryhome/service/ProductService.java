@@ -2,7 +2,6 @@ package uk.co.dryhome.service;
 
 import uk.co.dryhome.domain.Product;
 import uk.co.dryhome.repository.ProductRepository;
-import uk.co.dryhome.repository.search.ProductSearchRepository;
 import uk.co.dryhome.service.dto.ProductDTO;
 import uk.co.dryhome.service.mapper.ProductMapper;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing Product.
@@ -32,12 +30,9 @@ public class ProductService {
 
     private final ProductMapper productMapper;
 
-    private final ProductSearchRepository productSearchRepository;
-
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper, ProductSearchRepository productSearchRepository) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.productSearchRepository = productSearchRepository;
     }
 
     /**
@@ -51,7 +46,6 @@ public class ProductService {
         Product product = productMapper.toEntity(productDTO);
         product = productRepository.save(product);
         ProductDTO result = productMapper.toDto(product);
-        productSearchRepository.save(product);
         return result;
     }
 
@@ -90,21 +84,6 @@ public class ProductService {
     public void delete(Long id) {
         log.debug("Request to delete Product : {}", id);
         productRepository.deleteById(id);
-        productSearchRepository.deleteById(id);
     }
 
-    /**
-     * Search for the product corresponding to the query.
-     *
-     * @param query the query of the search
-     * @return the list of entities
-     */
-    @Transactional(readOnly = true)
-    public List<ProductDTO> search(String query) {
-        log.debug("Request to search Products for query {}", query);
-        return StreamSupport
-            .stream(productSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .map(productMapper::toDto)
-            .collect(Collectors.toList());
-    }
 }
