@@ -735,6 +735,9 @@
             </plugins>
         </pluginManagement>
     </build>
+<scm>
+        <developerConnection>scm:git:ssh://git@github.com/VeloPayments/payout-service.git</developerConnection>
+    </scm>
     <profiles>
         <profile>
             <id>no-liquibase</id>
