@@ -736,7 +736,7 @@
         </pluginManagement>
     </build>
 <scm>
-        <developerConnection>scm:git:ssh://git@github.com/VeloPayments/payout-service.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com/jamespowell99/dryhome-crm1.git</developerConnection>
       <tag>0.0.4</tag>
   </scm>
     <profiles>
