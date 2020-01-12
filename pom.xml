@@ -4,7 +4,7 @@
 
     <groupId>uk.co.dryhome</groupId>
     <artifactId>dryhomecrm-1</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.3</version>
     <packaging>war</packaging>
     <name>Dryhomecrm 1</name>
 
@@ -737,7 +737,7 @@
     </build>
 <scm>
         <developerConnection>scm:git:ssh://git@github.com/VeloPayments/payout-service.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>0.0.3</tag>
   </scm>
     <profiles>
         <profile>
