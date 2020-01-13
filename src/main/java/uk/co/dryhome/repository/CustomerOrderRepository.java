@@ -1,8 +1,9 @@
 package uk.co.dryhome.repository;
 
-import uk.co.dryhome.domain.CustomerOrder;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+import uk.co.dryhome.domain.CustomerOrder;
 
 
 /**

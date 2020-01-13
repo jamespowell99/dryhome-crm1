@@ -8,6 +8,7 @@ import Dampproofer from './dampproofer';
 import Domestic from './domestic';
 import Product from './product';
 import CustomerOrder from './customer-order';
+import ManualInvoice from './manual-invoice';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -18,6 +19,7 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}/domestic`} component={Domestic} />
       <ErrorBoundaryRoute path={`${match.url}/product`} component={Product} />
       <ErrorBoundaryRoute path={`${match.url}/customer-order`} component={CustomerOrder} />
+      <ErrorBoundaryRoute path={`${match.url}/manual-invoice`} component={ManualInvoice} />
       {/* jhipster-needle-add-route-path - JHipster will routes here */}
     </Switch>
   </div>

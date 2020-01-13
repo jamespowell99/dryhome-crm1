@@ -91,12 +91,13 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
         return customerOrderRepository.findAll(specification, page)
             .map(x -> {
                 CustomerOrderSummaryDTO summaryDto = customerOrderMapper.toSummaryDto(x);
+                summaryDto.setCustomerName(x.getCustomer().getName());
+
                 List<OrderItem> orderItems = orderItemRepository.findByCustomerOrderIdOrderById(x.getId());
                 BigDecimal orderSubTotal = orderItems.stream()
                     .map(oi -> oi.getPrice().multiply(BigDecimal.valueOf(oi.getQuantity())))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                summaryDto.setCustomerName(x.getCustomer().getName());
                 BigDecimal vatAmount = orderSubTotal.multiply(x.getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
                 summaryDto.setOrderTotal(orderSubTotal.add(vatAmount));
                 return summaryDto;

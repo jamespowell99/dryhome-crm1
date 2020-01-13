@@ -1,0 +1,125 @@
+{
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "relationships": [
+        {
+            "relationshipName": "items",
+            "otherEntityName": "manualInvoiceItem",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "manualInvoice",
+            "otherEntityRelationshipNameUndefined": false
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "invoiceNumber",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "orderNumber",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "invoiceDate",
+            "fieldType": "LocalDate",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "ref",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "customer",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "address1",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "address2",
+            "fieldType": "String",
+            "fieldValidateRules": []
+        },
+        {
+            "fieldName": "address3",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "town",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "postCode",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "telNo",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "deliveryAddress1",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "deliveryAddress2",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "deliveryAddress3",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "deliveryAddress4",
+            "fieldType": "String",
+            "fieldValidateRules": []
+        },
+        {
+            "fieldName": "specialInstructions1",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "specialInstructions2",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "paymentDate",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "paymentStatus",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "paymentType",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "paymentAmount",
+            "fieldType": "BigDecimal"
+        },
+        {
+            "fieldName": "vatRate",
+            "fieldType": "BigDecimal",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "changelogDate": "20200113091503",
+    "dto": "mapstruct",
+    "searchEngine": "elasticsearch",
+    "service": "serviceClass",
+    "entityTableName": "manual_invoice",
+    "databaseType": "sql",
+    "jpaMetamodelFiltering": false,
+    "pagination": "pagination"
+}

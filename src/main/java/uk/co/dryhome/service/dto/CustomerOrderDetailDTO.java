@@ -70,6 +70,16 @@ public class CustomerOrderDetailDTO implements Serializable {
     @Size(min = 1, max = 5)
     private List<OrderItemDTO> items = new ArrayList<>();
 
+    private BigDecimal vatAmount;
+
+    private String invoiceContact;
+
+    private String deliveryContact;
+
+    private AddressDTO invoiceAddress;
+
+    private AddressDTO deliveryAddress;
+
     @Override
     public String toString() {
         return "CustomerOrderDetailDTO{" +
@@ -117,16 +127,6 @@ public class CustomerOrderDetailDTO implements Serializable {
     public void setVatAmount(BigDecimal vatAmount) {
         this.vatAmount = vatAmount;
     }
-
-    private BigDecimal vatAmount;
-
-    private String invoiceContact;
-
-    private String deliveryContact;
-
-    private AddressDTO invoiceAddress;
-
-    private AddressDTO deliveryAddress;
 
     public String getInvoiceContact() {
         return invoiceContact;
