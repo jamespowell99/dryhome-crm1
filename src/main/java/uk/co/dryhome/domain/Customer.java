@@ -1,6 +1,7 @@
 package uk.co.dryhome.domain;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -38,6 +39,7 @@ import java.util.stream.Stream;
 @Entity
 @Table(name = "customer")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Slf4j
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -667,6 +669,22 @@ public class Customer implements Serializable {
         map.put("saleInvoiceNumber", saleInvoiceNumber);
         map.put("saleInvoiceAmount", saleInvoiceAmount);
 
+        List<String> labelsContent = Stream.of(contact, companyName, address1, address2, address3, town, postCode)
+            .filter(x -> !StringUtils.isEmpty(x))
+            .collect(Collectors.toList());
+
+        for (int i = 0; i < 8; i++) {
+            for (int n = 0; n < 7; n++) {
+
+                String key = "label" + (i + 1) + "Line" + (n + 1);
+                try {
+                    map.put(key, labelsContent.get(n));
+                } catch (IndexOutOfBoundsException e) {
+                    map.put(key, "");
+                }
+                log.debug(key + ": " + map.get(key));
+            }
+        }
 
         return map;
     }

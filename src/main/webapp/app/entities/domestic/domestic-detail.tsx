@@ -328,6 +328,9 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
                   <DropdownItem onClick={this.callDocument} id={'dom-record'}>
                     Domestic Record
                   </DropdownItem>
+                  <DropdownItem onClick={this.callDocument} id={'labels'}>
+                    Labels
+                  </DropdownItem>
                 </DropdownMenu>
               </ButtonDropdown>
             </Row>

@@ -24,7 +24,7 @@ import java.util.Set;
 @Transactional
 public class CustomerService {
     private final static Set<String> ALLOWED_DOCUMENTS =
-        ImmutableSet.of("dp-record", "remcon-prod-lit", "dom-record");
+        ImmutableSet.of("dp-record", "remcon-prod-lit", "dom-record", "labels");
 
 
     private final Logger log = LoggerFactory.getLogger(CustomerService.class);
