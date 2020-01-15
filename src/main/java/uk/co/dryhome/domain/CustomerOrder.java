@@ -1,36 +1,39 @@
 package uk.co.dryhome.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uk.co.dryhome.domain.enumeration.OrderMethod;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import uk.co.dryhome.domain.enumeration.OrderMethod;
 
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
@@ -417,14 +420,16 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
 
     @Override
     public Map<String, String> documentMappings() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         Map<String, String> map = new HashMap<>();
         map.put("invceNo", fieldToString(invoiceNumber));
         map.put("orderNo", fieldToString(orderNumber));
-//        SimpleDateFormat dateFormatterDate = new SimpleDateFormat("dd/MM/yyyy");
-//        map.put("invoiceDate", dateFormatterDate.format(invoiceDate));
-        map.put("invoiceDate", invoiceDate == null ? "" : invoiceDate.toString()); //todo format properly
-        map.put("ref", fieldToString(placedBy));
+        map.put("invoiceDate", invoiceDate == null ? "" : invoiceDate.format(formatter));
+        //todo plug in invoice contact object
+        map.put("ref", fieldToString(customer.getFullContactName()));
         map.put("customerName", customer.getName());
+        //todo plug in invoice address object
         List<String> address = Stream.of(customer.getAddress1(), customer.getAddress2(), customer.getAddress3(), customer.getTown(), customer.getPostCode())
             .filter(x -> !StringUtils.isEmpty(x))
             .collect(Collectors.toList());
@@ -436,10 +441,11 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
             }
         }
 
-        map.put("delAddress1", map.get("address1"));
-        map.put("delAddress2", map.get("address2"));
-        map.put("delAddress3", map.get("address3"));
-        map.put("delAddress4", map.get("address4"));
+        //todo plug in delivery address object
+        map.put("delAddress1", "As Opposite");
+        map.put("delAddress2", "");
+        map.put("delAddress3", "");
+        map.put("delAddress4", "");
 
         map.put("notes1", fieldToString(notes1));
         map.put("notes2", fieldToString(notes2));
@@ -453,7 +459,11 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
         for (int i = 1; i <= 5; i++) {
             if (orderedItems.size() >= i) {
             OrderItem item = orderedItems.get(i-1);
-                map.put("item" + i, item.getProduct().getName());
+                String product = item.getProduct().getName();
+                if (!StringUtils.isEmpty(item.getNotes())) {
+                    product += " - " + item.getNotes();
+                }
+                map.put("item" + i, product);
                 map.put("qt" + i, item.getQuantity().toString());
                 map.put("price" + i, item.getPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
                 map.put("total" + i, item.getSubTotal().setScale(2, BigDecimal.ROUND_UP).toString());
@@ -471,16 +481,33 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
         map.put("vrt", new DecimalFormat("#0.#").format(vatRate));
 
 
-        //todo complete
-        map.put("paymentDetailsHeader", "");
-        map.put("paymentStatus", "");
+        if (paymentDate != null) {
+            map.put("paymentDetailsHeader", "Payment Details");
+            map.put("paymentStatus", paymentStatus);
 
-        map.put("paymentTypeLabel", "");
-        map.put("paymentType", "");
-        map.put("paymentDateLabel", "");
-        map.put("paymentDate", "");
-        map.put("paymentAmountLabel", "");
-        map.put("paymentAmount", "");
+            map.put("paymentTypeLabel", "Type:");
+            map.put("paymentType", paymentType);
+            map.put("paymentDateLabel", "Date:");
+            map.put("paymentDate", paymentDate.format(formatter));
+            map.put("paymentAmountLabel", "Amount");
+            String invoicePaymentAmount;
+            if (paymentAmount != null) {
+                invoicePaymentAmount = "£" + paymentAmount.setScale(2, BigDecimal.ROUND_UP).toString();
+            } else {
+                invoicePaymentAmount = "";
+            }
+            map.put("paymentAmount", invoicePaymentAmount);
+        } else {
+            map.put("paymentDetailsHeader", "");
+            map.put("paymentStatus", "");
+
+            map.put("paymentTypeLabel", "");
+            map.put("paymentType", "");
+            map.put("paymentDateLabel", "");
+            map.put("paymentDate", "");
+            map.put("paymentAmountLabel", "");
+            map.put("paymentAmount", "");
+        }
 
         return map;
     }

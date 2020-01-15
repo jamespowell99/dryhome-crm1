@@ -699,6 +699,21 @@ public class Customer implements Serializable, MergeDocumentSource {
     }
 
     public String getFullContactName() {
-        return title + " " + firstName + " " + lastName;
+        StringBuilder sb = new StringBuilder();
+        if (!StringUtils.isEmpty(title)) {
+            sb.append(title);
+            sb.append(" ");
+        }
+
+        if (!StringUtils.isEmpty(firstName)) {
+            sb.append(firstName);
+            sb.append(" ");
+        }
+
+        if (!StringUtils.isEmpty(lastName)) {
+            sb.append(lastName);
+        }
+
+        return sb.toString();
     }
 }

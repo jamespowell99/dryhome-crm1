@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -505,12 +506,13 @@ public class ManualInvoice implements Serializable, MergeDocumentSource {
 
     @Override
     public Map<String, String> documentMappings() {
+        //todo overlap with CustomerOrder documentMappings?
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         Map<String, String> map = new HashMap<>();
         map.put("invceNo", fieldToString(invoiceNumber));
         map.put("orderNo", fieldToString(orderNumber));
-//        SimpleDateFormat dateFormatterDate = new SimpleDateFormat("dd/MM/yyyy");
-//        map.put("invoiceDate", dateFormatterDate.format(invoiceDate));
-        map.put("invoiceDate", invoiceDate == null ? "" : invoiceDate.toString()); //todo format properly
+        map.put("invoiceDate", invoiceDate == null ? "" : invoiceDate.format(formatter));
         map.put("ref", fieldToString(ref));
         map.put("customerName", customer);
         List<String> address = Stream.of(address1, address2, address3, town, postCode)
@@ -559,16 +561,33 @@ public class ManualInvoice implements Serializable, MergeDocumentSource {
         map.put("vrt", new DecimalFormat("#0.#").format(vatRate));
 
 
-        //todo complete
-        map.put("paymentDetailsHeader", "");
-        map.put("paymentStatus", "");
+        if (paymentDate != null) {
+            map.put("paymentDetailsHeader", "Payment Details");
+            map.put("paymentStatus", paymentStatus);
 
-        map.put("paymentTypeLabel", "");
-        map.put("paymentType", "");
-        map.put("paymentDateLabel", "");
-        map.put("paymentDate", "");
-        map.put("paymentAmountLabel", "");
-        map.put("paymentAmount", "");
+            map.put("paymentTypeLabel", "Type:");
+            map.put("paymentType", paymentType);
+            map.put("paymentDateLabel", "Date:");
+            map.put("paymentDate", paymentDate.format(formatter));
+            map.put("paymentAmountLabel", "Amount");
+            String invoicePaymentAmount;
+            if (paymentAmount != null) {
+                invoicePaymentAmount = "£" + paymentAmount.setScale(2, BigDecimal.ROUND_UP).toString();
+            } else {
+                invoicePaymentAmount = "";
+            }
+            map.put("paymentAmount", invoicePaymentAmount);
+        } else {
+            map.put("paymentDetailsHeader", "");
+            map.put("paymentStatus", "");
+
+            map.put("paymentTypeLabel", "");
+            map.put("paymentType", "");
+            map.put("paymentDateLabel", "");
+            map.put("paymentDate", "");
+            map.put("paymentAmountLabel", "");
+            map.put("paymentAmount", "");
+        }
 
         return map;
     }
