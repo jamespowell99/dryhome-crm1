@@ -1,7 +1,6 @@
 package uk.co.dryhome.service;
 
 import com.google.common.collect.ImmutableSet;
-import com.powtechconsulting.mailmerge.WordMerger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -9,10 +8,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.dryhome.domain.Customer;
+import uk.co.dryhome.domain.MergeDocumentSource;
 import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.service.dto.CustomerDTO;
 import uk.co.dryhome.service.mapper.CustomerMapper;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,10 +23,9 @@ import java.util.Set;
  */
 @Service
 @Transactional
-public class CustomerService {
+public class CustomerService implements MergeDocSourceService{
     private final static Set<String> ALLOWED_DOCUMENTS =
         ImmutableSet.of("dp-record", "remcon-prod-lit", "dom-record", "labels");
-
 
     private final Logger log = LoggerFactory.getLogger(CustomerService.class);
 
@@ -91,15 +91,9 @@ public class CustomerService {
         customerRepository.deleteById(id);
     }
 
-    public byte[] generateDocument(String documentName, Long id) {
-        log.debug("Request to create document {} for Customer : {}", documentName, id);
 
-        if (!ALLOWED_DOCUMENTS.contains(documentName)) {
-            throw new RuntimeException("unrecognised document name: " + documentName);
-        }
-
-        Customer customer = customerRepository.getOne(id);
-        return new WordMerger().merge(mergeDocService.getFile(documentName + ".docx"), customer.documentMappings());
+    @Override
+    public void createDocument(Long id, HttpServletResponse response, String documentName) {
+        mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, customerRepository.getOne(id));
     }
-
 }

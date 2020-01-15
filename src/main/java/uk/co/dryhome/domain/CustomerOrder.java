@@ -40,7 +40,7 @@ import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 @Entity
 @Table(name = "customer_order")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class CustomerOrder implements Serializable {
+public class CustomerOrder implements Serializable, MergeDocumentSource {
 
     private static final long serialVersionUID = 1L;
 
@@ -415,6 +415,7 @@ public class CustomerOrder implements Serializable {
         return firstNonNull(field, "");
     }
 
+    @Override
     public Map<String, String> documentMappings() {
         Map<String, String> map = new HashMap<>();
         map.put("invceNo", fieldToString(invoiceNumber));

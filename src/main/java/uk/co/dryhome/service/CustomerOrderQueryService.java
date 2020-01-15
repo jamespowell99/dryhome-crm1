@@ -9,9 +9,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.JoinType;
+import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.collect.ImmutableSet;
 import com.powtechconsulting.mailmerge.WordMerger;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -43,28 +45,18 @@ import uk.co.dryhome.service.mapper.CustomerOrderMapper;
  */
 @Service
 @Transactional(readOnly = true)
-public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
+@RequiredArgsConstructor
+public class CustomerOrderQueryService extends QueryService<CustomerOrder> implements MergeDocSourceService {
     private final static Set<String> ALLOWED_DOCUMENTS =
         ImmutableSet.of("customer-invoice", "accountant-invoice", "file-invoice");
 
     private final Logger log = LoggerFactory.getLogger(CustomerOrderQueryService.class);
 
     private final CustomerOrderRepository customerOrderRepository;
-
     private final CustomerOrderMapper customerOrderMapper;
-
     private final OrderItemRepository orderItemRepository;
-
     private final MergeDocService mergeDocService;
 
-
-    public CustomerOrderQueryService(CustomerOrderRepository customerOrderRepository, CustomerOrderMapper customerOrderMapper,
-                                     OrderItemRepository orderItemRepository, MergeDocService mergeDocService) {
-        this.customerOrderRepository = customerOrderRepository;
-        this.customerOrderMapper = customerOrderMapper;
-        this.orderItemRepository = orderItemRepository;
-        this.mergeDocService = mergeDocService;
-    }
 
     /**
      * Return a {@link List} of {@link CustomerOrderDTO} which matches the criteria from the database
@@ -166,19 +158,6 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
         return customerOrderRepository.count(specification);
     }
 
-    @Transactional(readOnly = true)
-    public byte[] generateDocument(String documentName, Long id) {
-        log.debug("Request to create document {} for Customer Order : {}", documentName, id);
-
-        if (!ALLOWED_DOCUMENTS.contains(documentName)) {
-            throw new RuntimeException("unrecognised document name: " + documentName);
-        }
-
-        String name = documentName + ".docx";
-        CustomerOrder customer = customerOrderRepository.getOne(id);
-        return new WordMerger().merge(mergeDocService.getFile(name), customer.documentMappings());
-    }
-
     /**
      * Function to convert CustomerOrderCriteria to a {@link Specification}
      */
@@ -243,5 +222,10 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> {
             }
         }
         return specification;
+    }
+
+    @Override
+    public void createDocument(Long id, HttpServletResponse response, String documentName) {
+        mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, customerOrderRepository.getOne(id));
     }
 }

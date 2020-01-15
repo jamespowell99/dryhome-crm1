@@ -18,6 +18,7 @@ import uk.co.dryhome.Dryhomecrm1App;
 import uk.co.dryhome.domain.ManualInvoice;
 import uk.co.dryhome.repository.ManualInvoiceRepository;
 import uk.co.dryhome.service.ManualInvoiceService;
+import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
 import uk.co.dryhome.service.mapper.ManualInvoiceMapper;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;

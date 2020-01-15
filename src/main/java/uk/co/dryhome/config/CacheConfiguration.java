@@ -46,6 +46,7 @@ public class CacheConfiguration {
             cm.createCache(uk.co.dryhome.domain.ManualInvoice.class.getName(), jcacheConfiguration);
             cm.createCache(uk.co.dryhome.domain.ManualInvoice.class.getName() + ".items", jcacheConfiguration);
             cm.createCache(uk.co.dryhome.domain.ManualInvoiceItem.class.getName(), jcacheConfiguration);
+            cm.createCache(uk.co.dryhome.domain.ManualLabel.class.getName(), jcacheConfiguration);
             // jhipster-needle-ehcache-add-entry
         };
     }

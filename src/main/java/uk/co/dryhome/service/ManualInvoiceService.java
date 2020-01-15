@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.dryhome.domain.ManualInvoice;
 import uk.co.dryhome.domain.ManualInvoiceItem;
+import uk.co.dryhome.domain.MergeDocumentSource;
 import uk.co.dryhome.repository.ManualInvoiceItemRepository;
 import uk.co.dryhome.repository.ManualInvoiceRepository;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
@@ -18,6 +19,7 @@ import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
 import uk.co.dryhome.service.mapper.ManualInvoiceMapper;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +34,9 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ManualInvoiceService {
+public class ManualInvoiceService implements MergeDocSourceService {
     private final static Set<String> ALLOWED_DOCUMENTS =
         ImmutableSet.of("customer-invoice", "accountant-invoice", "file-invoice");
-
     private final Logger log = LoggerFactory.getLogger(ManualInvoiceService.class);
 
     private final ManualInvoiceRepository manualInvoiceRepository;
@@ -166,17 +167,8 @@ public class ManualInvoiceService {
         manualInvoiceRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
-    public byte[] generateDocument(String documentName, Long id) {
-        log.debug("Request to create document {} for Manual Invoice : {}", documentName, id);
-
-        if (!ALLOWED_DOCUMENTS.contains(documentName)) {
-            throw new RuntimeException("unrecognised document name: " + documentName);
-        }
-
-        String name = documentName + ".docx";
-        ManualInvoice manualInvoice = manualInvoiceRepository.findById(id).orElseThrow(() -> new RuntimeException("invoice not found: " + id));
-        return new WordMerger().merge(mergeDocService.getFile(name), manualInvoice.documentMappings());
+    @Override
+    public void createDocument(Long id, HttpServletResponse response, String documentName) {
+        mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, manualInvoiceRepository.getOne(id));
     }
-
 }

@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 @Table(name = "customer")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Slf4j
-public class Customer implements Serializable {
+public class Customer implements Serializable, MergeDocumentSource {
 
     private static final long serialVersionUID = 1L;
 
@@ -607,6 +607,7 @@ public class Customer implements Serializable {
             "}";
     }
 
+    @Override
     public Map<String, String> documentMappings() {
         Map<String, String> map = new HashMap<>();
         map.put("companyName", companyName);

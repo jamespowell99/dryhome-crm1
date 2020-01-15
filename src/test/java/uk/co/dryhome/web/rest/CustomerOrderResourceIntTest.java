@@ -7,6 +7,7 @@ import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.service.CustomerOrderService;
+import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;

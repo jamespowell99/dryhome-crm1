@@ -5,10 +5,10 @@ import uk.co.dryhome.Dryhomecrm1App;
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.service.CustomerService;
+import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.service.dto.CustomerDTO;
 import uk.co.dryhome.service.mapper.CustomerMapper;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
-import uk.co.dryhome.service.dto.CustomerCriteria;
 import uk.co.dryhome.service.CustomerQueryService;
 
 import org.junit.Before;
@@ -17,8 +17,6 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -26,19 +24,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 
 
 import static uk.co.dryhome.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -150,7 +145,6 @@ public class CustomerResourceIntTest {
 
     @Autowired
     private CustomerService customerService;
-
 
     @Autowired
     private CustomerQueryService customerQueryService;

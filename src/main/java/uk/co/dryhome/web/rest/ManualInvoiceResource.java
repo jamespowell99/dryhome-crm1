@@ -1,6 +1,9 @@
 package uk.co.dryhome.web.rest;
 
+import com.google.common.collect.ImmutableSet;
 import io.github.jhipster.web.util.ResponseUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -16,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.dryhome.domain.MergeDocumentSource;
 import uk.co.dryhome.service.ManualInvoiceService;
+import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
 import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
@@ -31,23 +36,21 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * REST controller for managing ManualInvoice.
  */
 @RestController
 @RequestMapping("/api")
-public class ManualInvoiceResource {
-    private final Logger log = LoggerFactory.getLogger(ManualInvoiceResource.class);
-
+@Slf4j
+@RequiredArgsConstructor
+public class ManualInvoiceResource{
     private static final String ENTITY_NAME = "manualInvoice";
 
     private final ManualInvoiceService manualInvoiceService;
-
-    public ManualInvoiceResource(ManualInvoiceService manualInvoiceService) {
-        this.manualInvoiceService = manualInvoiceService;
-    }
 
     /**
      * POST  /manual-invoices : Create a new manualInvoice.
@@ -132,18 +135,7 @@ public class ManualInvoiceResource {
     @GetMapping("/manual-invoices/{id}/document")
     public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
         log.debug("REST request to create document {} for manual invoice : {}", documentName, id);
-        byte[] document = manualInvoiceService.generateDocument(documentName, id);
-
-        try {
-            // get your file as InputStream
-            InputStream is = new ByteArrayInputStream(document);
-            // copy it to response's OutputStream
-            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
-        } catch (IOException ex) {
-            log.info("Error writing file to output stream. Filename was '{}'", documentName, ex);
-            throw new RuntimeException("IOError writing file to output stream");
-        }
+        manualInvoiceService.createDocument(id, response, documentName);
     }
 
 

@@ -1,0 +1,46 @@
+{
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "line1",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "line2",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "line3",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "line4",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "line5",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "line6",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "line7",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20200115063335",
+    "dto": "mapstruct",
+    "searchEngine": "elasticsearch",
+    "service": "serviceClass",
+    "entityTableName": "manual_label",
+    "databaseType": "sql",
+    "jpaMetamodelFiltering": false,
+    "pagination": "pagination"
+}

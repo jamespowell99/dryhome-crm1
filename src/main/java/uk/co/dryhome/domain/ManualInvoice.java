@@ -36,7 +36,7 @@ import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 @Entity
 @Table(name = "manual_invoice")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class ManualInvoice implements Serializable {
+public class ManualInvoice implements Serializable, MergeDocumentSource {
 
     private static final long serialVersionUID = 1L;
 
@@ -503,6 +503,7 @@ public class ManualInvoice implements Serializable {
             "}";
     }
 
+    @Override
     public Map<String, String> documentMappings() {
         Map<String, String> map = new HashMap<>();
         map.put("invceNo", fieldToString(invoiceNumber));

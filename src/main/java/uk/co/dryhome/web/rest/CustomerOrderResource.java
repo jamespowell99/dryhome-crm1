@@ -1,40 +1,44 @@
 package uk.co.dryhome.web.rest;
-import uk.co.dryhome.service.CustomerOrderService;
-import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
-import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
-import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
-import uk.co.dryhome.web.rest.util.HeaderUtil;
-import uk.co.dryhome.web.rest.util.PaginationUtil;
-import uk.co.dryhome.service.dto.CustomerOrderDTO;
-import uk.co.dryhome.service.dto.CustomerOrderCriteria;
-import uk.co.dryhome.service.CustomerOrderQueryService;
+
 import io.github.jhipster.web.util.ResponseUtil;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import uk.co.dryhome.service.CustomerOrderQueryService;
+import uk.co.dryhome.service.CustomerOrderService;
+import uk.co.dryhome.service.dto.CustomerOrderCriteria;
+import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
+import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
+import uk.co.dryhome.web.rest.util.HeaderUtil;
+import uk.co.dryhome.web.rest.util.PaginationUtil;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 /**
  * REST controller for managing CustomerOrder.
  */
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class CustomerOrderResource {
 
     private final Logger log = LoggerFactory.getLogger(CustomerOrderResource.class);
@@ -42,13 +46,7 @@ public class CustomerOrderResource {
     private static final String ENTITY_NAME = "customerOrder";
 
     private final CustomerOrderService customerOrderService;
-
     private final CustomerOrderQueryService customerOrderQueryService;
-
-    public CustomerOrderResource(CustomerOrderService customerOrderService, CustomerOrderQueryService customerOrderQueryService) {
-        this.customerOrderService = customerOrderService;
-        this.customerOrderQueryService = customerOrderQueryService;
-    }
 
     /**
      * POST  /customer-orders : Create a new customerOrder.
@@ -106,11 +104,11 @@ public class CustomerOrderResource {
     }
 
     /**
-    * GET  /customer-orders/count : count all the customerOrders.
-    *
-    * @param criteria the criterias which the requested entities should match
-    * @return the ResponseEntity with status 200 (OK) and the count in body
-    */
+     * GET  /customer-orders/count : count all the customerOrders.
+     *
+     * @param criteria the criterias which the requested entities should match
+     * @return the ResponseEntity with status 200 (OK) and the count in body
+     */
     @GetMapping("/customer-orders/count")
     public ResponseEntity<Long> countCustomerOrders(CustomerOrderCriteria criteria) {
         log.debug("REST request to count CustomerOrders by criteria: {}", criteria);
@@ -146,18 +144,7 @@ public class CustomerOrderResource {
     @GetMapping("/customer-orders/{id}/document")
     public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
         log.debug("REST request to create document {} for customer order : {}", documentName, id);
-        byte[] document = customerOrderQueryService.generateDocument(documentName, id);
-
-        try {
-            // get your file as InputStream
-            InputStream is = new ByteArrayInputStream(document);
-            // copy it to response's OutputStream
-            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
-        } catch (IOException ex) {
-            log.info("Error writing file to output stream. Filename was '{}'", documentName, ex);
-            throw new RuntimeException("IOError writing file to output stream");
-        }
+        customerOrderQueryService.createDocument(id, response, documentName);
     }
 
 }

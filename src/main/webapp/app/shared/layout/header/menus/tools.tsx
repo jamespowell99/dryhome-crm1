@@ -11,5 +11,8 @@ export const ToolsMenu = props => (
     <DropdownItem tag={Link} to="/entity/manual-invoice">
       &nbsp;Manual Invoice
     </DropdownItem>
+    <DropdownItem tag={Link} to="/entity/manual-label">
+      &nbsp;Manual Labels
+    </DropdownItem>
   </NavDropdown>
 );

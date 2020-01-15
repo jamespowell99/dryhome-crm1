@@ -9,16 +9,22 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.powtechconsulting.mailmerge.WordMerger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import uk.co.dryhome.config.DryhomeProperties;
+import uk.co.dryhome.domain.MergeDocumentSource;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +32,25 @@ import java.io.IOException;
 public class MergeDocService {
     private final DryhomeProperties properties;
 
-    public String getFile(String filename) {
+    public void generateDocument(String documentName, HttpServletResponse response, Set<String> allowedDocuments, MergeDocumentSource source) {
+        if (!allowedDocuments.contains(documentName)) {
+            throw new RuntimeException("unrecognised document name: " + documentName);
+        }
+        byte[] document = new WordMerger().merge(getFile(documentName + ".docx"), source.documentMappings());
+
+        try {
+            // get your file as InputStream
+            InputStream is = new ByteArrayInputStream(document);
+            // copy it to response's OutputStream
+            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+            response.flushBuffer();
+        } catch (IOException ex) {
+            log.info("Error writing file to output stream. Filename was '{}'", documentName, ex);
+            throw new RuntimeException("IOError writing file to output stream");
+        }
+    }
+
+    private String getFile(String filename) {
         //todo clean this all up
         //todo use input streams instead. Or tmp file at least?
         if (!new File("/tmp").exists()) {

@@ -1,5 +1,8 @@
 package uk.co.dryhome.web.rest;
+import com.google.common.collect.ImmutableSet;
+import lombok.RequiredArgsConstructor;
 import uk.co.dryhome.service.CustomerService;
+import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
 import uk.co.dryhome.web.rest.util.HeaderUtil;
 import uk.co.dryhome.web.rest.util.PaginationUtil;
@@ -12,41 +15,31 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.Set;
 
 /**
  * REST controller for managing Customer.
  */
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class CustomerResource {
-
     private final Logger log = LoggerFactory.getLogger(CustomerResource.class);
 
     private static final String ENTITY_NAME = "customer";
 
     private final CustomerService customerService;
-
     private final CustomerQueryService customerQueryService;
-
-    public CustomerResource(CustomerService customerService, CustomerQueryService customerQueryService) {
-        this.customerService = customerService;
-        this.customerQueryService = customerQueryService;
-    }
 
     /**
      * POST  /customers : Create a new customer.
@@ -144,18 +137,7 @@ public class CustomerResource {
     @GetMapping("/customers/{id}/document")
     public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
         log.debug("REST request to create document {} for customer : {}", documentName, id);
-        byte[] document = customerService.generateDocument(documentName, id);
-
-        try {
-            // get your file as InputStream
-            InputStream is = new ByteArrayInputStream(document);
-            // copy it to response's OutputStream
-            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
-        } catch (IOException ex) {
-            log.info("Error writing file to output stream. Filename was '{}'", documentName, ex);
-            throw new RuntimeException("IOError writing file to output stream");
-        }
+        customerService.createDocument(id, response, documentName);
     }
 
 }
