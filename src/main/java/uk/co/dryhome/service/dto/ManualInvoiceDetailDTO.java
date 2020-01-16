@@ -67,9 +67,9 @@ public class ManualInvoiceDetailDTO implements Serializable {
     @Size(min = 1, max = 5)
     private List<ManualInvoiceItemDTO> items = new ArrayList<>();
 
-    private BigDecimal orderTotal;
+    private BigDecimal total;
 
-    private BigDecimal orderSubTotal;
+    private BigDecimal subTotal;
 
     private BigDecimal vatAmount;
 
@@ -100,26 +100,26 @@ public class ManualInvoiceDetailDTO implements Serializable {
             ", paymentAmount=" + paymentAmount +
             ", vatRate=" + vatRate +
             ", items=" + items +
-            ", orderTotal=" + orderTotal +
-            ", orderSubTotal=" + orderSubTotal +
+            ", total=" + total +
+            ", subTotal=" + subTotal +
             ", vatAmount=" + vatAmount +
             '}';
     }
 
-    public BigDecimal getOrderTotal() {
-        return orderTotal;
+    public BigDecimal getTotal() {
+        return total;
     }
 
-    public void setOrderTotal(BigDecimal orderTotal) {
-        this.orderTotal = orderTotal;
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
-    public BigDecimal getOrderSubTotal() {
-        return orderSubTotal;
+    public BigDecimal getSubTotal() {
+        return subTotal;
     }
 
-    public void setOrderSubTotal(BigDecimal orderSubTotal) {
-        this.orderSubTotal = orderSubTotal;
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
     }
 
     public BigDecimal getVatAmount() {

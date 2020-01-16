@@ -164,8 +164,8 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
                   <td>{customerOrder.invoiceNumber}</td>
                   <td>
                     £
-                    {customerOrder.orderTotal
-                      ? customerOrder.orderTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    {customerOrder.total
+                      ? customerOrder.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                       : null}
                   </td>
 

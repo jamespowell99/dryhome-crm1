@@ -1,5 +1,7 @@
 package uk.co.dryhome.web.rest;
 
+import io.github.jhipster.config.JHipsterConstants;
+import org.springframework.context.annotation.Profile;
 import uk.co.dryhome.Dryhomecrm1App;
 import uk.co.dryhome.config.Constants;
 import uk.co.dryhome.domain.Authority;

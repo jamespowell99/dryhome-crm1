@@ -1,7 +1,6 @@
 package uk.co.dryhome.service;
 
 import com.google.common.collect.ImmutableSet;
-import com.powtechconsulting.mailmerge.WordMerger;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.dryhome.domain.ManualInvoice;
 import uk.co.dryhome.domain.ManualInvoiceItem;
-import uk.co.dryhome.domain.MergeDocumentSource;
 import uk.co.dryhome.repository.ManualInvoiceItemRepository;
 import uk.co.dryhome.repository.ManualInvoiceRepository;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
@@ -20,7 +18,6 @@ import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
 import uk.co.dryhome.service.mapper.ManualInvoiceMapper;
 
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -109,17 +106,7 @@ public class ManualInvoiceService implements MergeDocSourceService {
     public Page<ManualInvoiceDTO> findAll(Pageable pageable) {
         log.debug("Request to get all ManualInvoices");
         return manualInvoiceRepository.findAll(pageable)
-            .map(x -> {
-                ManualInvoiceDTO manualInvoiceDTO = manualInvoiceMapper.toDto(x);
-                List<ManualInvoiceItem> orderItems = manualInvoiceItemRepository.findByManualInvoiceIdOrderById(x.getId());
-                BigDecimal orderSubTotal = orderItems.stream()
-                    .map(oi -> oi.getPrice().multiply(BigDecimal.valueOf(oi.getQuantity())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                BigDecimal vatAmount = orderSubTotal.multiply(x.getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
-                manualInvoiceDTO.setOrderTotal(orderSubTotal.add(vatAmount));
-                return manualInvoiceDTO;
-            });
+            .map(x -> manualInvoiceMapper.toDto(x));
     }
 
 
@@ -133,27 +120,7 @@ public class ManualInvoiceService implements MergeDocSourceService {
     public Optional<ManualInvoiceDetailDTO> findOne(Long id) {
         log.debug("Request to get ManualInvoice : {}", id);
         return manualInvoiceRepository.findById(id)
-            .map(x -> {
-                ManualInvoiceDetailDTO manualInvoiceDetailDTO = manualInvoiceMapper.toDetailDto(x);
-
-                List<ManualInvoiceItem> invoiceItems = manualInvoiceItemRepository.findByManualInvoiceIdOrderById(x.getId());
-                List<ManualInvoiceItemDTO> items = invoiceItems.stream().map(oi -> {
-                    //todo use mapper?
-                    ManualInvoiceItemDTO itemDto = new ManualInvoiceItemDTO();
-                    itemDto.setId(oi.getId());
-                    itemDto.setPrice(oi.getPrice());
-                    itemDto.setQuantity(oi.getQuantity());
-                    itemDto.setProduct(oi.getProduct());
-                    return itemDto;
-                }).collect(Collectors.toList());
-                manualInvoiceDetailDTO.setItems(items);
-
-                manualInvoiceDetailDTO.setOrderSubTotal(x.getSubTotal());
-                manualInvoiceDetailDTO.setVatAmount(x.getVatAmount());
-                manualInvoiceDetailDTO.setOrderTotal(x.getTotal());
-
-                return manualInvoiceDetailDTO;
-            });
+            .map(manualInvoiceMapper::toDetailDto);
     }
 
     /**

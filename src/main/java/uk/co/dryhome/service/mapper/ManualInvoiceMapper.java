@@ -1,18 +1,18 @@
 package uk.co.dryhome.service.mapper;
 
-import uk.co.dryhome.domain.*;
-import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import uk.co.dryhome.domain.ManualInvoice;
+import uk.co.dryhome.domain.ManualInvoiceItem;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
-
-import org.mapstruct.*;
 import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
+import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
 
 /**
  * Mapper for the entity ManualInvoice and its DTO ManualInvoiceDTO.
  */
 @Mapper(componentModel = "spring", uses = {})
 public interface ManualInvoiceMapper extends EntityMapper<ManualInvoiceDTO, ManualInvoice> {
-
 
     @Mapping(target = "items", ignore = true)
     ManualInvoice toEntity(ManualInvoiceDTO manualInvoiceDTO);
@@ -21,8 +21,9 @@ public interface ManualInvoiceMapper extends EntityMapper<ManualInvoiceDTO, Manu
     @Mapping(target = "items", ignore = true)
     ManualInvoice detailToEntity(ManualInvoiceDetailDTO manualInvoiceDTO);
 
-    @Mapping(target = "items", ignore = true)
     ManualInvoiceDetailDTO toDetailDto(ManualInvoice manualInvoice);
+
+    ManualInvoiceItemDTO itemToDto(ManualInvoiceItem item);
 
     default ManualInvoice fromId(Long id) {
         if (id == null) {

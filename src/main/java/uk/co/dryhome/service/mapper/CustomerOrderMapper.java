@@ -6,6 +6,7 @@ import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import org.mapstruct.*;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
+import uk.co.dryhome.service.dto.OrderItemDTO;
 
 /**
  * Mapper for the entity CustomerOrder and its DTO CustomerOrderDTO.
@@ -25,11 +26,16 @@ public interface CustomerOrderMapper extends EntityMapper<CustomerOrderDTO, Cust
     CustomerOrder detailToEntity(CustomerOrderDetailDTO customerOrderDetailDTO);
 
     @Mapping(source = "customer.id", target = "customerId")
+    @Mapping(source = "customer.name", target = "customerName")
     CustomerOrderSummaryDTO toSummaryDto(CustomerOrder customerOrder);
 
-    @Mapping(target = "items", ignore = true)
     @Mapping(source = "customer.id", target = "customerId")
+    @Mapping(source = "customer.name", target = "customerName")
     CustomerOrderDetailDTO toDetailDto(CustomerOrder customerOrder);
+
+    @Mapping(source = "product.name", target = "product")
+    @Mapping(source = "product.id", target = "productId")
+    OrderItemDTO itemToDto(OrderItem orderItem);
 
     default CustomerOrder fromId(Long id) {
         if (id == null) {

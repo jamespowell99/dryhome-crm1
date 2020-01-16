@@ -63,9 +63,9 @@ public class CustomerOrderDetailDTO implements Serializable {
 
     private String customerName;
 
-    private BigDecimal orderTotal;
+    private BigDecimal total;
 
-    private BigDecimal orderSubTotal;
+    private BigDecimal subTotal;
 
     @Size(min = 1, max = 5)
     private List<OrderItemDTO> items = new ArrayList<>();
@@ -101,8 +101,8 @@ public class CustomerOrderDetailDTO implements Serializable {
             ", method=" + method +
             ", customerId=" + customerId +
             ", customerName='" + customerName + '\'' +
-            ", orderTotal=" + orderTotal +
-            ", orderSubTotal=" + orderSubTotal +
+            ", total=" + total +
+            ", subTotal=" + subTotal +
             ", vatAmount=" + vatAmount +
             ", invoiceContact='" + invoiceContact + '\'' +
             ", deliveryContact='" + deliveryContact + '\'' +
@@ -112,12 +112,12 @@ public class CustomerOrderDetailDTO implements Serializable {
             '}';
     }
 
-    public BigDecimal getOrderSubTotal() {
-        return orderSubTotal;
+    public BigDecimal getSubTotal() {
+        return subTotal;
     }
 
-    public void setOrderSubTotal(BigDecimal orderSubTotal) {
-        this.orderSubTotal = orderSubTotal;
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
     }
 
     public BigDecimal getVatAmount() {
@@ -168,12 +168,12 @@ public class CustomerOrderDetailDTO implements Serializable {
         this.customerName = customerName;
     }
 
-    public BigDecimal getOrderTotal() {
-        return orderTotal;
+    public BigDecimal getTotal() {
+        return total;
     }
 
-    public void setOrderTotal(BigDecimal orderTotal) {
-        this.orderTotal = orderTotal;
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
     public Long getId() {

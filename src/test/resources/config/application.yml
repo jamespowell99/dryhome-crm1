@@ -105,3 +105,9 @@ jhipster:
 # ===================================================================
 
 # application:
+dryhome:
+    merge-docs:
+      s3-region: eu-west-1
+      s3-bucket-name: "dryhome-prod-merge-docs"
+      aws-access-key: "AKIAUZ4OPH3DCVDO5NEG"
+      aws-secret-key: "REMOVED"

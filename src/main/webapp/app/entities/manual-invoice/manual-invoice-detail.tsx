@@ -269,7 +269,7 @@ export class ManualInvoiceDetail extends React.Component<IManualInvoiceDetailPro
                     <dt>
                       <span id="orderSubTotal">Sub Total</span>
                     </dt>
-                    <dd>£{manualInvoiceEntity.orderSubTotal ? manualInvoiceEntity.orderSubTotal.toFixed(2) : null}</dd>
+                    <dd>£{manualInvoiceEntity.subTotal ? manualInvoiceEntity.subTotal.toFixed(2) : null}</dd>
                     <dt>
                       <span id="vatRate">Vat</span>
                     </dt>
@@ -283,8 +283,8 @@ export class ManualInvoiceDetail extends React.Component<IManualInvoiceDetailPro
                     </dt>
                     <dd>
                       £
-                      {manualInvoiceEntity.orderTotal
-                        ? manualInvoiceEntity.orderTotal.toLocaleString(undefined, {
+                      {manualInvoiceEntity.total
+                        ? manualInvoiceEntity.total.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                           })

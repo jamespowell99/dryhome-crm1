@@ -61,7 +61,7 @@ public class CustomerOrderSummaryDTO implements Serializable {
 
     private String customerName;
 
-    private BigDecimal orderTotal;
+    private BigDecimal total;
 
     public Long getId() {
         return id;
@@ -207,12 +207,12 @@ public class CustomerOrderSummaryDTO implements Serializable {
         this.customerName = customerName;
     }
 
-    public BigDecimal getOrderTotal() {
-        return orderTotal;
+    public BigDecimal getTotal() {
+        return total;
     }
 
-    public void setOrderTotal(BigDecimal orderTotal) {
-        this.orderTotal = orderTotal;
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
     @Override
@@ -257,7 +257,7 @@ public class CustomerOrderSummaryDTO implements Serializable {
             ", method=" + method +
             ", customerId=" + customerId +
             ", customerName='" + customerName + '\'' +
-            ", orderTotal=" + orderTotal +
+            ", total=" + total +
             '}';
     }
 }

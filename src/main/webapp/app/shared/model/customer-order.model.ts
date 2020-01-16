@@ -35,11 +35,10 @@ export interface ICustomerOrder {
   method?: OrderMethod;
   items?: IOrderItem[];
   customerId?: number;
-  //  todo not sure if this should go here
   customerName?: string;
-  orderSubTotal?: number;
+  subTotal?: number;
   vatAmount?: number;
-  orderTotal?: number;
+  total?: number;
   invoiceContact?: string;
   deliveryContact?: string;
   invoiceAddress?: IAddress;

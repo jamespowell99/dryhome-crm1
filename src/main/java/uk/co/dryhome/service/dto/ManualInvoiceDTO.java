@@ -60,7 +60,7 @@ public class ManualInvoiceDTO implements Serializable {
     @NotNull
     private BigDecimal vatRate;
 
-    private BigDecimal orderTotal;
+    private BigDecimal total;
 
     @Override
     public String toString() {
@@ -88,16 +88,16 @@ public class ManualInvoiceDTO implements Serializable {
             ", paymentType='" + paymentType + '\'' +
             ", paymentAmount=" + paymentAmount +
             ", vatRate=" + vatRate +
-            ", orderTotal=" + orderTotal +
+            ", total=" + total +
             '}';
     }
 
-    public BigDecimal getOrderTotal() {
-        return orderTotal;
+    public BigDecimal getTotal() {
+        return total;
     }
 
-    public void setOrderTotal(BigDecimal orderTotal) {
-        this.orderTotal = orderTotal;
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
     public Long getId() {

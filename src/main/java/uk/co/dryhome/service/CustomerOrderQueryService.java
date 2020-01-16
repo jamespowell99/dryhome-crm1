@@ -1,8 +1,6 @@
 package uk.co.dryhome.service;
 
 import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -12,7 +10,6 @@ import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.collect.ImmutableSet;
-import com.powtechconsulting.mailmerge.WordMerger;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +24,6 @@ import io.github.jhipster.service.QueryService;
 import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.domain.*; // for static metamodels
 import uk.co.dryhome.repository.CustomerOrderRepository;
-import uk.co.dryhome.repository.CustomerRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
@@ -81,19 +77,7 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<CustomerOrder> specification = createSpecification(criteria);
         return customerOrderRepository.findAll(specification, page)
-            .map(x -> {
-                CustomerOrderSummaryDTO summaryDto = customerOrderMapper.toSummaryDto(x);
-                summaryDto.setCustomerName(x.getCustomer().getName());
-
-                List<OrderItem> orderItems = orderItemRepository.findByCustomerOrderIdOrderById(x.getId());
-                BigDecimal orderSubTotal = orderItems.stream()
-                    .map(oi -> oi.getPrice().multiply(BigDecimal.valueOf(oi.getQuantity())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                BigDecimal vatAmount = orderSubTotal.multiply(x.getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
-                summaryDto.setOrderTotal(orderSubTotal.add(vatAmount));
-                return summaryDto;
-            });
+            .map(x -> customerOrderMapper.toSummaryDto(x));
     }
 
     /**
@@ -107,28 +91,8 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
         return customerOrderRepository.findById(id)
             .map( o -> {
                 CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(o);
-                List<OrderItem> orderItems = orderItemRepository.findByCustomerOrderIdOrderById(o.getId());
-                List<OrderItemDTO> items = orderItems.stream().map(oi -> {
-                    //todo use mapper?
-                    OrderItemDTO orderItemDTO = new OrderItemDTO();
-                    orderItemDTO.setId(oi.getId());
-                    orderItemDTO.setPrice(oi.getPrice());
-                    orderItemDTO.setQuantity(oi.getQuantity());
-                    orderItemDTO.setNotes(oi.getNotes());
-                    orderItemDTO.setSerialNumber(oi.getSerialNumber());
-                    orderItemDTO.setProduct(oi.getProduct().getName());
-                    orderItemDTO.setProductId(oi.getProduct().getId());
-                    return orderItemDTO;
-                }).collect(Collectors.toList());
-                customerOrderDetailDTO.setItems(items);
 
                 Customer customer = o.getCustomer();
-                customerOrderDetailDTO.setCustomerName(customer.getName());
-
-                customerOrderDetailDTO.setOrderSubTotal(o.getSubTotal());
-                customerOrderDetailDTO.setVatAmount(o.getVatAmount());
-                customerOrderDetailDTO.setOrderTotal(o.getTotal());
-
                 //todo different contact?
                 customerOrderDetailDTO.setInvoiceContact(customer.getFullContactName());
                 customerOrderDetailDTO.setDeliveryContact(customer.getFullContactName());

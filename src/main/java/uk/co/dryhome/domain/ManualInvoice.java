@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -117,6 +118,7 @@ public class ManualInvoice implements Serializable, MergeDocumentSource {
 
     @OneToMany(mappedBy = "manualInvoice")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @OrderBy("id")
     private Set<ManualInvoiceItem> items = new HashSet<>();
 
     public BigDecimal getSubTotal() {

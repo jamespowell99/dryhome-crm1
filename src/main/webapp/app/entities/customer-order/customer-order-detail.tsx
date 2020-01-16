@@ -282,7 +282,7 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
                     <dt>
                       <span id="orderSubTotal">Sub Total</span>
                     </dt>
-                    <dd>£{customerOrderEntity.orderSubTotal ? customerOrderEntity.orderSubTotal.toFixed(2) : null}</dd>
+                    <dd>£{customerOrderEntity.subTotal ? customerOrderEntity.subTotal.toFixed(2) : null}</dd>
                     <dt>
                       <span id="vatRate">Vat</span>
                     </dt>
@@ -296,8 +296,8 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
                     </dt>
                     <dd>
                       £
-                      {customerOrderEntity.orderTotal
-                        ? customerOrderEntity.orderTotal.toLocaleString(undefined, {
+                      {customerOrderEntity.total
+                        ? customerOrderEntity.total.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                           })

@@ -26,9 +26,9 @@ export interface IManualInvoice {
   paymentAmount?: number;
   vatRate?: number;
   items?: IManualInvoiceItem[];
-  orderSubTotal?: number;
+  subTotal?: number;
   vatAmount?: number;
-  orderTotal?: number;
+  total?: number;
 }
 
 // todo move vatRate to constant
