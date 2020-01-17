@@ -16,10 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import uk.co.dryhome.Dryhomecrm1App;
 import uk.co.dryhome.domain.ManualInvoice;
+import uk.co.dryhome.domain.ManualInvoiceItem;
+import uk.co.dryhome.repository.ManualInvoiceItemRepository;
 import uk.co.dryhome.repository.ManualInvoiceRepository;
 import uk.co.dryhome.service.ManualInvoiceService;
 import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
+import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
 import uk.co.dryhome.service.mapper.ManualInvoiceMapper;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
 
@@ -27,6 +30,7 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,11 +116,14 @@ public class ManualInvoiceResourceIntTest {
     private static final BigDecimal DEFAULT_PAYMENT_AMOUNT = new BigDecimal(1);
     private static final BigDecimal UPDATED_PAYMENT_AMOUNT = new BigDecimal(2);
 
-    private static final BigDecimal DEFAULT_VAT_RATE = new BigDecimal(1);
-    private static final BigDecimal UPDATED_VAT_RATE = new BigDecimal(2);
+    private static final BigDecimal DEFAULT_VAT_RATE = new BigDecimal(20);
+    private static final BigDecimal UPDATED_VAT_RATE = new BigDecimal("19.5");
 
     @Autowired
     private ManualInvoiceRepository manualInvoiceRepository;
+
+    @Autowired
+    private ManualInvoiceItemRepository manualInvoiceItemRepository;
 
     @Autowired
     private ManualInvoiceMapper manualInvoiceMapper;
@@ -184,7 +191,15 @@ public class ManualInvoiceResourceIntTest {
             .paymentStatus(DEFAULT_PAYMENT_STATUS)
             .paymentType(DEFAULT_PAYMENT_TYPE)
             .paymentAmount(DEFAULT_PAYMENT_AMOUNT)
-            .vatRate(DEFAULT_VAT_RATE);
+            .vatRate(DEFAULT_VAT_RATE)
+            .addItems(new ManualInvoiceItem()
+                .price(new BigDecimal("99.99"))
+                .quantity(2)
+                .product("product1"))
+            .addItems(new ManualInvoiceItem()
+                .price(new BigDecimal("5.96"))
+                .quantity(1)
+                .product("product2"));
         return manualInvoice;
     }
 
@@ -199,11 +214,87 @@ public class ManualInvoiceResourceIntTest {
         int databaseSizeBeforeCreate = manualInvoiceRepository.findAll().size();
 
         // Create the ManualInvoice
-        ManualInvoiceDTO manualInvoiceDTO = manualInvoiceMapper.toDto(manualInvoice);
-        restManualInvoiceMockMvc.perform(post("/api/manual-invoices")
+        ManualInvoiceDetailDTO manualInvoiceDetailDTO = manualInvoiceMapper.toDetailDto(manualInvoice);
+        String location = restManualInvoiceMockMvc.perform(post("/api/manual-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(manualInvoiceDTO)))
-            .andExpect(status().isCreated());
+            .content(TestUtil.convertObjectToJsonBytes(manualInvoiceDetailDTO)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNotEmpty())
+            .andExpect(jsonPath("$.invoiceNumber").value(DEFAULT_INVOICE_NUMBER.toString()))
+            .andExpect(jsonPath("$.orderNumber").value(DEFAULT_ORDER_NUMBER.toString()))
+            .andExpect(jsonPath("$.invoiceDate").value(DEFAULT_INVOICE_DATE.toString()))
+            .andExpect(jsonPath("$.ref").value(DEFAULT_REF.toString()))
+            .andExpect(jsonPath("$.customer").value(DEFAULT_CUSTOMER.toString()))
+            .andExpect(jsonPath("$.address1").value(DEFAULT_ADDRESS_1.toString()))
+            .andExpect(jsonPath("$.address2").value(DEFAULT_ADDRESS_2.toString()))
+            .andExpect(jsonPath("$.address3").value(DEFAULT_ADDRESS_3.toString()))
+            .andExpect(jsonPath("$.town").value(DEFAULT_TOWN.toString()))
+            .andExpect(jsonPath("$.postCode").value(DEFAULT_POST_CODE.toString()))
+            .andExpect(jsonPath("$.telNo").value(DEFAULT_TEL_NO.toString()))
+            .andExpect(jsonPath("$.deliveryAddress1").value(DEFAULT_DELIVERY_ADDRESS_1.toString()))
+            .andExpect(jsonPath("$.deliveryAddress2").value(DEFAULT_DELIVERY_ADDRESS_2.toString()))
+            .andExpect(jsonPath("$.deliveryAddress3").value(DEFAULT_DELIVERY_ADDRESS_3.toString()))
+            .andExpect(jsonPath("$.deliveryAddress4").value(DEFAULT_DELIVERY_ADDRESS_4.toString()))
+            .andExpect(jsonPath("$.specialInstructions1").value(DEFAULT_SPECIAL_INSTRUCTIONS_1.toString()))
+            .andExpect(jsonPath("$.specialInstructions2").value(DEFAULT_SPECIAL_INSTRUCTIONS_2.toString()))
+            .andExpect(jsonPath("$.paymentDate").value(DEFAULT_PAYMENT_DATE.toString()))
+            .andExpect(jsonPath("$.paymentStatus").value(DEFAULT_PAYMENT_STATUS.toString()))
+            .andExpect(jsonPath("$.paymentType").value(DEFAULT_PAYMENT_TYPE.toString()))
+            .andExpect(jsonPath("$.paymentAmount").value(DEFAULT_PAYMENT_AMOUNT.intValue()))
+            .andExpect(jsonPath("$.vatRate").value(DEFAULT_VAT_RATE.intValue()))
+            .andExpect(jsonPath("$.items.length()").value(2))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].product").value("product1"))
+            .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[1].quantity").value(1))
+            .andExpect(jsonPath("$.items[1].price").value("5.96"))
+            .andExpect(jsonPath("$.items[1].product").value("product2"))
+            .andExpect(jsonPath("$.subTotal").value("205.94"))
+            .andExpect(jsonPath("$.vatAmount").value("41.19"))
+            .andExpect(jsonPath("$.total").value("247.13"))
+            .andReturn().getResponse().getHeader("Location");
+
+// Get the manualInvoice
+        restManualInvoiceMockMvc.perform(get(location, manualInvoice.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(location.substring(location.lastIndexOf("/") + 1)))
+            .andExpect(jsonPath("$.invoiceNumber").value(DEFAULT_INVOICE_NUMBER.toString()))
+            .andExpect(jsonPath("$.orderNumber").value(DEFAULT_ORDER_NUMBER.toString()))
+            .andExpect(jsonPath("$.invoiceDate").value(DEFAULT_INVOICE_DATE.toString()))
+            .andExpect(jsonPath("$.ref").value(DEFAULT_REF.toString()))
+            .andExpect(jsonPath("$.customer").value(DEFAULT_CUSTOMER.toString()))
+            .andExpect(jsonPath("$.address1").value(DEFAULT_ADDRESS_1.toString()))
+            .andExpect(jsonPath("$.address2").value(DEFAULT_ADDRESS_2.toString()))
+            .andExpect(jsonPath("$.address3").value(DEFAULT_ADDRESS_3.toString()))
+            .andExpect(jsonPath("$.town").value(DEFAULT_TOWN.toString()))
+            .andExpect(jsonPath("$.postCode").value(DEFAULT_POST_CODE.toString()))
+            .andExpect(jsonPath("$.telNo").value(DEFAULT_TEL_NO.toString()))
+            .andExpect(jsonPath("$.deliveryAddress1").value(DEFAULT_DELIVERY_ADDRESS_1.toString()))
+            .andExpect(jsonPath("$.deliveryAddress2").value(DEFAULT_DELIVERY_ADDRESS_2.toString()))
+            .andExpect(jsonPath("$.deliveryAddress3").value(DEFAULT_DELIVERY_ADDRESS_3.toString()))
+            .andExpect(jsonPath("$.deliveryAddress4").value(DEFAULT_DELIVERY_ADDRESS_4.toString()))
+            .andExpect(jsonPath("$.specialInstructions1").value(DEFAULT_SPECIAL_INSTRUCTIONS_1.toString()))
+            .andExpect(jsonPath("$.specialInstructions2").value(DEFAULT_SPECIAL_INSTRUCTIONS_2.toString()))
+            .andExpect(jsonPath("$.paymentDate").value(DEFAULT_PAYMENT_DATE.toString()))
+            .andExpect(jsonPath("$.paymentStatus").value(DEFAULT_PAYMENT_STATUS.toString()))
+            .andExpect(jsonPath("$.paymentType").value(DEFAULT_PAYMENT_TYPE.toString()))
+            .andExpect(jsonPath("$.paymentAmount").value(DEFAULT_PAYMENT_AMOUNT.intValue()))
+            .andExpect(jsonPath("$.vatRate").value(DEFAULT_VAT_RATE.intValue()))
+            .andExpect(jsonPath("$.items.length()").value(2))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].product").value("product1"))
+            .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[1].quantity").value(1))
+            .andExpect(jsonPath("$.items[1].price").value("5.96"))
+            .andExpect(jsonPath("$.items[1].product").value("product2"))
+            .andExpect(jsonPath("$.subTotal").value("205.94"))
+            .andExpect(jsonPath("$.vatAmount").value("41.19"))
+            .andExpect(jsonPath("$.total").value("247.13"));
 
         // Validate the ManualInvoice in the database
         List<ManualInvoice> manualInvoiceList = manualInvoiceRepository.findAll();
@@ -316,11 +407,11 @@ public class ManualInvoiceResourceIntTest {
     @Transactional
     public void checkVatRateIsRequired() throws Exception {
         int databaseSizeBeforeTest = manualInvoiceRepository.findAll().size();
-        // set the field null
-        manualInvoice.setVatRate(null);
-
         // Create the ManualInvoice, which fails.
         ManualInvoiceDTO manualInvoiceDTO = manualInvoiceMapper.toDto(manualInvoice);
+
+        // set the field null
+        manualInvoiceDTO.setVatRate(null);
 
         restManualInvoiceMockMvc.perform(post("/api/manual-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -413,12 +504,16 @@ public class ManualInvoiceResourceIntTest {
     @Transactional
     public void updateManualInvoice() throws Exception {
         // Initialize the database
-        manualInvoiceRepository.saveAndFlush(manualInvoice);
+        ManualInvoice savedManualInvoice = manualInvoiceRepository.saveAndFlush(this.manualInvoice);
+        manualInvoice.getItems().forEach(i -> {
+            i.setManualInvoice(savedManualInvoice);
+            manualInvoiceItemRepository.saveAndFlush(i);
+        });
 
         int databaseSizeBeforeUpdate = manualInvoiceRepository.findAll().size();
 
         // Update the manualInvoice
-        ManualInvoice updatedManualInvoice = manualInvoiceRepository.findById(manualInvoice.getId()).get();
+        ManualInvoice updatedManualInvoice = manualInvoiceRepository.findById(this.manualInvoice.getId()).get();
         // Disconnect from session so that the updates on updatedManualInvoice are not directly saved in db
         em.detach(updatedManualInvoice);
         updatedManualInvoice
@@ -444,40 +539,52 @@ public class ManualInvoiceResourceIntTest {
             .paymentType(UPDATED_PAYMENT_TYPE)
             .paymentAmount(UPDATED_PAYMENT_AMOUNT)
             .vatRate(UPDATED_VAT_RATE);
-        ManualInvoiceDTO manualInvoiceDTO = manualInvoiceMapper.toDto(updatedManualInvoice);
+        ManualInvoiceDetailDTO manualInvoiceDetailDTO = manualInvoiceMapper.toDetailDto(updatedManualInvoice);
+        manualInvoiceDetailDTO.getItems().get(0).setPrice(new BigDecimal("49.99"));
 
         restManualInvoiceMockMvc.perform(put("/api/manual-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(manualInvoiceDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(manualInvoiceDetailDTO)))
             .andExpect(status().isOk());
 
-        // Validate the ManualInvoice in the database
-        List<ManualInvoice> manualInvoiceList = manualInvoiceRepository.findAll();
-        assertThat(manualInvoiceList).hasSize(databaseSizeBeforeUpdate);
-        ManualInvoice testManualInvoice = manualInvoiceList.get(manualInvoiceList.size() - 1);
-        assertThat(testManualInvoice.getInvoiceNumber()).isEqualTo(UPDATED_INVOICE_NUMBER);
-        assertThat(testManualInvoice.getOrderNumber()).isEqualTo(UPDATED_ORDER_NUMBER);
-        assertThat(testManualInvoice.getInvoiceDate()).isEqualTo(UPDATED_INVOICE_DATE);
-        assertThat(testManualInvoice.getRef()).isEqualTo(UPDATED_REF);
-        assertThat(testManualInvoice.getCustomer()).isEqualTo(UPDATED_CUSTOMER);
-        assertThat(testManualInvoice.getAddress1()).isEqualTo(UPDATED_ADDRESS_1);
-        assertThat(testManualInvoice.getAddress2()).isEqualTo(UPDATED_ADDRESS_2);
-        assertThat(testManualInvoice.getAddress3()).isEqualTo(UPDATED_ADDRESS_3);
-        assertThat(testManualInvoice.getTown()).isEqualTo(UPDATED_TOWN);
-        assertThat(testManualInvoice.getPostCode()).isEqualTo(UPDATED_POST_CODE);
-        assertThat(testManualInvoice.getTelNo()).isEqualTo(UPDATED_TEL_NO);
-        assertThat(testManualInvoice.getDeliveryAddress1()).isEqualTo(UPDATED_DELIVERY_ADDRESS_1);
-        assertThat(testManualInvoice.getDeliveryAddress2()).isEqualTo(UPDATED_DELIVERY_ADDRESS_2);
-        assertThat(testManualInvoice.getDeliveryAddress3()).isEqualTo(UPDATED_DELIVERY_ADDRESS_3);
-        assertThat(testManualInvoice.getDeliveryAddress4()).isEqualTo(UPDATED_DELIVERY_ADDRESS_4);
-        assertThat(testManualInvoice.getSpecialInstructions1()).isEqualTo(UPDATED_SPECIAL_INSTRUCTIONS_1);
-        assertThat(testManualInvoice.getSpecialInstructions2()).isEqualTo(UPDATED_SPECIAL_INSTRUCTIONS_2);
-        assertThat(testManualInvoice.getPaymentDate()).isEqualTo(UPDATED_PAYMENT_DATE);
-        assertThat(testManualInvoice.getPaymentStatus()).isEqualTo(UPDATED_PAYMENT_STATUS);
-        assertThat(testManualInvoice.getPaymentType()).isEqualTo(UPDATED_PAYMENT_TYPE);
-        assertThat(testManualInvoice.getPaymentAmount()).isEqualTo(UPDATED_PAYMENT_AMOUNT);
-        assertThat(testManualInvoice.getVatRate()).isEqualTo(UPDATED_VAT_RATE);
-
+            restManualInvoiceMockMvc.perform(get("/api/manual-invoices/{id}", manualInvoice.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.id").value(manualInvoiceDetailDTO.getId()))
+                .andExpect(jsonPath("$.invoiceNumber").value(UPDATED_INVOICE_NUMBER.toString()))
+                .andExpect(jsonPath("$.orderNumber").value(UPDATED_ORDER_NUMBER.toString()))
+                .andExpect(jsonPath("$.invoiceDate").value(UPDATED_INVOICE_DATE.toString()))
+                .andExpect(jsonPath("$.ref").value(UPDATED_REF.toString()))
+                .andExpect(jsonPath("$.customer").value(UPDATED_CUSTOMER.toString()))
+                .andExpect(jsonPath("$.address1").value(UPDATED_ADDRESS_1.toString()))
+                .andExpect(jsonPath("$.address2").value(UPDATED_ADDRESS_2.toString()))
+                .andExpect(jsonPath("$.address3").value(UPDATED_ADDRESS_3.toString()))
+                .andExpect(jsonPath("$.town").value(UPDATED_TOWN.toString()))
+                .andExpect(jsonPath("$.postCode").value(UPDATED_POST_CODE.toString()))
+                .andExpect(jsonPath("$.telNo").value(UPDATED_TEL_NO.toString()))
+                .andExpect(jsonPath("$.deliveryAddress1").value(UPDATED_DELIVERY_ADDRESS_1.toString()))
+                .andExpect(jsonPath("$.deliveryAddress2").value(UPDATED_DELIVERY_ADDRESS_2.toString()))
+                .andExpect(jsonPath("$.deliveryAddress3").value(UPDATED_DELIVERY_ADDRESS_3.toString()))
+                .andExpect(jsonPath("$.deliveryAddress4").value(UPDATED_DELIVERY_ADDRESS_4.toString()))
+                .andExpect(jsonPath("$.specialInstructions1").value(UPDATED_SPECIAL_INSTRUCTIONS_1.toString()))
+                .andExpect(jsonPath("$.specialInstructions2").value(UPDATED_SPECIAL_INSTRUCTIONS_2.toString()))
+                .andExpect(jsonPath("$.paymentDate").value(UPDATED_PAYMENT_DATE.toString()))
+                .andExpect(jsonPath("$.paymentStatus").value(UPDATED_PAYMENT_STATUS.toString()))
+                .andExpect(jsonPath("$.paymentType").value(UPDATED_PAYMENT_TYPE.toString()))
+                .andExpect(jsonPath("$.paymentAmount").value(UPDATED_PAYMENT_AMOUNT.intValue()))
+                .andExpect(jsonPath("$.vatRate").value(UPDATED_VAT_RATE.intValue()))
+                .andExpect(jsonPath("$.items.length()").value(2))
+                .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+                .andExpect(jsonPath("$.items[0].quantity").value(2))
+                .andExpect(jsonPath("$.items[0].price").value("49.99"))
+                .andExpect(jsonPath("$.items[0].product").value("product1"))
+                .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+                .andExpect(jsonPath("$.items[1].quantity").value(1))
+                .andExpect(jsonPath("$.items[1].price").value("5.96"))
+                .andExpect(jsonPath("$.items[1].product").value("product2"))
+                .andExpect(jsonPath("$.subTotal").value("105.94"))
+                .andExpect(jsonPath("$.vatAmount").value("20.66"))
+                .andExpect(jsonPath("$.total").value("126.6"));
     }
 
     @Test

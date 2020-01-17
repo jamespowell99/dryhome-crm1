@@ -40,7 +40,7 @@ public class OrderItem implements Serializable {
     @Column(name = "serial_number")
     private String serialNumber;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @NotNull
     @JsonIgnoreProperties("orderItems")
     private Product product;

@@ -8,10 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.domain.ManualInvoice;
 import uk.co.dryhome.domain.ManualInvoiceItem;
 import uk.co.dryhome.repository.ManualInvoiceItemRepository;
 import uk.co.dryhome.repository.ManualInvoiceRepository;
+import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
@@ -40,6 +42,18 @@ public class ManualInvoiceService implements MergeDocSourceService {
     private final ManualInvoiceMapper manualInvoiceMapper;
     private final ManualInvoiceItemRepository manualInvoiceItemRepository;
     private final MergeDocService mergeDocService;
+
+    public ManualInvoiceDetailDTO create(ManualInvoiceDetailDTO manualInvoiceDetailDTO) {
+        log.debug("Request to create ManualInvoic3 : {}", manualInvoiceDetailDTO);
+        final ManualInvoice manualInvoice = manualInvoiceMapper.detailToEntity(manualInvoiceDetailDTO);
+        ManualInvoice savedManualInvoice = manualInvoiceRepository.save(manualInvoice);
+        manualInvoice.getItems().forEach( i -> {
+            i.setManualInvoice(savedManualInvoice);
+            manualInvoiceItemRepository.save(i);
+        });
+        return manualInvoiceMapper.toDetailDto(savedManualInvoice);
+
+    }
 
     /**
      * Save a manualInvoice.

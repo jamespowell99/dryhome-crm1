@@ -65,7 +65,7 @@ public class ManualInvoiceResource{
         if (manualInvoiceDetailDTO.getId() != null) {
             throw new BadRequestAlertException("A new manualInvoice cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ManualInvoiceDetailDTO result = manualInvoiceService.save(manualInvoiceDetailDTO);
+        ManualInvoiceDetailDTO result = manualInvoiceService.create(manualInvoiceDetailDTO);
         return ResponseEntity.created(new URI("/api/manual-invoices/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);

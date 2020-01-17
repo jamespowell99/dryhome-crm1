@@ -127,7 +127,8 @@ public class ManualInvoice implements Serializable, MergeDocumentSource {
     }
 
     public BigDecimal getVatAmount() {
-        return getSubTotal().multiply(getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
+        //todo warning?
+        return getSubTotal().multiply(getVatRate().divide(BigDecimal.valueOf(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 
     }
 

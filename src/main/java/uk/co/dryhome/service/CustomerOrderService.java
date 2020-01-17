@@ -38,6 +38,19 @@ public class CustomerOrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
 
+
+    public CustomerOrderDetailDTO create(CustomerOrderDetailDTO customerOrderDetailDTO) {
+        log.debug("Request to create CustomerOrder : {}", customerOrderDetailDTO);
+        final CustomerOrder customerOrder = customerOrderMapper.detailToEntity(customerOrderDetailDTO);
+        CustomerOrder savedCustomerOrder = customerOrderRepository.save(customerOrder);
+        customerOrder.getItems().forEach( i -> {
+            i.setCustomerOrder(savedCustomerOrder);
+            i.setProduct(productRepository.findById(i.getProduct().getId()).orElseThrow(() -> new RuntimeException("product not found: "+ i.getProduct().getId())));
+            orderItemRepository.save(i);
+        });
+        return customerOrderMapper.toDetailDto(savedCustomerOrder);
+
+    }
     /**
      * Save a customerOrder.
      *

@@ -4,9 +4,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import uk.co.dryhome.domain.ManualInvoice;
 import uk.co.dryhome.domain.ManualInvoiceItem;
+import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
+import uk.co.dryhome.service.dto.OrderItemDTO;
 
 /**
  * Mapper for the entity ManualInvoice and its DTO ManualInvoiceDTO.
@@ -17,13 +19,14 @@ public interface ManualInvoiceMapper extends EntityMapper<ManualInvoiceDTO, Manu
     @Mapping(target = "items", ignore = true)
     ManualInvoice toEntity(ManualInvoiceDTO manualInvoiceDTO);
 
-
-    @Mapping(target = "items", ignore = true)
     ManualInvoice detailToEntity(ManualInvoiceDetailDTO manualInvoiceDTO);
 
     ManualInvoiceDetailDTO toDetailDto(ManualInvoice manualInvoice);
 
     ManualInvoiceItemDTO itemToDto(ManualInvoiceItem item);
+
+    ManualInvoiceItem itemToEntity(ManualInvoiceItem item);
+
 
     default ManualInvoice fromId(Long id) {
         if (id == null) {

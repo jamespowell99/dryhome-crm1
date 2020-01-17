@@ -7,10 +7,12 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import uk.co.dryhome.domain.enumeration.OrderMethod;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -108,7 +110,7 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
     @Column(name = "method")
     private OrderMethod method;
 
-    @OneToMany(mappedBy = "customerOrder")
+    @OneToMany(mappedBy = "customerOrder", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OrderBy("id")
     private Set<OrderItem> items = new HashSet<>();
@@ -409,7 +411,8 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
     }
 
     public BigDecimal getVatAmount() {
-        return getSubTotal().multiply(getVatRate().divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
+        //todo warning?
+        return getSubTotal().multiply(getVatRate().divide(BigDecimal.valueOf(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
 
     }
 

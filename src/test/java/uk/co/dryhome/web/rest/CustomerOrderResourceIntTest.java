@@ -1,27 +1,11 @@
 package uk.co.dryhome.web.rest;
 
-import uk.co.dryhome.Dryhomecrm1App;
-
-import uk.co.dryhome.domain.CustomerOrder;
-import uk.co.dryhome.domain.OrderItem;
-import uk.co.dryhome.domain.Customer;
-import uk.co.dryhome.repository.CustomerOrderRepository;
-import uk.co.dryhome.service.CustomerOrderService;
-import uk.co.dryhome.service.MergeDocService;
-import uk.co.dryhome.service.dto.CustomerOrderDTO;
-import uk.co.dryhome.service.mapper.CustomerOrderMapper;
-import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
-import uk.co.dryhome.service.dto.CustomerOrderCriteria;
-import uk.co.dryhome.service.CustomerOrderQueryService;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -30,23 +14,38 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
+import uk.co.dryhome.Dryhomecrm1App;
+import uk.co.dryhome.domain.Customer;
+import uk.co.dryhome.domain.CustomerOrder;
+import uk.co.dryhome.domain.OrderItem;
+import uk.co.dryhome.domain.Product;
+import uk.co.dryhome.domain.enumeration.OrderMethod;
+import uk.co.dryhome.repository.CustomerOrderRepository;
+import uk.co.dryhome.repository.OrderItemRepository;
+import uk.co.dryhome.service.CustomerOrderQueryService;
+import uk.co.dryhome.service.CustomerOrderService;
+import uk.co.dryhome.service.dto.CustomerOrderDTO;
+import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.mapper.CustomerOrderMapper;
+import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
 
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-
-import static uk.co.dryhome.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import uk.co.dryhome.domain.enumeration.OrderMethod;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.co.dryhome.web.rest.TestUtil.createFormattingConversionService;
 /**
  * Test class for the CustomerOrderResource REST controller.
  *
@@ -56,6 +55,7 @@ import uk.co.dryhome.domain.enumeration.OrderMethod;
 @SpringBootTest(classes = Dryhomecrm1App.class)
 public class CustomerOrderResourceIntTest {
 
+    public static final String PRODUCT_NAME_CARRIAGE = "Carriage";
     private static final String DEFAULT_ORDER_NUMBER = "AAAAAAAAAA";
     private static final String UPDATED_ORDER_NUMBER = "BBBBBBBBBB";
 
@@ -77,8 +77,8 @@ public class CustomerOrderResourceIntTest {
     private static final LocalDate DEFAULT_PAYMENT_DATE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_PAYMENT_DATE = LocalDate.now(ZoneId.systemDefault());
 
-    private static final BigDecimal DEFAULT_VAT_RATE = new BigDecimal(1);
-    private static final BigDecimal UPDATED_VAT_RATE = new BigDecimal(2);
+    private static final BigDecimal DEFAULT_VAT_RATE = new BigDecimal(20);
+    private static final BigDecimal UPDATED_VAT_RATE = new BigDecimal("19.5");
 
     private static final String DEFAULT_INTERNAL_NOTES = "AAAAAAAAAA";
     private static final String UPDATED_INTERNAL_NOTES = "BBBBBBBBBB";
@@ -100,9 +100,27 @@ public class CustomerOrderResourceIntTest {
 
     private static final OrderMethod DEFAULT_METHOD = OrderMethod.PHONE;
     private static final OrderMethod UPDATED_METHOD = OrderMethod.FAX;
+    public static final long PRODUCT_ID_REMCON = 6L;
+    public static final String PRODUCT_NAME_REMCON = "REMCON";
+    public static final long PRODUCT_ID_CARRIAGE = 2L;
+
+    private static final BigDecimal DEFAULT_PRICE = new BigDecimal(1);
+    private static final BigDecimal UPDATED_PRICE = new BigDecimal(2);
+
+    private static final Integer DEFAULT_QUANTITY = 1;
+    private static final Integer UPDATED_QUANTITY = 2;
+
+    private static final String DEFAULT_NOTES = "AAAAAAAAAA";
+    private static final String UPDATED_NOTES = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SERIAL_NUMBER = "AAAAAAAAAA";
+    private static final String UPDATED_SERIAL_NUMBER = "BBBBBBBBBB";
 
     @Autowired
     private CustomerOrderRepository customerOrderRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
     private CustomerOrderMapper customerOrderMapper;
@@ -151,6 +169,15 @@ public class CustomerOrderResourceIntTest {
      * if they test an entity which requires the current entity.
      */
     public static CustomerOrder createEntity(EntityManager em) {
+        Product productRemcon = new Product();
+        productRemcon.setName(PRODUCT_NAME_REMCON);
+        Product productCarriage = new Product();
+        productCarriage.setName(PRODUCT_NAME_CARRIAGE);
+
+        em.persist(productRemcon);
+        em.persist(productCarriage);
+        em.flush();
+
         CustomerOrder customerOrder = new CustomerOrder()
             .orderNumber(DEFAULT_ORDER_NUMBER)
             .orderDate(DEFAULT_ORDER_DATE)
@@ -166,7 +193,17 @@ public class CustomerOrderResourceIntTest {
             .paymentType(DEFAULT_PAYMENT_TYPE)
             .paymentAmount(DEFAULT_PAYMENT_AMOUNT)
             .placedBy(DEFAULT_PLACED_BY)
-            .method(DEFAULT_METHOD);
+            .method(DEFAULT_METHOD)
+            .addItems(new OrderItem()
+                .price(new BigDecimal("99.99"))
+                .quantity(2)
+                .notes("some notes")
+                .serialNumber("xyz")
+                .product(productRemcon))
+            .addItems(new OrderItem()
+                .price(new BigDecimal("5.96"))
+                .quantity(1)
+                .product(productCarriage));
         // Add required entity
         Customer customer = CustomerResourceIntTest.createEntity(em);
         em.persist(customer);
@@ -186,32 +223,81 @@ public class CustomerOrderResourceIntTest {
         int databaseSizeBeforeCreate = customerOrderRepository.findAll().size();
 
         // Create the CustomerOrder
-        CustomerOrderDTO customerOrderDTO = customerOrderMapper.toDto(customerOrder);
-        restCustomerOrderMockMvc.perform(post("/api/customer-orders")
+        CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(customerOrder);
+        customerOrderDetailDTO.setItems(customerOrder.getItems().stream().map(customerOrderMapper::itemToDto).collect(Collectors.toList()));
+        String location = restCustomerOrderMockMvc.perform(post("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(customerOrderDTO)))
-            .andExpect(status().isCreated());
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderDetailDTO)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNotEmpty())
+            .andExpect(jsonPath("$.orderNumber").value(DEFAULT_ORDER_NUMBER.toString()))
+            .andExpect(jsonPath("$.orderDate").value(DEFAULT_ORDER_DATE.toString()))
+            .andExpect(jsonPath("$.notes1").value(DEFAULT_NOTES_1.toString()))
+            .andExpect(jsonPath("$.notes2").value(DEFAULT_NOTES_2.toString()))
+            .andExpect(jsonPath("$.despatchDate").value(DEFAULT_DESPATCH_DATE.toString()))
+            .andExpect(jsonPath("$.invoiceDate").value(DEFAULT_INVOICE_DATE.toString()))
+            .andExpect(jsonPath("$.paymentDate").value(DEFAULT_PAYMENT_DATE.toString()))
+            .andExpect(jsonPath("$.vatRate").value(DEFAULT_VAT_RATE.intValue()))
+            .andExpect(jsonPath("$.internalNotes").value(DEFAULT_INTERNAL_NOTES.toString()))
+            .andExpect(jsonPath("$.invoiceNumber").value(DEFAULT_INVOICE_NUMBER.toString()))
+            .andExpect(jsonPath("$.paymentStatus").value(DEFAULT_PAYMENT_STATUS.toString()))
+            .andExpect(jsonPath("$.paymentType").value(DEFAULT_PAYMENT_TYPE.toString()))
+            .andExpect(jsonPath("$.paymentAmount").value(DEFAULT_PAYMENT_AMOUNT.intValue()))
+            .andExpect(jsonPath("$.placedBy").value(DEFAULT_PLACED_BY.toString()))
+            .andExpect(jsonPath("$.method").value(DEFAULT_METHOD.toString()))
+            .andExpect(jsonPath("$.items.length()").value(2))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].notes").value("some notes"))
+            .andExpect(jsonPath("$.items[0].serialNumber").value("xyz"))
+            .andExpect(jsonPath("$.items[0].product").value("REMCON"))
+            .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[1].quantity").value(1))
+            .andExpect(jsonPath("$.items[1].price").value("5.96"))
+            .andExpect(jsonPath("$.items[1].notes").isEmpty())
+            .andExpect(jsonPath("$.items[1].serialNumber").isEmpty())
+            .andExpect(jsonPath("$.items[1].product").value("Carriage"))
+            .andExpect(jsonPath("$.subTotal").value("205.94"))
+            .andExpect(jsonPath("$.vatAmount").value("41.19"))
+            .andExpect(jsonPath("$.total").value("247.13"))
+            .andReturn().getResponse().getHeader("Location");
 
-        // Validate the CustomerOrder in the database
-        List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
-        assertThat(customerOrderList).hasSize(databaseSizeBeforeCreate + 1);
-        CustomerOrder testCustomerOrder = customerOrderList.get(customerOrderList.size() - 1);
-        assertThat(testCustomerOrder.getOrderNumber()).isEqualTo(DEFAULT_ORDER_NUMBER);
-        assertThat(testCustomerOrder.getOrderDate()).isEqualTo(DEFAULT_ORDER_DATE);
-        assertThat(testCustomerOrder.getNotes1()).isEqualTo(DEFAULT_NOTES_1);
-        assertThat(testCustomerOrder.getNotes2()).isEqualTo(DEFAULT_NOTES_2);
-        assertThat(testCustomerOrder.getDespatchDate()).isEqualTo(DEFAULT_DESPATCH_DATE);
-        assertThat(testCustomerOrder.getInvoiceDate()).isEqualTo(DEFAULT_INVOICE_DATE);
-        assertThat(testCustomerOrder.getPaymentDate()).isEqualTo(DEFAULT_PAYMENT_DATE);
-        assertThat(testCustomerOrder.getVatRate()).isEqualTo(DEFAULT_VAT_RATE);
-        assertThat(testCustomerOrder.getInternalNotes()).isEqualTo(DEFAULT_INTERNAL_NOTES);
-        assertThat(testCustomerOrder.getInvoiceNumber()).isEqualTo(DEFAULT_INVOICE_NUMBER);
-        assertThat(testCustomerOrder.getPaymentStatus()).isEqualTo(DEFAULT_PAYMENT_STATUS);
-        assertThat(testCustomerOrder.getPaymentType()).isEqualTo(DEFAULT_PAYMENT_TYPE);
-        assertThat(testCustomerOrder.getPaymentAmount()).isEqualTo(DEFAULT_PAYMENT_AMOUNT);
-        assertThat(testCustomerOrder.getPlacedBy()).isEqualTo(DEFAULT_PLACED_BY);
-        assertThat(testCustomerOrder.getMethod()).isEqualTo(DEFAULT_METHOD);
-
+        restCustomerOrderMockMvc.perform(get(location, customerOrder.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(location.substring(location.lastIndexOf("/") + 1)))
+            .andExpect(jsonPath("$.orderNumber").value(DEFAULT_ORDER_NUMBER.toString()))
+            .andExpect(jsonPath("$.orderDate").value(DEFAULT_ORDER_DATE.toString()))
+            .andExpect(jsonPath("$.notes1").value(DEFAULT_NOTES_1.toString()))
+            .andExpect(jsonPath("$.notes2").value(DEFAULT_NOTES_2.toString()))
+            .andExpect(jsonPath("$.despatchDate").value(DEFAULT_DESPATCH_DATE.toString()))
+            .andExpect(jsonPath("$.invoiceDate").value(DEFAULT_INVOICE_DATE.toString()))
+            .andExpect(jsonPath("$.paymentDate").value(DEFAULT_PAYMENT_DATE.toString()))
+            .andExpect(jsonPath("$.vatRate").value(DEFAULT_VAT_RATE.intValue()))
+            .andExpect(jsonPath("$.internalNotes").value(DEFAULT_INTERNAL_NOTES.toString()))
+            .andExpect(jsonPath("$.invoiceNumber").value(DEFAULT_INVOICE_NUMBER.toString()))
+            .andExpect(jsonPath("$.paymentStatus").value(DEFAULT_PAYMENT_STATUS.toString()))
+            .andExpect(jsonPath("$.paymentType").value(DEFAULT_PAYMENT_TYPE.toString()))
+            .andExpect(jsonPath("$.paymentAmount").value(DEFAULT_PAYMENT_AMOUNT.intValue()))
+            .andExpect(jsonPath("$.placedBy").value(DEFAULT_PLACED_BY.toString()))
+            .andExpect(jsonPath("$.method").value(DEFAULT_METHOD.toString()))
+            .andExpect(jsonPath("$.items.length()").value(2))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].notes").value("some notes"))
+            .andExpect(jsonPath("$.items[0].serialNumber").value("xyz"))
+            .andExpect(jsonPath("$.items[0].product").value("REMCON"))
+            .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[1].quantity").value(1))
+            .andExpect(jsonPath("$.items[1].price").value("5.96"))
+            .andExpect(jsonPath("$.items[1].notes").isEmpty())
+            .andExpect(jsonPath("$.items[1].serialNumber").isEmpty())
+            .andExpect(jsonPath("$.items[1].product").value("Carriage"))
+            .andExpect(jsonPath("$.subTotal").value("205.94"))
+            .andExpect(jsonPath("$.vatAmount").value("41.19"))
+            .andExpect(jsonPath("$.total").value("247.13"));
     }
 
     @Test
@@ -221,12 +307,13 @@ public class CustomerOrderResourceIntTest {
 
         // Create the CustomerOrder with an existing ID
         customerOrder.setId(1L);
-        CustomerOrderDTO customerOrderDTO = customerOrderMapper.toDto(customerOrder);
+        CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(customerOrder);
+        customerOrderDetailDTO.setItems(customerOrder.getItems().stream().map(customerOrderMapper::itemToDto).collect(Collectors.toList()));
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCustomerOrderMockMvc.perform(post("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(customerOrderDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderDetailDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the CustomerOrder in the database
@@ -1045,7 +1132,7 @@ public class CustomerOrderResourceIntTest {
     @Transactional
     public void getAllCustomerOrdersByItemsIsEqualToSomething() throws Exception {
         // Initialize the database
-        OrderItem items = OrderItemResourceIntTest.createEntity(em);
+        OrderItem items = createOrderItemEntity(em);
         em.persist(items);
         em.flush();
         customerOrder.addItems(items);
@@ -1139,7 +1226,12 @@ public class CustomerOrderResourceIntTest {
     @Transactional
     public void updateCustomerOrder() throws Exception {
         // Initialize the database
-        customerOrderRepository.saveAndFlush(customerOrder);
+        CustomerOrder savedCustomerOrder = customerOrderRepository.saveAndFlush(customerOrder);
+        customerOrder.getItems().forEach(i -> {
+            i.setCustomerOrder(savedCustomerOrder);
+            orderItemRepository.saveAndFlush(i);
+        });
+//        savedCustomerOrder.setIte
 
         int databaseSizeBeforeUpdate = customerOrderRepository.findAll().size();
 
@@ -1163,32 +1255,50 @@ public class CustomerOrderResourceIntTest {
             .paymentAmount(UPDATED_PAYMENT_AMOUNT)
             .placedBy(UPDATED_PLACED_BY)
             .method(UPDATED_METHOD);
-        CustomerOrderDTO customerOrderDTO = customerOrderMapper.toDto(updatedCustomerOrder);
+        CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(updatedCustomerOrder);
+        customerOrderDetailDTO.getItems().get(0).setPrice(new BigDecimal("49.99"));
 
         restCustomerOrderMockMvc.perform(put("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(customerOrderDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderDetailDTO)))
             .andExpect(status().isOk());
 
-        // Validate the CustomerOrder in the database
-        List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
-        assertThat(customerOrderList).hasSize(databaseSizeBeforeUpdate);
-        CustomerOrder testCustomerOrder = customerOrderList.get(customerOrderList.size() - 1);
-        assertThat(testCustomerOrder.getOrderNumber()).isEqualTo(UPDATED_ORDER_NUMBER);
-        assertThat(testCustomerOrder.getOrderDate()).isEqualTo(UPDATED_ORDER_DATE);
-        assertThat(testCustomerOrder.getNotes1()).isEqualTo(UPDATED_NOTES_1);
-        assertThat(testCustomerOrder.getNotes2()).isEqualTo(UPDATED_NOTES_2);
-        assertThat(testCustomerOrder.getDespatchDate()).isEqualTo(UPDATED_DESPATCH_DATE);
-        assertThat(testCustomerOrder.getInvoiceDate()).isEqualTo(UPDATED_INVOICE_DATE);
-        assertThat(testCustomerOrder.getPaymentDate()).isEqualTo(UPDATED_PAYMENT_DATE);
-        assertThat(testCustomerOrder.getVatRate()).isEqualTo(UPDATED_VAT_RATE);
-        assertThat(testCustomerOrder.getInternalNotes()).isEqualTo(UPDATED_INTERNAL_NOTES);
-        assertThat(testCustomerOrder.getInvoiceNumber()).isEqualTo(UPDATED_INVOICE_NUMBER);
-        assertThat(testCustomerOrder.getPaymentStatus()).isEqualTo(UPDATED_PAYMENT_STATUS);
-        assertThat(testCustomerOrder.getPaymentType()).isEqualTo(UPDATED_PAYMENT_TYPE);
-        assertThat(testCustomerOrder.getPaymentAmount()).isEqualTo(UPDATED_PAYMENT_AMOUNT);
-        assertThat(testCustomerOrder.getPlacedBy()).isEqualTo(UPDATED_PLACED_BY);
-        assertThat(testCustomerOrder.getMethod()).isEqualTo(UPDATED_METHOD);
+        restCustomerOrderMockMvc.perform(get("/api/customer-orders/{id}", customerOrder.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(customerOrderDetailDTO.getId()))
+            .andExpect(jsonPath("$.orderNumber").value(UPDATED_ORDER_NUMBER.toString()))
+            .andExpect(jsonPath("$.orderDate").value(UPDATED_ORDER_DATE.toString()))
+            .andExpect(jsonPath("$.notes1").value(UPDATED_NOTES_1.toString()))
+            .andExpect(jsonPath("$.notes2").value(UPDATED_NOTES_2.toString()))
+            .andExpect(jsonPath("$.despatchDate").value(UPDATED_DESPATCH_DATE.toString()))
+            .andExpect(jsonPath("$.invoiceDate").value(UPDATED_INVOICE_DATE.toString()))
+            .andExpect(jsonPath("$.paymentDate").value(UPDATED_PAYMENT_DATE.toString()))
+            .andExpect(jsonPath("$.vatRate").value(UPDATED_VAT_RATE.intValue()))
+            .andExpect(jsonPath("$.internalNotes").value(UPDATED_INTERNAL_NOTES.toString()))
+            .andExpect(jsonPath("$.invoiceNumber").value(UPDATED_INVOICE_NUMBER.toString()))
+            .andExpect(jsonPath("$.paymentStatus").value(UPDATED_PAYMENT_STATUS.toString()))
+            .andExpect(jsonPath("$.paymentType").value(UPDATED_PAYMENT_TYPE.toString()))
+            .andExpect(jsonPath("$.paymentAmount").value(UPDATED_PAYMENT_AMOUNT.intValue()))
+            .andExpect(jsonPath("$.placedBy").value(UPDATED_PLACED_BY.toString()))
+            .andExpect(jsonPath("$.method").value(UPDATED_METHOD.toString()))
+            .andExpect(jsonPath("$.items.length()").value(2))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("49.99"))
+            .andExpect(jsonPath("$.items[0].notes").value("some notes"))
+            .andExpect(jsonPath("$.items[0].serialNumber").value("xyz"))
+            .andExpect(jsonPath("$.items[0].product").value("REMCON"))
+            .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[1].quantity").value(1))
+            .andExpect(jsonPath("$.items[1].price").value("5.96"))
+            .andExpect(jsonPath("$.items[1].notes").isEmpty())
+            .andExpect(jsonPath("$.items[1].serialNumber").isEmpty())
+            .andExpect(jsonPath("$.items[1].product").value("Carriage"))
+            .andExpect(jsonPath("$.subTotal").value("105.94"))
+            .andExpect(jsonPath("$.vatAmount").value("20.66"))
+            .andExpect(jsonPath("$.total").value("126.6")); //todo why not 2 dp - Jackson?
+
 
     }
 
@@ -1267,5 +1377,24 @@ public class CustomerOrderResourceIntTest {
     public void testEntityFromId() {
         assertThat(customerOrderMapper.fromId(42L).getId()).isEqualTo(42);
         assertThat(customerOrderMapper.fromId(null)).isNull();
+    }
+
+    public static OrderItem createOrderItemEntity(EntityManager em) {
+        OrderItem orderItem = new OrderItem()
+            .price(DEFAULT_PRICE)
+            .quantity(DEFAULT_QUANTITY)
+            .notes(DEFAULT_NOTES)
+            .serialNumber(DEFAULT_SERIAL_NUMBER);
+        // Add required entity
+        Product product = ProductResourceIntTest.createEntity(em);
+        em.persist(product);
+        em.flush();
+        orderItem.setProduct(product);
+        // Add required entity
+        CustomerOrder customerOrder = CustomerOrderResourceIntTest.createEntity(em);
+        em.persist(customerOrder);
+        em.flush();
+        orderItem.setCustomerOrder(customerOrder);
+        return orderItem;
     }
 }

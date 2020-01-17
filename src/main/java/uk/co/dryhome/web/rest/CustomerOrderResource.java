@@ -61,7 +61,7 @@ public class CustomerOrderResource {
         if (customerOrderDetailDTO.getId() != null) {
             throw new BadRequestAlertException("A new customerOrder cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        CustomerOrderDetailDTO result = customerOrderService.save(customerOrderDetailDTO);
+        CustomerOrderDetailDTO result = customerOrderService.create(customerOrderDetailDTO);
         return ResponseEntity.created(new URI("/api/customer-orders/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);

@@ -11,7 +11,7 @@ import uk.co.dryhome.service.dto.OrderItemDTO;
 /**
  * Mapper for the entity CustomerOrder and its DTO CustomerOrderDTO.
  */
-@Mapper(componentModel = "spring", uses = {CustomerMapper.class})
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, ProductMapper.class})
 public interface CustomerOrderMapper extends EntityMapper<CustomerOrderDTO, CustomerOrder> {
 
     @Mapping(source = "customer.id", target = "customerId")
@@ -21,7 +21,6 @@ public interface CustomerOrderMapper extends EntityMapper<CustomerOrderDTO, Cust
     @Mapping(source = "customerId", target = "customer")
     CustomerOrder toEntity(CustomerOrderDTO customerOrderDTO);
 
-    @Mapping(target = "items", ignore = true)
     @Mapping(source = "customerId", target = "customer")
     CustomerOrder detailToEntity(CustomerOrderDetailDTO customerOrderDetailDTO);
 
@@ -36,6 +35,9 @@ public interface CustomerOrderMapper extends EntityMapper<CustomerOrderDTO, Cust
     @Mapping(source = "product.name", target = "product")
     @Mapping(source = "product.id", target = "productId")
     OrderItemDTO itemToDto(OrderItem orderItem);
+
+    @Mapping(source = "productId", target = "product")
+    OrderItem itemToEntity(OrderItemDTO orderItemDTO);
 
     default CustomerOrder fromId(Long id) {
         if (id == null) {
