@@ -113,19 +113,19 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
                       <span id="orderDate">Order Date</span>
                     </dt>
                     <dd>
-                      <TextFormat value={customerOrderEntity.orderDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                      <TextFormat value={customerOrderEntity.orderDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                     </dd>
                     <dt>
                       <span id="despatchDate">Despatch Date</span>
                     </dt>
                     <dd>
-                      <TextFormat value={customerOrderEntity.despatchDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                      <TextFormat value={customerOrderEntity.despatchDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                     </dd>
                     <dt>
                       <span id="invoiceDate">Invoice Date</span>
                     </dt>
                     <dd>
-                      <TextFormat value={customerOrderEntity.invoiceDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                      <TextFormat value={customerOrderEntity.invoiceDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                     </dd>
                     <dt>
                       <span id="placedBy">Placed By</span>
@@ -251,26 +251,30 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
               <Card>
                 <CardHeader>Payment Details</CardHeader>
                 <CardBody>
-                  <dl>
-                    <dt>
-                      <span id="paymentDate">Payment Date</span>
-                    </dt>
-                    <dd>
-                      <TextFormat value={customerOrderEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
-                    </dd>
-                    <dt>
-                      <span id="paymentStatus">Payment Status</span>
-                    </dt>
-                    <dd>{customerOrderEntity.paymentStatus}</dd>
-                    <dt>
-                      <span id="paymentType">Payment Type</span>
-                    </dt>
-                    <dd>{customerOrderEntity.paymentType}</dd>
-                    <dt>
-                      <span id="paymentAmount">Payment Amount</span>
-                    </dt>
-                    <dd>{customerOrderEntity.paymentAmount}</dd>
-                  </dl>
+                  {customerOrderEntity.paymentDate ? (
+                    <dl>
+                      <dt>
+                        <span id="paymentDate">Payment Date</span>
+                      </dt>
+                      <dd>
+                        <TextFormat value={customerOrderEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
+                      </dd>
+                      <dt>
+                        <span id="paymentStatus">Payment Status</span>
+                      </dt>
+                      <dd>{customerOrderEntity.paymentStatus}</dd>
+                      <dt>
+                        <span id="paymentType">Payment Type</span>
+                      </dt>
+                      <dd>{customerOrderEntity.paymentType}</dd>
+                      <dt>
+                        <span id="paymentAmount">Payment Amount</span>
+                      </dt>
+                      <dd>{customerOrderEntity.paymentAmount}</dd>
+                    </dl>
+                  ) : (
+                    <div />
+                  )}
                 </CardBody>
               </Card>
             </Col>

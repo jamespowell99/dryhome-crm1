@@ -150,16 +150,16 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
                     )}
                   </td>
                   <td>
-                    <TextFormat type="date" value={customerOrder.orderDate} format={APP_LOCAL_DATE_FORMAT} />
+                    <TextFormat type="date" value={customerOrder.orderDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                   </td>
                   <td>
-                    <TextFormat type="date" value={customerOrder.despatchDate} format={APP_LOCAL_DATE_FORMAT} />
+                    <TextFormat type="date" value={customerOrder.despatchDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                   </td>
                   <td>
-                    <TextFormat type="date" value={customerOrder.invoiceDate} format={APP_LOCAL_DATE_FORMAT} />
+                    <TextFormat type="date" value={customerOrder.invoiceDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                   </td>
                   <td>
-                    <TextFormat type="date" value={customerOrder.paymentDate} format={APP_LOCAL_DATE_FORMAT} />
+                    <TextFormat type="date" value={customerOrder.paymentDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                   </td>
                   <td>{customerOrder.invoiceNumber}</td>
                   <td>

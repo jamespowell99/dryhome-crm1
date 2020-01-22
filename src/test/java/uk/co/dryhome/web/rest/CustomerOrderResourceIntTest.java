@@ -22,10 +22,12 @@ import uk.co.dryhome.domain.Product;
 import uk.co.dryhome.domain.enumeration.OrderMethod;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
+import uk.co.dryhome.repository.ProductRepository;
 import uk.co.dryhome.service.CustomerOrderQueryService;
 import uk.co.dryhome.service.CustomerOrderService;
 import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.OrderItemDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
 
@@ -145,6 +147,9 @@ public class CustomerOrderResourceIntTest {
 
     @Autowired
     private Validator validator;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     private MockMvc restCustomerOrderMockMvc;
 
@@ -1231,9 +1236,11 @@ public class CustomerOrderResourceIntTest {
             i.setCustomerOrder(savedCustomerOrder);
             orderItemRepository.saveAndFlush(i);
         });
-//        savedCustomerOrder.setIte
 
-        int databaseSizeBeforeUpdate = customerOrderRepository.findAll().size();
+        Product newProduct = new Product();
+        newProduct.setName("new carriage");
+        newProduct.setDescription("new carriage desc");
+        productRepository.saveAndFlush(newProduct);
 
         // Update the customerOrder
         CustomerOrder updatedCustomerOrder = customerOrderRepository.findById(customerOrder.getId()).get();
@@ -1257,6 +1264,7 @@ public class CustomerOrderResourceIntTest {
             .method(UPDATED_METHOD);
         CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(updatedCustomerOrder);
         customerOrderDetailDTO.getItems().get(0).setPrice(new BigDecimal("49.99"));
+        customerOrderDetailDTO.getItems().get(1).setProductId(newProduct.getId());
 
         restCustomerOrderMockMvc.perform(put("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -1294,12 +1302,105 @@ public class CustomerOrderResourceIntTest {
             .andExpect(jsonPath("$.items[1].price").value("5.96"))
             .andExpect(jsonPath("$.items[1].notes").isEmpty())
             .andExpect(jsonPath("$.items[1].serialNumber").isEmpty())
-            .andExpect(jsonPath("$.items[1].product").value("Carriage"))
+            .andExpect(jsonPath("$.items[1].product").value("new carriage"))
             .andExpect(jsonPath("$.subTotal").value("105.94"))
             .andExpect(jsonPath("$.vatAmount").value("20.66"))
             .andExpect(jsonPath("$.total").value("126.6")); //todo why not 2 dp - Jackson?
 
 
+    }
+
+    @Test
+    @Transactional
+    public void updateCustomerOrderAddItems() throws Exception {
+        // Initialize the database
+        CustomerOrder savedCustomerOrder = customerOrderRepository.saveAndFlush(customerOrder);
+        customerOrder.getItems().forEach(i -> {
+            i.setCustomerOrder(savedCustomerOrder);
+            orderItemRepository.saveAndFlush(i);
+        });
+
+        // Update the customerOrder
+        CustomerOrder updatedCustomerOrder = customerOrderRepository.findById(customerOrder.getId()).get();
+        // Disconnect from session so that the updates on updatedCustomerOrder are not directly saved in db
+        em.detach(updatedCustomerOrder);
+        CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(updatedCustomerOrder);
+        OrderItemDTO newItem = new OrderItemDTO();
+        customerOrderDetailDTO.getItems().add(newItem);
+        newItem.setProductId(productRepository.findByName("REMCON").orElseThrow(() -> new RuntimeException("product not found: ")).getId());
+        newItem.setPrice(new BigDecimal("1.99"));
+        newItem.setQuantity(2);
+
+        restCustomerOrderMockMvc.perform(put("/api/customer-orders")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderDetailDTO)))
+            .andExpect(status().isOk());
+
+        restCustomerOrderMockMvc.perform(get("/api/customer-orders/{id}", customerOrder.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(customerOrderDetailDTO.getId()))
+            .andExpect(jsonPath("$.items.length()").value(3))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].notes").value("some notes"))
+            .andExpect(jsonPath("$.items[0].serialNumber").value("xyz"))
+            .andExpect(jsonPath("$.items[0].product").value("REMCON"))
+            .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[1].quantity").value(1))
+            .andExpect(jsonPath("$.items[1].price").value("5.96"))
+            .andExpect(jsonPath("$.items[1].notes").isEmpty())
+            .andExpect(jsonPath("$.items[1].serialNumber").isEmpty())
+            .andExpect(jsonPath("$.items[1].product").value("Carriage"))
+            .andExpect(jsonPath("$.items[2].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[2].quantity").value(2))
+            .andExpect(jsonPath("$.items[2].price").value("1.99"))
+            .andExpect(jsonPath("$.items[2].notes").isEmpty())
+            .andExpect(jsonPath("$.items[2].serialNumber").isEmpty())
+            .andExpect(jsonPath("$.items[2].product").value("REMCON"))
+            .andExpect(jsonPath("$.subTotal").value("209.92"))
+            .andExpect(jsonPath("$.vatAmount").value("41.98"))
+            .andExpect(jsonPath("$.total").value("251.9")); //todo why not 2 dp - Jackson?
+    }
+
+    @Test
+    @Transactional
+    public void updateCustomerOrderRemoveOrderItem() throws Exception {
+        // Initialize the database
+        CustomerOrder savedCustomerOrder = customerOrderRepository.saveAndFlush(customerOrder);
+        customerOrder.getItems().forEach(i -> {
+            i.setCustomerOrder(savedCustomerOrder);
+            orderItemRepository.saveAndFlush(i);
+        });
+
+        // Update the customerOrder
+        CustomerOrder updatedCustomerOrder = customerOrderRepository.findById(customerOrder.getId()).get();
+        // Disconnect from session so that the updates on updatedCustomerOrder are not directly saved in db
+        em.detach(updatedCustomerOrder);
+        CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(updatedCustomerOrder);
+        OrderItemDTO newItem = new OrderItemDTO();
+        customerOrderDetailDTO.getItems().removeIf(x -> x.getProduct().equals("Carriage"));
+
+        restCustomerOrderMockMvc.perform(put("/api/customer-orders")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderDetailDTO)))
+            .andExpect(status().isOk());
+
+        restCustomerOrderMockMvc.perform(get("/api/customer-orders/{id}", customerOrder.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(customerOrderDetailDTO.getId()))
+            .andExpect(jsonPath("$.items.length()").value(1))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].notes").value("some notes"))
+            .andExpect(jsonPath("$.items[0].serialNumber").value("xyz"))
+            .andExpect(jsonPath("$.items[0].product").value("REMCON"))
+            .andExpect(jsonPath("$.subTotal").value("199.98"))
+            .andExpect(jsonPath("$.vatAmount").value("40.0")) //todo why 1 dp
+            .andExpect(jsonPath("$.total").value("239.98"));
     }
 
     @Test

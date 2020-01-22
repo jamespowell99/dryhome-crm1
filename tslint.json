@@ -70,6 +70,7 @@
     "space-in-parens": [true, "never"]
   },
   "rules": {
+    "jsx-no-lambda": false,
     "class-name": true,
     "comment-format": [true, "check-space"],
     "eofline": true,

@@ -18,8 +18,7 @@ import uk.co.dryhome.service.dto.OrderItemDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -59,52 +58,52 @@ public class CustomerOrderService {
      */
     public CustomerOrderDetailDTO save(CustomerOrderDetailDTO customerOrderDetailDTO) {
         log.debug("Request to save CustomerOrder : {}", customerOrderDetailDTO);
-        final CustomerOrder customerOrder = customerOrderMapper.detailToEntity(customerOrderDetailDTO);
 
-        List<OrderItemDTO> newItems = customerOrderDetailDTO.getItems();
-        List<OrderItem> oldItems = orderItemRepository.findByCustomerOrderIdOrderById(customerOrderDetailDTO.getId());
-        Map<Long, OrderItem> itemsById = oldItems.stream().collect(Collectors.toMap(OrderItem::getId, Function.identity()));
+        CustomerOrder existingOrder = customerOrderRepository.findById(customerOrderDetailDTO.getId()).orElseThrow(() -> new RuntimeException("order not found: " + customerOrderDetailDTO.getId()));
+        Set<OrderItem> oldItems = existingOrder.getItems();
 
-        CustomerOrder savedCustomerOrder = customerOrderRepository.save(customerOrder);
+        final CustomerOrder newCustomerOrder = customerOrderMapper.detailToEntity(customerOrderDetailDTO);
+        Set<OrderItem> newItems = newCustomerOrder.getItems();
+        newItems.removeIf( x-> x.getId() == null);
 
-        newItems.forEach(item -> {
-            if (item.getId() != null) {
-                OrderItem existingItem = itemsById.get(item.getId());
-                if (existingItem != null) {
-                    //existing item
-                    existingItem.setProduct(productRepository.findById(item.getProductId()).orElseThrow(() -> new RuntimeException("Product not found: " + item.getProductId())));
-                    existingItem.setPrice(item.getPrice());
-                    existingItem.setQuantity(item.getQuantity());
-                    existingItem.setNotes(item.getNotes());
-                    existingItem.setSerialNumber(item.getSerialNumber());
-                    log.info("Updating item: {}", existingItem);
-                    orderItemRepository.save(existingItem);
-                } else {
-                    throw new RuntimeException("attempting to edit unknown item: " + item.getId());
-                }
-            } else {
-                //new item
-                OrderItem newItem = new OrderItem();
-                newItem.setProduct(productRepository.findById(item.getProductId()).orElseThrow(() -> new RuntimeException("Product not found: " + item.getProductId())));
-                newItem.setCustomerOrder(savedCustomerOrder);
-                newItem.setPrice(item.getPrice());
-                newItem.setQuantity(item.getQuantity());
-                newItem.setSerialNumber(item.getSerialNumber());
-                newItem.setNotes(item.getNotes());
-                log.info("Adding items: {}", newItem);
-                orderItemRepository.save(newItem);
-            }
+        //Update existing items
+        newItems.forEach( i ->{
+            OrderItem existingItem = oldItems.stream()
+                .filter(oi -> oi.getId().equals(i.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("attempting to edit unknown item: " + i.getId()));
+            //existing item
+            existingItem.setProduct(productRepository.findById(i.getProduct().getId()).orElseThrow(() -> new RuntimeException("Product not found: " + i.getProduct().getId())));
+            existingItem.setPrice(i.getPrice());
+            existingItem.setQuantity(i.getQuantity());
+            existingItem.setNotes(i.getNotes());
+            existingItem.setSerialNumber(i.getSerialNumber());
+            log.info("Updating item: {}", existingItem);
+            orderItemRepository.save(existingItem);
         });
 
+        //add new items
+        customerOrderDetailDTO.getItems().stream()
+            .filter(i -> i.getId() == null)
+            .map(customerOrderMapper::itemToEntity)
+            .map(ie -> ie.customerOrder(newCustomerOrder))
+            .forEach(ie -> {
+                ie.setProduct(productRepository.findById(ie.getProduct().getId()).orElseThrow(() -> new RuntimeException("product not found: " + ie.getProduct().getId())));
+                orderItemRepository.save(ie);
+                newCustomerOrder.addItems(ie);
+            });
+
+        //delete old items
         List<OrderItem> itemsToDelete = oldItems.stream()
-            .filter(x -> !newItems.stream()
+            .filter(x -> !customerOrderDetailDTO.getItems().stream()
                 .map(OrderItemDTO::getId)
                 .collect(Collectors.toList())
                 .contains(x.getId()))
             .collect(Collectors.toList());
-
         log.info("Deleting items: {}", itemsToDelete);
         orderItemRepository.deleteAll(itemsToDelete);
+
+        CustomerOrder savedCustomerOrder = customerOrderRepository.save(newCustomerOrder);
 
         CustomerOrderDetailDTO result = customerOrderMapper.toDetailDto(savedCustomerOrder);
         return result;

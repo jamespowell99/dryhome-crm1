@@ -261,16 +261,21 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
                                   </Button>
                                 </td>
                                 <td>
-                                  <TextFormat type="date" value={customerOrder.orderDate} format={APP_LOCAL_DATE_FORMAT} />
+                                  <TextFormat type="date" value={customerOrder.orderDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                                 </td>
                                 <td>
-                                  <TextFormat type="date" value={customerOrder.despatchDate} format={APP_LOCAL_DATE_FORMAT} />
+                                  <TextFormat
+                                    type="date"
+                                    value={customerOrder.despatchDate}
+                                    format={APP_LOCAL_DATE_FORMAT}
+                                    blankOnInvalid
+                                  />
                                 </td>
                                 <td>
-                                  <TextFormat type="date" value={customerOrder.invoiceDate} format={APP_LOCAL_DATE_FORMAT} />
+                                  <TextFormat type="date" value={customerOrder.invoiceDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                                 </td>
                                 <td>
-                                  <TextFormat type="date" value={customerOrder.paymentDate} format={APP_LOCAL_DATE_FORMAT} />
+                                  <TextFormat type="date" value={customerOrder.paymentDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                                 </td>
                                 <td>{customerOrder.invoiceNumber}</td>
                                 <td>

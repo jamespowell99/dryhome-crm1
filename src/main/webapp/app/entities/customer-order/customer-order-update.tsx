@@ -9,7 +9,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 // todo this will need to be all types of customer, or not at all
 import { getEntity as getCustomer } from 'app/entities/dampproofer/dampproofer.reducer';
-import { addOrderItem, clearOrderItems, createEntity, getEntity, reset, updateEntity } from './customer-order.reducer';
+import {
+  addOrderItem,
+  clearOrderItems,
+  createEntity,
+  getEntity,
+  paymentDateChanged,
+  itemQtyChanged,
+  itemPriceChanged,
+  vatRateChanged,
+  reset,
+  updateEntity
+} from './customer-order.reducer';
 
 // tslint:disable-next-line:no-unused-variable
 
@@ -76,11 +87,27 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
     const { customerOrderEntity, customerEntity, loading, updating, products } = this.props;
     const { isNew } = this.state;
 
-    const clearItems = () => {
-      this.props.clearOrderItems();
+    const clearItem = i => {
+      this.props.clearOrderItems(i);
     };
     const addItem = () => {
       this.props.addOrderItem();
+    };
+
+    const handlePaymentDateChange = e => {
+      this.props.paymentDateChanged(e.target.value);
+    };
+
+    const handleItemPriceChange = e => {
+      this.props.itemPriceChanged(+e.target.id.split('-').pop(), e.target.value);
+    };
+
+    const handleItemQtyChange = e => {
+      this.props.itemQtyChanged(+e.target.id.split('-').pop(), e.target.value);
+    };
+
+    const handleVatRateChange = e => {
+      this.props.vatRateChanged(e.target.value);
     };
 
     // explicitly set null fields to empty string, otherwise causes problems with validation
@@ -269,6 +296,7 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                             <th className="hand">Price</th>
                             <th className="hand">notes</th>
                             <th className="hand">serial number</th>
+                            <th />
                           </tr>
                         </thead>
                         <tbody>
@@ -277,11 +305,13 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                                 <tr key={`entity-${i}`}>
                                   <td>
                                     <AvGroup>
+                                      {/*todo productId to config*/}
                                       <AvInput
                                         id={'customer-order-item-product-' + i}
                                         type="select"
                                         className="form-control"
                                         name={'items[' + i + '].productId'}
+                                        value={customerOrderEntity.items[i].productId || 6}
                                       >
                                         {products
                                           ? products.map(otherEntity => (
@@ -298,6 +328,8 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                                       id={'customer-order-item-qty-' + i}
                                       type="text"
                                       name={'items[' + i + '].quantity'}
+                                      onChange={handleItemQtyChange}
+                                      value={customerOrderEntity.items[i].quantity || (isNew && i === 0 ? 0 : '')}
                                       validate={{
                                         required: { value: true, errorMessage: 'This field is required.' }
                                       }}
@@ -308,6 +340,8 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                                       id={'customer-order-item-price-' + i}
                                       type="text"
                                       name={'items[' + i + '].price'}
+                                      value={customerOrderEntity.items[i].price || (isNew && i === 0 ? 0 : '')}
+                                      onChange={handleItemPriceChange}
                                       validate={{
                                         required: { value: true, errorMessage: 'This field is required.' }
                                       }}
@@ -323,16 +357,21 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                                       name={'items[' + i + '].serialNumber'}
                                     />
                                   </td>
+                                  <td>
+                                    {customerOrderEntity.items && customerOrderEntity.items.length > 1 ? (
+                                      <Button color="danger" size="sm" onClick={() => clearItem(i)} id={'delete-item-' + i}>
+                                        <FontAwesomeIcon icon="trash" />
+                                      </Button>
+                                    ) : (
+                                      <div />
+                                    )}
+                                  </td>
                                   <AvField id={'customer-order-item-id-' + i} type="text" name={'items[' + i + '].id'} disabled hidden />
                                 </tr>
                               ))
                             : null}
                         </tbody>
                       </Table>
-                      <Button id="clearItems" onClick={clearItems} replace color="danger">
-                        <FontAwesomeIcon icon="trash" />
-                        clear
-                      </Button>
                       <Button id="addItem" onClick={addItem} replace color="info">
                         <FontAwesomeIcon icon="plus" />
                         add
@@ -353,7 +392,13 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                       <Label id="paymentDateLabel" for="paymentDate">
                         Payment Date
                       </Label>
-                      <AvField id="customer-order-paymentDate" type="date" className="form-control" name="paymentDate" />
+                      <AvField
+                        id="customer-order-paymentDate"
+                        type="date"
+                        className="form-control"
+                        name="paymentDate"
+                        onChange={handlePaymentDateChange}
+                      />
                     </AvGroup>
 
                     <AvGroup>
@@ -364,6 +409,8 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                         id="customer-order-paymentStatus"
                         type="text"
                         name="paymentStatus"
+                        disabled={!customerOrderEntity.paymentDate}
+                        value={customerOrderEntity.paymentStatus || ''}
                         validate={{
                           maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
                         }}
@@ -377,6 +424,8 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                         id="customer-order-paymentType"
                         type="text"
                         name="paymentType"
+                        disabled={!customerOrderEntity.paymentDate}
+                        value={customerOrderEntity.paymentType || ''}
                         validate={{
                           maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
                         }}
@@ -386,7 +435,13 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                       <Label id="paymentAmountLabel" for="paymentAmount">
                         Payment Amount
                       </Label>
-                      <AvField id="customer-order-paymentAmount" type="text" name="paymentAmount" />
+                      <AvField
+                        id="customer-order-paymentAmount"
+                        type="text"
+                        name="paymentAmount"
+                        disabled={!customerOrderEntity.paymentDate}
+                        value={customerOrderEntity.paymentAmount || ''}
+                      />
                     </AvGroup>
                   </Col>
                   <Col className="border mx-1">
@@ -399,11 +454,48 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                         id="customer-order-vatRate"
                         type="text"
                         name="vatRate"
+                        onChange={handleVatRateChange}
                         validate={{
                           required: { value: true, errorMessage: 'This field is required.' },
                           number: { value: true, errorMessage: 'This field should be a number.' }
                         }}
                       />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="subTotalLabel" for="subTotal">
+                        Sub Total
+                      </Label>
+                      <AvField
+                        id="customer-order-subTotal"
+                        type="text"
+                        name="calculatedSubTotal"
+                        value={this.props.subTotal ? this.props.subTotal.toFixed(2) : 0}
+                        disabled
+                      />
+                      <AvGroup>
+                        <Label id="vatAmountLabel" for="calculatedVatAmount">
+                          VAT
+                        </Label>
+                        <AvField
+                          id="customer-order-vatAmount"
+                          type="text"
+                          name="calculatedVatAmount"
+                          value={this.props.vatAmount ? this.props.vatAmount.toFixed(2) : 0}
+                          disabled
+                        />
+                      </AvGroup>
+                      <AvGroup>
+                        <Label id="totalLabel" for="calculatedTotal">
+                          Total
+                        </Label>
+                        <AvField
+                          id="customer-order-total"
+                          type="text"
+                          name="calculatedTotal"
+                          value={this.props.total ? this.props.total.toFixed(2) : 0}
+                          disabled
+                        />
+                      </AvGroup>
                     </AvGroup>
                   </Col>
                 </Row>
@@ -432,7 +524,10 @@ const mapStateToProps = (storeState: IRootState) => ({
   customerOrderEntity: storeState.customerOrder.entity,
   loading: storeState.customerOrder.loading,
   updating: storeState.customerOrder.updating,
-  updateSuccess: storeState.customerOrder.updateSuccess
+  updateSuccess: storeState.customerOrder.updateSuccess,
+  subTotal: storeState.customerOrder.subTotal,
+  vatAmount: storeState.customerOrder.vatAmount,
+  total: storeState.customerOrder.total
 });
 
 const mapDispatchToProps = {
@@ -443,7 +538,11 @@ const mapDispatchToProps = {
   createEntity,
   reset,
   clearOrderItems,
-  addOrderItem
+  addOrderItem,
+  paymentDateChanged,
+  itemPriceChanged,
+  itemQtyChanged,
+  vatRateChanged
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

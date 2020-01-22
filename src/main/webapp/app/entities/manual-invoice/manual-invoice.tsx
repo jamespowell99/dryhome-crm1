@@ -151,7 +151,7 @@ export class ManualInvoice extends React.Component<IManualInvoiceProps, IManualI
                   <td>{manualInvoice.invoiceNumber}</td>
                   <td>{manualInvoice.orderNumber}</td>
                   <td>
-                    <TextFormat type="date" value={manualInvoice.invoiceDate} format={APP_LOCAL_DATE_FORMAT} />
+                    <TextFormat type="date" value={manualInvoice.invoiceDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                   </td>
                   <td>{manualInvoice.customer}</td>
                   <td>{manualInvoice.address1}</td>

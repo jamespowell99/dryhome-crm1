@@ -114,7 +114,7 @@ export class ManualInvoiceDetail extends React.Component<IManualInvoiceDetailPro
                       <span id="invoiceDate">Invoice Date</span>
                     </dt>
                     <dd>
-                      <TextFormat value={manualInvoiceEntity.invoiceDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                      <TextFormat value={manualInvoiceEntity.invoiceDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                     </dd>
                     <dt>
                       <span id="ref">Ref</span>
@@ -243,7 +243,7 @@ export class ManualInvoiceDetail extends React.Component<IManualInvoiceDetailPro
                       <span id="paymentDate">Payment Date</span>
                     </dt>
                     <dd>
-                      <TextFormat value={manualInvoiceEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+                      <TextFormat value={manualInvoiceEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
                     </dd>
                     <dt>
                       <span id="paymentStatus">Payment Status</span>
