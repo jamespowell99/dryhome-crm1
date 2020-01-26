@@ -25,7 +25,7 @@ public interface ManualInvoiceMapper extends EntityMapper<ManualInvoiceDTO, Manu
 
     ManualInvoiceItemDTO itemToDto(ManualInvoiceItem item);
 
-    ManualInvoiceItem itemToEntity(ManualInvoiceItem item);
+    ManualInvoiceItem itemToEntity(ManualInvoiceItemDTO item);
 
 
     default ManualInvoice fromId(Long id) {

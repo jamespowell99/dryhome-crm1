@@ -8,12 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.domain.ManualInvoice;
 import uk.co.dryhome.domain.ManualInvoiceItem;
 import uk.co.dryhome.repository.ManualInvoiceItemRepository;
 import uk.co.dryhome.repository.ManualInvoiceRepository;
-import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
@@ -21,10 +19,8 @@ import uk.co.dryhome.service.mapper.ManualInvoiceMapper;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -63,50 +59,50 @@ public class ManualInvoiceService implements MergeDocSourceService {
      */
     public ManualInvoiceDetailDTO save(ManualInvoiceDetailDTO manualInvoiceDetailDTO) {
         log.debug("Request to save ManualInvoice : {}", manualInvoiceDetailDTO);
-        ManualInvoice manualInvoice = manualInvoiceMapper.detailToEntity(manualInvoiceDetailDTO);
+        ManualInvoice existingManualInvoice = manualInvoiceRepository.findById(manualInvoiceDetailDTO.getId()).orElseThrow(() -> new RuntimeException("invoice not found: " + manualInvoiceDetailDTO.getId()));
+        Set<ManualInvoiceItem> oldItems = existingManualInvoice.getItems();
 
-        List<ManualInvoiceItemDTO> newItems = manualInvoiceDetailDTO.getItems();
-        List<ManualInvoiceItem> oldItems = manualInvoiceItemRepository.findByManualInvoiceIdOrderById(manualInvoiceDetailDTO.getId());
-        Map<Long, ManualInvoiceItem> itemsById = oldItems.stream().collect(Collectors.toMap(ManualInvoiceItem::getId, Function.identity()));
+        final ManualInvoice newManualInvoice = manualInvoiceMapper.detailToEntity(manualInvoiceDetailDTO);
+        Set<ManualInvoiceItem> newItems = newManualInvoice.getItems();
+        newItems.removeIf( x-> x.getId() == null);
 
-        ManualInvoice savedManualInvoice = manualInvoiceRepository.save(manualInvoice);
-
-        newItems.forEach(item -> {
-            if (item.getId() != null) {
-                ManualInvoiceItem existingItem = itemsById.get(item.getId());
-                if (existingItem != null) {
-                    //existing item
-                    existingItem.setProduct(item.getProduct());
-                    existingItem.setPrice(item.getPrice());
-                    existingItem.setQuantity(item.getQuantity());
-                    log.info("Updating item: {}", existingItem);
-                    manualInvoiceItemRepository.save(existingItem);
-                } else {
-                    throw new RuntimeException("attempting to edit unknown item: " + item.getId());
-                }
-            } else {
-                //new item
-                ManualInvoiceItem newItem = new ManualInvoiceItem();
-                newItem.setProduct(item.getProduct());
-                newItem.setManualInvoice(savedManualInvoice);
-                newItem.setPrice(item.getPrice());
-                newItem.setQuantity(item.getQuantity());
-                log.info("Adding items: {}", newItem);
-                manualInvoiceItemRepository.save(newItem);
-            }
+        //Update existing items
+        newItems.forEach( i ->{
+            ManualInvoiceItem existingItem = oldItems.stream()
+                .filter(oi -> oi.getId().equals(i.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("attempting to edit unknown item: " + i.getId()));
+            //existing item
+            existingItem.setProduct(i.getProduct());
+            existingItem.setPrice(i.getPrice());
+            existingItem.setQuantity(i.getQuantity());
+            log.info("Updating item: {}", existingItem);
+            manualInvoiceItemRepository.save(existingItem);
         });
 
+        //add new items
+        manualInvoiceDetailDTO.getItems().stream()
+            .filter(i -> i.getId() == null)
+            .map(manualInvoiceMapper::itemToEntity)
+            .map(ie -> ie.manualInvoice(newManualInvoice))
+            .forEach(ie -> {
+                manualInvoiceItemRepository.save(ie);
+                newManualInvoice.addItems(ie);
+            });
+
+        //delete old items
         List<ManualInvoiceItem> itemsToDelete = oldItems.stream()
-            .filter(x -> !newItems.stream()
+            .filter(x -> !manualInvoiceDetailDTO.getItems().stream()
                 .map(ManualInvoiceItemDTO::getId)
                 .collect(Collectors.toList())
                 .contains(x.getId()))
             .collect(Collectors.toList());
-
         log.info("Deleting items: {}", itemsToDelete);
         manualInvoiceItemRepository.deleteAll(itemsToDelete);
 
-        ManualInvoiceDetailDTO result = manualInvoiceMapper.toDetailDto(manualInvoice);
+        ManualInvoice savedManualInvoice = manualInvoiceRepository.save(newManualInvoice);
+
+        ManualInvoiceDetailDTO result = manualInvoiceMapper.toDetailDto(savedManualInvoice);
         return result;
     }
 

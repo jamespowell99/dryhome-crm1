@@ -1,19 +1,26 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, Label, Table } from 'reactstrap';
-import { AvForm, AvGroup, AvInput, AvField } from 'availity-reactstrap-validation';
-
+import { Button, Col, Label, Row, Table } from 'reactstrap';
+import { AvField, AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
-import { ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
-import { getEntity, updateEntity, createEntity, reset, addInvoiceItem, clearInvoiceItems } from './manual-invoice.reducer';
-import { IManualInvoice } from 'app/shared/model/manual-invoice.model';
+import {
+  addInvoiceItem,
+  clearInvoiceItems,
+  createEntity,
+  getEntity,
+  itemPriceChanged,
+  itemQtyChanged,
+  paymentDateChanged,
+  reset,
+  updateEntity,
+  vatRateChanged
+} from './manual-invoice.reducer';
+
 // tslint:disable-next-line:no-unused-variable
-import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IManualInvoiceUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -67,11 +74,27 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
     const { manualInvoiceEntity, loading, updating } = this.props;
     const { isNew } = this.state;
 
-    const clearItems = () => {
-      this.props.clearInvoiceItems();
+    const clearItem = i => {
+      this.props.clearInvoiceItems(i);
     };
     const addItem = () => {
       this.props.addInvoiceItem();
+    };
+
+    const handlePaymentDateChange = e => {
+      this.props.paymentDateChanged(e.target.value);
+    };
+
+    const handleItemPriceChange = e => {
+      this.props.itemPriceChanged(+e.target.id.split('-').pop(), e.target.value);
+    };
+
+    const handleItemQtyChange = e => {
+      this.props.itemQtyChanged(+e.target.id.split('-').pop(), e.target.value);
+    };
+
+    const handleVatRateChange = e => {
+      this.props.vatRateChanged(e.target.value);
     };
 
     // explicitly set null fields to empty string, otherwise causes problems with validation
@@ -246,6 +269,7 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                             <th className="hand">Product</th>
                             <th className="hand">Quantity</th>
                             <th className="hand">Price</th>
+                            <th />
                           </tr>
                         </thead>
                         <tbody>
@@ -254,6 +278,7 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                                 <tr key={`entity-${i}`}>
                                   <td>
                                     <AvGroup>
+                                      {/*todo is this value correct?*/}
                                       <AvField
                                         id={'manual-invoice-item-product-' + i}
                                         type="text"
@@ -261,6 +286,7 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                                         validate={{
                                           required: { value: true, errorMessage: 'This field is required.' }
                                         }}
+                                        value={manualInvoiceEntity.items[i].product || ''}
                                       />
                                     </AvGroup>
                                   </td>
@@ -269,6 +295,8 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                                       id={'manual-invoice-item-qty-' + i}
                                       type="text"
                                       name={'items[' + i + '].quantity'}
+                                      onChange={handleItemQtyChange}
+                                      value={manualInvoiceEntity.items[i].quantity || (isNew && i === 0 ? 0 : '')}
                                       validate={{
                                         required: { value: true, errorMessage: 'This field is required.' }
                                       }}
@@ -279,10 +307,21 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                                       id={'manual-invoice-item-price-' + i}
                                       type="text"
                                       name={'items[' + i + '].price'}
+                                      value={manualInvoiceEntity.items[i].price || (isNew && i === 0 ? 0 : '')}
+                                      onChange={handleItemPriceChange}
                                       validate={{
                                         required: { value: true, errorMessage: 'This field is required.' }
                                       }}
                                     />
+                                  </td>
+                                  <td>
+                                    {manualInvoiceEntity.items && manualInvoiceEntity.items.length > 1 ? (
+                                      <Button color="danger" size="sm" onClick={() => clearItem(i)} id={'delete-item-' + i}>
+                                        <FontAwesomeIcon icon="trash" />
+                                      </Button>
+                                    ) : (
+                                      <div />
+                                    )}
                                   </td>
                                   <AvField id={'manual-invoice-item-id-' + i} type="text" name={'items[' + i + '].id'} disabled hidden />
                                 </tr>
@@ -290,7 +329,7 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                             : null}
                         </tbody>
                       </Table>
-                      <Button id="clearItems" onClick={clearItems} replace color="danger">
+                      <Button id="clearItems" onClick={clearItem} replace color="danger">
                         <FontAwesomeIcon icon="trash" />
                         clear
                       </Button>
@@ -309,25 +348,49 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                       <Label id="paymentDateLabel" for="paymentDate">
                         Payment Date
                       </Label>
-                      <AvField id="manual-invoice-paymentDate" type="date" className="form-control" name="paymentDate" />
+                      <AvField
+                        id="manual-invoice-paymentDate"
+                        type="date"
+                        className="form-control"
+                        name="paymentDate"
+                        onChange={handlePaymentDateChange}
+                      />
                     </AvGroup>
                     <AvGroup>
                       <Label id="paymentStatusLabel" for="paymentStatus">
                         Payment Status
                       </Label>
-                      <AvField id="manual-invoice-paymentStatus" type="text" name="paymentStatus" />
+                      <AvField
+                        id="manual-invoice-paymentStatus"
+                        type="text"
+                        name="paymentStatus"
+                        disabled={!manualInvoiceEntity.paymentDate}
+                        value={manualInvoiceEntity.paymentStatus || ''}
+                      />
                     </AvGroup>
                     <AvGroup>
                       <Label id="paymentTypeLabel" for="paymentType">
                         Payment Type
                       </Label>
-                      <AvField id="manual-invoice-paymentType" type="text" name="paymentType" />
+                      <AvField
+                        id="manual-invoice-paymentType"
+                        type="text"
+                        name="paymentType"
+                        disabled={!manualInvoiceEntity.paymentDate}
+                        value={manualInvoiceEntity.paymentType || ''}
+                      />
                     </AvGroup>
                     <AvGroup>
                       <Label id="paymentAmountLabel" for="paymentAmount">
                         Payment Amount
                       </Label>
-                      <AvField id="manual-invoice-paymentAmount" type="text" name="paymentAmount" />
+                      <AvField
+                        id="manual-invoice-paymentAmount"
+                        type="text"
+                        name="paymentAmount"
+                        disabled={!manualInvoiceEntity.paymentDate}
+                        value={manualInvoiceEntity.paymentAmount || ''}
+                      />
                     </AvGroup>
                   </Col>
                   <Col className="border mx-1">
@@ -340,11 +403,48 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                         id="manual-invoice-vatRate"
                         type="text"
                         name="vatRate"
+                        onChange={handleVatRateChange}
                         validate={{
                           required: { value: true, errorMessage: 'This field is required.' },
                           number: { value: true, errorMessage: 'This field should be a number.' }
                         }}
                       />
+                    </AvGroup>
+                    <AvGroup>
+                      <Label id="subTotalLabel" for="subTotal">
+                        Sub Total
+                      </Label>
+                      <AvField
+                        id="manual-invoice-subTotal"
+                        type="text"
+                        name="calculatedSubTotal"
+                        value={this.props.subTotal ? this.props.subTotal.toFixed(2) : 0}
+                        disabled
+                      />
+                      <AvGroup>
+                        <Label id="vatAmountLabel" for="calculatedVatAmount">
+                          VAT
+                        </Label>
+                        <AvField
+                          id="manual-invoice-vatAmount"
+                          type="text"
+                          name="calculatedVatAmount"
+                          value={this.props.vatAmount ? this.props.vatAmount.toFixed(2) : 0}
+                          disabled
+                        />
+                      </AvGroup>
+                      <AvGroup>
+                        <Label id="totalLabel" for="calculatedTotal">
+                          Total
+                        </Label>
+                        <AvField
+                          id="manual-invoice-total"
+                          type="text"
+                          name="calculatedTotal"
+                          value={this.props.total ? this.props.total.toFixed(2) : 0}
+                          disabled
+                        />
+                      </AvGroup>
                     </AvGroup>
                   </Col>
                 </Row>
@@ -371,7 +471,10 @@ const mapStateToProps = (storeState: IRootState) => ({
   manualInvoiceEntity: storeState.manualInvoice.entity,
   loading: storeState.manualInvoice.loading,
   updating: storeState.manualInvoice.updating,
-  updateSuccess: storeState.manualInvoice.updateSuccess
+  updateSuccess: storeState.manualInvoice.updateSuccess,
+  subTotal: storeState.manualInvoice.subTotal,
+  vatAmount: storeState.manualInvoice.vatAmount,
+  total: storeState.manualInvoice.total
 });
 
 const mapDispatchToProps = {
@@ -380,7 +483,11 @@ const mapDispatchToProps = {
   createEntity,
   reset,
   clearInvoiceItems,
-  addInvoiceItem
+  addInvoiceItem,
+  paymentDateChanged,
+  itemPriceChanged,
+  itemQtyChanged,
+  vatRateChanged
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

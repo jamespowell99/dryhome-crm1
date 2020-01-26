@@ -238,26 +238,30 @@ export class ManualInvoiceDetail extends React.Component<IManualInvoiceDetailPro
               <Card>
                 <CardHeader>Payment Details</CardHeader>
                 <CardBody>
-                  <dl>
-                    <dt>
-                      <span id="paymentDate">Payment Date</span>
-                    </dt>
-                    <dd>
-                      <TextFormat value={manualInvoiceEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
-                    </dd>
-                    <dt>
-                      <span id="paymentStatus">Payment Status</span>
-                    </dt>
-                    <dd>{manualInvoiceEntity.paymentStatus}</dd>
-                    <dt>
-                      <span id="paymentType">Payment Type</span>
-                    </dt>
-                    <dd>{manualInvoiceEntity.paymentType}</dd>
-                    <dt>
-                      <span id="paymentAmount">Payment Amount</span>
-                    </dt>
-                    <dd>{manualInvoiceEntity.paymentAmount}</dd>
-                  </dl>
+                  {manualInvoiceEntity.paymentDate ? (
+                    <dl>
+                      <dt>
+                        <span id="paymentDate">Payment Date</span>
+                      </dt>
+                      <dd>
+                        <TextFormat value={manualInvoiceEntity.paymentDate} type="date" format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
+                      </dd>
+                      <dt>
+                        <span id="paymentStatus">Payment Status</span>
+                      </dt>
+                      <dd>{manualInvoiceEntity.paymentStatus}</dd>
+                      <dt>
+                        <span id="paymentType">Payment Type</span>
+                      </dt>
+                      <dd>{manualInvoiceEntity.paymentType}</dd>
+                      <dt>
+                        <span id="paymentAmount">Payment Amount</span>
+                      </dt>
+                      <dd>{manualInvoiceEntity.paymentAmount}</dd>
+                    </dl>
+                  ) : (
+                    <div />
+                  )}
                 </CardBody>
               </Card>
             </Col>

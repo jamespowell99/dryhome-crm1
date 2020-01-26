@@ -1379,7 +1379,6 @@ public class CustomerOrderResourceIntTest {
         // Disconnect from session so that the updates on updatedCustomerOrder are not directly saved in db
         em.detach(updatedCustomerOrder);
         CustomerOrderDetailDTO customerOrderDetailDTO = customerOrderMapper.toDetailDto(updatedCustomerOrder);
-        OrderItemDTO newItem = new OrderItemDTO();
         customerOrderDetailDTO.getItems().removeIf(x -> x.getProduct().equals("Carriage"));
 
         restCustomerOrderMockMvc.perform(put("/api/customer-orders")

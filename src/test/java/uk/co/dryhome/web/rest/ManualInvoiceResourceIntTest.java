@@ -23,6 +23,8 @@ import uk.co.dryhome.service.ManualInvoiceService;
 import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
+import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
+import uk.co.dryhome.service.dto.OrderItemDTO;
 import uk.co.dryhome.service.mapper.ManualInvoiceMapper;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
 
@@ -510,8 +512,6 @@ public class ManualInvoiceResourceIntTest {
             manualInvoiceItemRepository.saveAndFlush(i);
         });
 
-        int databaseSizeBeforeUpdate = manualInvoiceRepository.findAll().size();
-
         // Update the manualInvoice
         ManualInvoice updatedManualInvoice = manualInvoiceRepository.findById(this.manualInvoice.getId()).get();
         // Disconnect from session so that the updates on updatedManualInvoice are not directly saved in db
@@ -541,6 +541,7 @@ public class ManualInvoiceResourceIntTest {
             .vatRate(UPDATED_VAT_RATE);
         ManualInvoiceDetailDTO manualInvoiceDetailDTO = manualInvoiceMapper.toDetailDto(updatedManualInvoice);
         manualInvoiceDetailDTO.getItems().get(0).setPrice(new BigDecimal("49.99"));
+        manualInvoiceDetailDTO.getItems().get(0).setProduct("new product");
 
         restManualInvoiceMockMvc.perform(put("/api/manual-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -577,7 +578,7 @@ public class ManualInvoiceResourceIntTest {
                 .andExpect(jsonPath("$.items[0].id").isNotEmpty())
                 .andExpect(jsonPath("$.items[0].quantity").value(2))
                 .andExpect(jsonPath("$.items[0].price").value("49.99"))
-                .andExpect(jsonPath("$.items[0].product").value("product1"))
+                .andExpect(jsonPath("$.items[0].product").value("new product"))
                 .andExpect(jsonPath("$.items[1].id").isNotEmpty())
                 .andExpect(jsonPath("$.items[1].quantity").value(1))
                 .andExpect(jsonPath("$.items[1].price").value("5.96"))
@@ -585,6 +586,91 @@ public class ManualInvoiceResourceIntTest {
                 .andExpect(jsonPath("$.subTotal").value("105.94"))
                 .andExpect(jsonPath("$.vatAmount").value("20.66"))
                 .andExpect(jsonPath("$.total").value("126.6"));
+    }
+
+    @Test
+    @Transactional
+    public void updateManualInvoiceAddItem() throws Exception {
+        // Initialize the database
+        ManualInvoice savedManualInvoice = manualInvoiceRepository.saveAndFlush(this.manualInvoice);
+        manualInvoice.getItems().forEach(i -> {
+            i.setManualInvoice(savedManualInvoice);
+            manualInvoiceItemRepository.saveAndFlush(i);
+        });
+
+        // Update the manualInvoice
+        ManualInvoice updatedManualInvoice = manualInvoiceRepository.findById(this.manualInvoice.getId()).get();
+        // Disconnect from session so that the updates on updatedManualInvoice are not directly saved in db
+        em.detach(updatedManualInvoice);
+        ManualInvoiceDetailDTO manualInvoiceDetailDTO = manualInvoiceMapper.toDetailDto(updatedManualInvoice);
+        ManualInvoiceItemDTO newItem = new ManualInvoiceItemDTO();
+        manualInvoiceDetailDTO.getItems().add(newItem);
+        newItem.setProduct("new product");
+        newItem.setPrice(new BigDecimal("1.99"));
+        newItem.setQuantity(2);
+
+        restManualInvoiceMockMvc.perform(put("/api/manual-invoices")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(manualInvoiceDetailDTO)))
+            .andExpect(status().isOk());
+
+        restManualInvoiceMockMvc.perform(get("/api/manual-invoices/{id}", manualInvoice.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(manualInvoiceDetailDTO.getId()))
+            .andExpect(jsonPath("$.items.length()").value(3))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].product").value("product1"))
+            .andExpect(jsonPath("$.items[1].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[1].quantity").value(1))
+            .andExpect(jsonPath("$.items[1].price").value("5.96"))
+            .andExpect(jsonPath("$.items[1].product").value("product2"))
+            .andExpect(jsonPath("$.items[2].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[2].quantity").value(2))
+            .andExpect(jsonPath("$.items[2].price").value("1.99"))
+            .andExpect(jsonPath("$.items[2].product").value("new product"))
+            .andExpect(jsonPath("$.subTotal").value("209.92"))
+            .andExpect(jsonPath("$.vatAmount").value("41.98"))
+            .andExpect(jsonPath("$.total").value("251.9"));
+    }
+
+    @Test
+    @Transactional
+    public void updateManualInvoiceRemovetem() throws Exception {
+        // Initialize the database
+        ManualInvoice savedManualInvoice = manualInvoiceRepository.saveAndFlush(this.manualInvoice);
+        manualInvoice.getItems().forEach(i -> {
+            i.setManualInvoice(savedManualInvoice);
+            manualInvoiceItemRepository.saveAndFlush(i);
+        });
+
+        // Update the manualInvoice
+        ManualInvoice updatedManualInvoice = manualInvoiceRepository.findById(this.manualInvoice.getId()).get();
+        // Disconnect from session so that the updates on updatedManualInvoice are not directly saved in db
+        em.detach(updatedManualInvoice);
+        ManualInvoiceDetailDTO manualInvoiceDetailDTO = manualInvoiceMapper.toDetailDto(updatedManualInvoice);
+        manualInvoiceDetailDTO.getItems().removeIf(x -> x.getProduct().equals("product2"));
+
+
+        restManualInvoiceMockMvc.perform(put("/api/manual-invoices")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(manualInvoiceDetailDTO)))
+            .andExpect(status().isOk());
+
+        restManualInvoiceMockMvc.perform(get("/api/manual-invoices/{id}", manualInvoice.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.id").value(manualInvoiceDetailDTO.getId()))
+            .andExpect(jsonPath("$.items.length()").value(1))
+            .andExpect(jsonPath("$.items[0].id").isNotEmpty())
+            .andExpect(jsonPath("$.items[0].quantity").value(2))
+            .andExpect(jsonPath("$.items[0].price").value("99.99"))
+            .andExpect(jsonPath("$.items[0].product").value("product1"))
+            .andExpect(jsonPath("$.subTotal").value("199.98"))
+            .andExpect(jsonPath("$.vatAmount").value("40.0"))
+            .andExpect(jsonPath("$.total").value("239.98"));
     }
 
     @Test
