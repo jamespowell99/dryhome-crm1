@@ -6,10 +6,12 @@ import { AvField, AvForm, AvGroup, AvInput } from 'availity-reactstrap-validatio
 import { getPaginationItemsNumber, IPaginationBaseState, JhiPagination, TextFormat } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
-import { getSearchEntities } from './customer-order.reducer';
+import { getSearchEntities, getEntities } from './customer-order.reducer';
 // tslint:disable-next-line:no-unused-variable
 import { APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
+import { IRootState } from 'app/shared/reducers';
+import { connect } from 'react-redux';
 
 export interface ICustomerOrderProps extends StateProps, DispatchProps, RouteComponentProps<{ url: string }> {}
 
