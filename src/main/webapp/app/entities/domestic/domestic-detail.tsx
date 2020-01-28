@@ -25,18 +25,21 @@ import {
 import axios from 'axios';
 import classnames from 'classnames';
 // tslint:disable-next-line:no-unused-variable
-import { IPaginationBaseState } from 'react-jhipster';
+import { TextFormat, getPaginationItemsNumber, JhiPagination, IPaginationBaseState } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntity } from 'app/entities/domestic/domestic.reducer';
+import { getCustomerOrders } from '../customer.reducer';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
+import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
 // tslint:disable-next-line:no-unused-variable
 
 export interface ICustomerDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
-export interface ICustomerDetailState {
-  //  todo extend IPaginationBaseState
+export interface ICustomerDetailState extends IPaginationBaseState {
   dropdownOpen: boolean;
   activeTab: string;
 }
@@ -48,13 +51,23 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
     this.toggle = this.toggle.bind(this);
     this.state = {
       dropdownOpen: false,
-      activeTab: '1'
+      activeTab: '1',
+      ...getSortState(this.props.location, ITEMS_PER_PAGE)
     };
   }
 
   componentDidMount() {
     this.props.getEntity(this.props.match.params.id);
+    this.props.getCustomerOrders(this.props.match.params.id);
   }
+
+  sortEntities() {
+    const { activePage, itemsPerPage } = this.state;
+    this.props.getCustomerOrders(this.props.match.params.id, activePage - 1, itemsPerPage);
+    // this.props.history.push(`${this.props.location.pathname}?page=${this.state.activePage}&sort=${this.state.sort},${this.state.order}`);
+  }
+
+  handlePagination = activePage => this.setState({ activePage }, () => this.sortEntities());
 
   callDocument = event => {
     const { customerEntity } = this.props;
@@ -85,7 +98,7 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
   }
 
   render() {
-    const { customerEntity } = this.props;
+    const { customerEntity, customerOrders, totalOrders } = this.props;
 
     const tab1 = () => {
       toggleTab('1');
@@ -117,7 +130,7 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
               </NavItem>
               <NavItem>
                 <NavLink className={classnames({ active: this.state.activeTab === '2' })} onClick={tab2}>
-                  Orders (TBC)
+                  Orders ({totalOrders})
                 </NavLink>
               </NavItem>
             </Nav>
@@ -278,7 +291,11 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
                 </Container>
               </TabPane>
               <TabPane tabId="2">
-                <Link to={`/new`} className="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
+                <Link
+                  to={`/entity/customer-order/new?customerId=` + customerEntity.id}
+                  className="btn btn-primary float-right jh-create-entity"
+                  id="jh-create-entity"
+                >
                   <FontAwesomeIcon icon="plus" />
                   &nbsp; Create new Order
                 </Link>
@@ -298,15 +315,55 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
                           <th />
                         </tr>
                       </thead>
+                      <tbody>
+                        {customerOrders
+                          ? customerOrders.map((customerOrder, i) => (
+                              <tr key={`entity-${i}`}>
+                                <td>
+                                  <Button tag={Link} to={`/entity/customer-order/${customerOrder.id}`} color="link" size="sm">
+                                    {customerOrder.orderNumber}
+                                  </Button>
+                                </td>
+                                <td>
+                                  <TextFormat type="date" value={customerOrder.orderDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
+                                </td>
+                                <td>
+                                  <TextFormat
+                                    type="date"
+                                    value={customerOrder.despatchDate}
+                                    format={APP_LOCAL_DATE_FORMAT}
+                                    blankOnInvalid
+                                  />
+                                </td>
+                                <td>
+                                  <TextFormat type="date" value={customerOrder.invoiceDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
+                                </td>
+                                <td>
+                                  <TextFormat type="date" value={customerOrder.paymentDate} format={APP_LOCAL_DATE_FORMAT} blankOnInvalid />
+                                </td>
+                                <td>{customerOrder.invoiceNumber}</td>
+                                <td>
+                                  £
+                                  {customerOrder.total
+                                    ? customerOrder.total.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                      })
+                                    : null}
+                                </td>
+                              </tr>
+                            ))
+                          : null}
+                      </tbody>
                     </Table>
                   </div>
                   <Row className="justify-content-center">
-                    {/*<JhiPagination
-                                items={getPaginationItemsNumber(totalOrders, this.state.itemsPerPage)}
-                                activePage={this.state.activePage}
-                                onSelect={this.handlePagination}
-                                maxButtons={5}
-                            />*/}
+                    <JhiPagination
+                      items={getPaginationItemsNumber(totalOrders, this.state.itemsPerPage)}
+                      activePage={this.state.activePage}
+                      onSelect={this.handlePagination}
+                      maxButtons={5}
+                    />
                   </Row>
                 </Container>
               </TabPane>
@@ -342,10 +399,12 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
 }
 
 const mapStateToProps = ({ customer }: IRootState) => ({
-  customerEntity: customer.entity
+  customerEntity: customer.entity,
+  customerOrders: customer.customerOrders,
+  totalOrders: customer.totalOrders
 });
 
-const mapDispatchToProps = { getEntity };
+const mapDispatchToProps = { getEntity, getCustomerOrders };
 
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;

@@ -1,5 +1,6 @@
 package uk.co.dryhome.service.dto;
 
+import uk.co.dryhome.domain.enumeration.CompanyType;
 import uk.co.dryhome.domain.enumeration.OrderMethod;
 
 import javax.validation.constraints.NotNull;
@@ -63,6 +64,8 @@ public class CustomerOrderDetailDTO implements Serializable {
 
     private String customerName;
 
+    private CompanyType customerType;
+
     private BigDecimal total;
 
     private BigDecimal subTotal;
@@ -79,38 +82,6 @@ public class CustomerOrderDetailDTO implements Serializable {
     private AddressDTO invoiceAddress;
 
     private AddressDTO deliveryAddress;
-
-    @Override
-    public String toString() {
-        return "CustomerOrderDetailDTO{" +
-            "id=" + id +
-            ", orderNumber='" + orderNumber + '\'' +
-            ", orderDate=" + orderDate +
-            ", notes1='" + notes1 + '\'' +
-            ", notes2='" + notes2 + '\'' +
-            ", despatchDate=" + despatchDate +
-            ", invoiceDate=" + invoiceDate +
-            ", paymentDate=" + paymentDate +
-            ", vatRate=" + vatRate +
-            ", internalNotes='" + internalNotes + '\'' +
-            ", invoiceNumber='" + invoiceNumber + '\'' +
-            ", paymentStatus='" + paymentStatus + '\'' +
-            ", paymentType='" + paymentType + '\'' +
-            ", paymentAmount=" + paymentAmount +
-            ", placedBy='" + placedBy + '\'' +
-            ", method=" + method +
-            ", customerId=" + customerId +
-            ", customerName='" + customerName + '\'' +
-            ", total=" + total +
-            ", subTotal=" + subTotal +
-            ", vatAmount=" + vatAmount +
-            ", invoiceContact='" + invoiceContact + '\'' +
-            ", deliveryContact='" + deliveryContact + '\'' +
-            ", invoiceAddress=" + invoiceAddress +
-            ", deliveryAddress=" + deliveryAddress +
-            ", items=" + items +
-            '}';
-    }
 
     public BigDecimal getSubTotal() {
         return subTotal;
@@ -318,6 +289,47 @@ public class CustomerOrderDetailDTO implements Serializable {
 
     public void setItems(List<OrderItemDTO> items) {
         this.items = items;
+    }
+
+    public CompanyType getTCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(CompanyType customerType) {
+        this.customerType = customerType;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerOrderDetailDTO{" +
+            "id=" + id +
+            ", orderNumber='" + orderNumber + '\'' +
+            ", orderDate=" + orderDate +
+            ", notes1='" + notes1 + '\'' +
+            ", notes2='" + notes2 + '\'' +
+            ", despatchDate=" + despatchDate +
+            ", invoiceDate=" + invoiceDate +
+            ", paymentDate=" + paymentDate +
+            ", vatRate=" + vatRate +
+            ", internalNotes='" + internalNotes + '\'' +
+            ", invoiceNumber='" + invoiceNumber + '\'' +
+            ", paymentStatus='" + paymentStatus + '\'' +
+            ", paymentType='" + paymentType + '\'' +
+            ", paymentAmount=" + paymentAmount +
+            ", placedBy='" + placedBy + '\'' +
+            ", method=" + method +
+            ", customerId=" + customerId +
+            ", customerName='" + customerName + '\'' +
+            ", customerType=" + customerType +
+            ", total=" + total +
+            ", subTotal=" + subTotal +
+            ", items=" + items +
+            ", vatAmount=" + vatAmount +
+            ", invoiceContact='" + invoiceContact + '\'' +
+            ", deliveryContact='" + deliveryContact + '\'' +
+            ", invoiceAddress=" + invoiceAddress +
+            ", deliveryAddress=" + deliveryAddress +
+            '}';
     }
 
     @Override

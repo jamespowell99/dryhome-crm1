@@ -1,9 +1,9 @@
 package uk.co.dryhome.service.mapper;
 
-import uk.co.dryhome.domain.*;
-import uk.co.dryhome.service.dto.CustomerOrderDTO;
-
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import uk.co.dryhome.domain.CustomerOrder;
+import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.service.dto.OrderItemDTO;
@@ -12,24 +12,19 @@ import uk.co.dryhome.service.dto.OrderItemDTO;
  * Mapper for the entity CustomerOrder and its DTO CustomerOrderDTO.
  */
 @Mapper(componentModel = "spring", uses = {CustomerMapper.class, ProductMapper.class})
-public interface CustomerOrderMapper extends EntityMapper<CustomerOrderDTO, CustomerOrder> {
+public interface CustomerOrderMapper extends EntityMapper<CustomerOrderSummaryDTO, CustomerOrder> {
 
     @Mapping(source = "customer.id", target = "customerId")
-    CustomerOrderDTO toDto(CustomerOrder customerOrder);
-
-    @Mapping(target = "items", ignore = true)
-    @Mapping(source = "customerId", target = "customer")
-    CustomerOrder toEntity(CustomerOrderDTO customerOrderDTO);
+    @Mapping(source = "customer.name", target = "customerName")
+    @Mapping(source = "customer.type", target = "customerType")
+    CustomerOrderSummaryDTO toDto(CustomerOrder customerOrder);
 
     @Mapping(source = "customerId", target = "customer")
     CustomerOrder detailToEntity(CustomerOrderDetailDTO customerOrderDetailDTO);
 
     @Mapping(source = "customer.id", target = "customerId")
     @Mapping(source = "customer.name", target = "customerName")
-    CustomerOrderSummaryDTO toSummaryDto(CustomerOrder customerOrder);
-
-    @Mapping(source = "customer.id", target = "customerId")
-    @Mapping(source = "customer.name", target = "customerName")
+    @Mapping(source = "customer.type", target = "customerType")
     CustomerOrderDetailDTO toDetailDto(CustomerOrder customerOrder);
 
     @Mapping(source = "product.name", target = "product")

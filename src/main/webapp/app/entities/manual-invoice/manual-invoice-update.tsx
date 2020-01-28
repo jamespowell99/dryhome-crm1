@@ -278,7 +278,6 @@ export class ManualInvoiceUpdate extends React.Component<IManualInvoiceUpdatePro
                                 <tr key={`entity-${i}`}>
                                   <td>
                                     <AvGroup>
-                                      {/*todo is this value correct?*/}
                                       <AvField
                                         id={'manual-invoice-item-product-' + i}
                                         type="text"

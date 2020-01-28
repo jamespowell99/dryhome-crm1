@@ -52,6 +52,7 @@ export interface ICustomer {
   saleInvoiceNumber?: string;
   saleInvoiceAmount?: string;
   customerId?: number;
+  name?: string;
 }
 
 export const defaultValue: Readonly<ICustomer> = {};

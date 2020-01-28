@@ -25,8 +25,8 @@ import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.repository.ProductRepository;
 import uk.co.dryhome.service.CustomerOrderQueryService;
 import uk.co.dryhome.service.CustomerOrderService;
-import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.service.dto.OrderItemDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 import uk.co.dryhome.web.rest.errors.ExceptionTranslator;
@@ -335,11 +335,11 @@ public class CustomerOrderResourceIntTest {
         customerOrder.setOrderNumber(null);
 
         // Create the CustomerOrder, which fails.
-        CustomerOrderDTO customerOrderDTO = customerOrderMapper.toDto(customerOrder);
+        CustomerOrderSummaryDTO customerOrderSummaryDTO = customerOrderMapper.toDto(customerOrder);
 
         restCustomerOrderMockMvc.perform(post("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(customerOrderDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderSummaryDTO)))
             .andExpect(status().isBadRequest());
 
         List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
@@ -354,11 +354,11 @@ public class CustomerOrderResourceIntTest {
         customerOrder.setOrderDate(null);
 
         // Create the CustomerOrder, which fails.
-        CustomerOrderDTO customerOrderDTO = customerOrderMapper.toDto(customerOrder);
+        CustomerOrderSummaryDTO customerOrderSummaryDTO = customerOrderMapper.toDto(customerOrder);
 
         restCustomerOrderMockMvc.perform(post("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(customerOrderDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderSummaryDTO)))
             .andExpect(status().isBadRequest());
 
         List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
@@ -369,15 +369,15 @@ public class CustomerOrderResourceIntTest {
     @Transactional
     public void checkVatRateIsRequired() throws Exception {
         int databaseSizeBeforeTest = customerOrderRepository.findAll().size();
-        // set the field null
-        customerOrder.setVatRate(null);
 
         // Create the CustomerOrder, which fails.
-        CustomerOrderDTO customerOrderDTO = customerOrderMapper.toDto(customerOrder);
+        CustomerOrderSummaryDTO customerOrderSummaryDTO = customerOrderMapper.toDto(customerOrder);
+        // set the field null
+        customerOrderSummaryDTO.setVatRate(null);
 
         restCustomerOrderMockMvc.perform(post("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(customerOrderDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderSummaryDTO)))
             .andExpect(status().isBadRequest());
 
         List<CustomerOrder> customerOrderList = customerOrderRepository.findAll();
@@ -1408,12 +1408,12 @@ public class CustomerOrderResourceIntTest {
         int databaseSizeBeforeUpdate = customerOrderRepository.findAll().size();
 
         // Create the CustomerOrder
-        CustomerOrderDTO customerOrderDTO = customerOrderMapper.toDto(customerOrder);
+        CustomerOrderSummaryDTO customerOrderSummaryDTO = customerOrderMapper.toDto(customerOrder);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCustomerOrderMockMvc.perform(put("/api/customer-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(customerOrderDTO)))
+            .content(TestUtil.convertObjectToJsonBytes(customerOrderSummaryDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the CustomerOrder in the database
@@ -1459,10 +1459,10 @@ public class CustomerOrderResourceIntTest {
     @Test
     @Transactional
     public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CustomerOrderDTO.class);
-        CustomerOrderDTO customerOrderDTO1 = new CustomerOrderDTO();
+        TestUtil.equalsVerifier(CustomerOrderSummaryDTO.class);
+        CustomerOrderSummaryDTO customerOrderDTO1 = new CustomerOrderSummaryDTO();
         customerOrderDTO1.setId(1L);
-        CustomerOrderDTO customerOrderDTO2 = new CustomerOrderDTO();
+        CustomerOrderSummaryDTO customerOrderDTO2 = new CustomerOrderSummaryDTO();
         assertThat(customerOrderDTO1).isNotEqualTo(customerOrderDTO2);
         customerOrderDTO2.setId(customerOrderDTO1.getId());
         assertThat(customerOrderDTO1).isEqualTo(customerOrderDTO2);

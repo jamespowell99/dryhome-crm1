@@ -1,15 +1,7 @@
 package uk.co.dryhome.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.persistence.criteria.JoinType;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.common.collect.ImmutableSet;
+import io.github.jhipster.service.QueryService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,26 +10,30 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import io.github.jhipster.service.QueryService;
-
+import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.domain.CustomerOrder;
-import uk.co.dryhome.domain.*; // for static metamodels
+import uk.co.dryhome.domain.CustomerOrder_;
+import uk.co.dryhome.domain.Customer_;
+import uk.co.dryhome.domain.OrderItem_;
 import uk.co.dryhome.repository.CustomerOrderRepository;
-import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
-import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
-import uk.co.dryhome.service.dto.OrderItemDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
+
+import javax.persistence.criteria.JoinType;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service for executing complex queries for CustomerOrder entities in the database.
  * The main input is a {@link CustomerOrderCriteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
- * It returns a {@link List} of {@link CustomerOrderDTO} or a {@link Page} of {@link CustomerOrderDTO} which fulfills the criteria.
+ * It returns a {@link List} of {@link CustomerOrderSummaryDTO} or a {@link Page} of {@link CustomerOrderSummaryDTO} which fulfills the criteria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -50,24 +46,25 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
 
     private final CustomerOrderRepository customerOrderRepository;
     private final CustomerOrderMapper customerOrderMapper;
-    private final OrderItemRepository orderItemRepository;
     private final MergeDocService mergeDocService;
 
 
     /**
-     * Return a {@link List} of {@link CustomerOrderDTO} which matches the criteria from the database
+     * Return a {@link List} of {@link CustomerOrderSummaryDTO} which matches the criteria from the database
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<CustomerOrderDTO> findByCriteria(CustomerOrderCriteria criteria) {
+    public List<CustomerOrderSummaryDTO> findByCriteria(CustomerOrderCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<CustomerOrder> specification = createSpecification(criteria);
-        return customerOrderMapper.toDto(customerOrderRepository.findAll(specification));
+        return customerOrderRepository.findAll(specification).stream()
+            .map(customerOrderMapper::toDto)
+            .collect(Collectors.toList());
     }
 
     /**
-     * Return a {@link Page} of {@link CustomerOrderDTO} which matches the criteria from the database
+     * Return a {@link Page} of {@link CustomerOrderSummaryDTO} which matches the criteria from the database
      * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
@@ -77,7 +74,7 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<CustomerOrder> specification = createSpecification(criteria);
         return customerOrderRepository.findAll(specification, page)
-            .map(x -> customerOrderMapper.toSummaryDto(x));
+            .map(customerOrderMapper::toDto);
     }
 
     /**

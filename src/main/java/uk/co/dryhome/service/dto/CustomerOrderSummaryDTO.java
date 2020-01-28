@@ -1,5 +1,6 @@
 package uk.co.dryhome.service.dto;
 
+import uk.co.dryhome.domain.enumeration.CompanyType;
 import uk.co.dryhome.domain.enumeration.OrderMethod;
 
 import javax.validation.constraints.NotNull;
@@ -60,6 +61,8 @@ public class CustomerOrderSummaryDTO implements Serializable {
     private Long customerId;
 
     private String customerName;
+
+    private CompanyType customerType;
 
     private BigDecimal total;
 
@@ -215,6 +218,14 @@ public class CustomerOrderSummaryDTO implements Serializable {
         this.total = total;
     }
 
+    public CompanyType getCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(CompanyType customerType) {
+        this.customerType = customerType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -257,6 +268,7 @@ public class CustomerOrderSummaryDTO implements Serializable {
             ", method=" + method +
             ", customerId=" + customerId +
             ", customerName='" + customerName + '\'' +
+            ", customerType=" + customerType +
             ", total=" + total +
             '}';
     }

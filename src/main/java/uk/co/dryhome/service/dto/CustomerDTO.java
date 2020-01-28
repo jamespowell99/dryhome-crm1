@@ -99,6 +99,7 @@ public class CustomerDTO implements Serializable {
     @Size(max = 100)
     private String saleInvoiceAmount;
 
+    private String name;
 
     public Long getId() {
         return id;
@@ -341,6 +342,51 @@ public class CustomerDTO implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return "CustomerDTO{" +
+            "id=" + id +
+            ", companyName='" + companyName + '\'' +
+            ", address1='" + address1 + '\'' +
+            ", address2='" + address2 + '\'' +
+            ", address3='" + address3 + '\'' +
+            ", town='" + town + '\'' +
+            ", postCode='" + postCode + '\'' +
+            ", title='" + title + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", tel='" + tel + '\'' +
+            ", mobile='" + mobile + '\'' +
+            ", email='" + email + '\'' +
+            ", products='" + products + '\'' +
+            ", interested=" + interested +
+            ", paid=" + paid +
+            ", type=" + type +
+            ", notes='" + notes + '\'' +
+            ", lead=" + lead +
+            ", leadName='" + leadName + '\'' +
+            ", leadTel='" + leadTel + '\'' +
+            ", leadMob='" + leadMob + '\'' +
+            ", status=" + status +
+            ", enquiryProperty='" + enquiryProperty + '\'' +
+            ", enquiryUnitPq='" + enquiryUnitPq + '\'' +
+            ", enquiryInstPq='" + enquiryInstPq + '\'' +
+            ", saleProducts='" + saleProducts + '\'' +
+            ", saleInvoiceDate='" + saleInvoiceDate + '\'' +
+            ", saleInvoiceNumber='" + saleInvoiceNumber + '\'' +
+            ", saleInvoiceAmount='" + saleInvoiceAmount + '\'' +
+            ", name='" + name + '\'' +
+            '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -361,39 +407,4 @@ public class CustomerDTO implements Serializable {
         return Objects.hashCode(getId());
     }
 
-    @Override
-    public String toString() {
-        return "CustomerDTO{" +
-            "id=" + getId() +
-            ", companyName='" + getCompanyName() + "'" +
-            ", address1='" + getAddress1() + "'" +
-            ", address2='" + getAddress2() + "'" +
-            ", address3='" + getAddress3() + "'" +
-            ", town='" + getTown() + "'" +
-            ", postCode='" + getPostCode() + "'" +
-            ", title='" + getTitle() + "'" +
-            ", firstName='" + getFirstName() + "'" +
-            ", lastName='" + getLastName() + "'" +
-            ", tel='" + getTel() + "'" +
-            ", mobile='" + getMobile() + "'" +
-            ", email='" + getEmail() + "'" +
-            ", products='" + getProducts() + "'" +
-            ", interested='" + getInterested() + "'" +
-            ", paid=" + getPaid() +
-            ", type='" + getType() + "'" +
-            ", notes='" + getNotes() + "'" +
-            ", lead='" + getLead() + "'" +
-            ", leadName='" + getLeadName() + "'" +
-            ", leadTel='" + getLeadTel() + "'" +
-            ", leadMob='" + getLeadMob() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", enquiryProperty='" + getEnquiryProperty() + "'" +
-            ", enquiryUnitPq='" + getEnquiryUnitPq() + "'" +
-            ", enquiryInstPq='" + getEnquiryInstPq() + "'" +
-            ", saleProducts='" + getSaleProducts() + "'" +
-            ", saleInvoiceDate='" + getSaleInvoiceDate() + "'" +
-            ", saleInvoiceNumber='" + getSaleInvoiceNumber() + "'" +
-            ", saleInvoiceAmount='" + getSaleInvoiceAmount() + "'" +
-            "}";
-    }
 }

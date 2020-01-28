@@ -36,6 +36,7 @@ export interface ICustomerOrder {
   items?: IOrderItem[];
   customerId?: number;
   customerName?: string;
+  customerType?: string;
   subTotal?: number;
   vatAmount?: number;
   total?: number;

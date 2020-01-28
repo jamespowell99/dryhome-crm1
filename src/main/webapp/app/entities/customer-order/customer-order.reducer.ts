@@ -9,6 +9,8 @@ import { IOrderItem } from 'app/shared/model/order-item.model';
 
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
+import { ICrudSearchCustomerOrderAction } from 'app/entities/customer-order.redux-action-type';
+
 export const ACTION_TYPES = {
   SEARCH_CUSTOMERORDERS: 'customerOrder/SEARCH_CUSTOMERORDERS',
   FETCH_CUSTOMERORDER_LIST: 'customerOrder/FETCH_CUSTOMERORDER_LIST',
@@ -208,10 +210,36 @@ const apiSearchUrl = 'api/_search/customer-orders';
 
 // Actions
 
-export const getSearchEntities: ICrudSearchAction<ICustomerOrder> = (query, page, size, sort) => ({
-  type: ACTION_TYPES.SEARCH_CUSTOMERORDERS,
-  payload: axios.get<ICustomerOrder>(`${apiSearchUrl}?query=${query}${sort ? `&page=${page}&size=${size}&sort=${sort}` : ''}`)
-});
+export const getSearchEntities: ICrudSearchCustomerOrderAction<ICustomerOrder> = (
+  searchStatus,
+  searchOrderNumber,
+  searchInvoiceNumber,
+  searchOrderDate,
+  page,
+  size,
+  sort
+) => {
+  let requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}`;
+  let statusParam;
+  if (searchStatus === 'AWAITING_DESPATCH') {
+    statusParam = `&despatchDate.specified=false`;
+  } else if (searchStatus === 'AWAITING_INVOICE') {
+    statusParam = `&invoiceDate.specified=false`;
+  } else if (searchStatus === 'AWAITING_PAYMENT') {
+    statusParam = `&paymentDate.specified=false`;
+  } else if (searchStatus === 'COMPLETED') {
+    statusParam = `&despatchDate.specified=true&invoiceDate.specified=true&paymentDate.specified=true`;
+  }
+
+  requestUrl += `${statusParam ? `${statusParam}` : ''}`;
+  requestUrl += `${searchOrderNumber ? `&orderNumber.equals=${searchOrderNumber}` : ''}`;
+  requestUrl += `${searchInvoiceNumber ? `&invoiceNumber.contains=${searchInvoiceNumber}` : ''}`;
+  requestUrl += `${searchOrderDate ? `&orderDate.equals=${searchOrderDate}` : ''}`;
+  return {
+    type: ACTION_TYPES.SEARCH_CUSTOMERORDERS,
+    payload: axios.get<ICustomerOrder>(requestUrl)
+  };
+};
 
 export const getEntities: ICrudGetAllAction<ICustomerOrder> = (page, size, sort) => {
   const requestUrl = `${apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}` : ''}`;

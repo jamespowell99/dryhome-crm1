@@ -294,9 +294,6 @@ export class Customer extends React.Component<ICustomerProps, ICustomerState> {
                   <td>{customer.email}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
-                      <Button tag={Link} to={`${match.url}/${customer.id}/edit`} color="primary" size="sm">
-                        <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-                      </Button>
                       <Button tag={Link} to={`${match.url}/${customer.id}/delete`} color="danger" size="sm">
                         <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
                       </Button>

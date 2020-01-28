@@ -7,7 +7,7 @@ import { getEntities as getProducts } from 'app/entities/product/product.reducer
 // tslint:disable-next-line:no-unused-variable
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
-// todo this will need to be all types of customer, or not at all
+// todo can we move this from damproofer (now includes dom)
 import { getEntity as getCustomer } from 'app/entities/dampproofer/dampproofer.reducer';
 import {
   addOrderItem,
@@ -49,7 +49,6 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
   componentDidMount() {
     if (this.state.isNew) {
       this.props.reset();
-      // todo this will need to be all types of customer, or not at all
       // todo this is horrible - improve
       const search = this.props.location.search;
       const n = search.lastIndexOf('customerId=');
@@ -149,14 +148,7 @@ export class CustomerOrderUpdate extends React.Component<ICustomerOrderUpdatePro
                     ) : (
                       <AvGroup>
                         <Label for="customerName">Customer</Label>
-                        <input
-                          id="customer-name"
-                          type="text"
-                          className="form-control"
-                          value={customerEntity.companyName}
-                          required
-                          readOnly
-                        />
+                        <input id="customer-name" type="text" className="form-control" value={customerEntity.name} required readOnly />
                         <input
                           id="customer-id"
                           type="text"

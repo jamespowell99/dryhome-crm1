@@ -12,8 +12,8 @@ import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.repository.ProductRepository;
-import uk.co.dryhome.service.dto.CustomerOrderDTO;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.service.dto.OrderItemDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 
@@ -116,7 +116,7 @@ public class CustomerOrderService {
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page<CustomerOrderDTO> findAll(Pageable pageable) {
+    public Page<CustomerOrderSummaryDTO> findAll(Pageable pageable) {
         log.debug("Request to get all CustomerOrders");
         return customerOrderRepository.findAll(pageable)
             .map(customerOrderMapper::toDto);

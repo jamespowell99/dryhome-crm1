@@ -245,7 +245,9 @@ describe('Entities reducer tests', () => {
           payload: resolvedObject
         }
       ];
-      await store.dispatch(getSearchEntities()).then(() => expect(store.getActions()).toEqual(expectedActions));
+      await store
+        .dispatch(getSearchEntities('AWAITING_DESPATCH', '', '', ''))
+        .then(() => expect(store.getActions()).toEqual(expectedActions));
     });
 
     it('dispatches ACTION_TYPES.FETCH_CUSTOMERORDER actions', async () => {
