@@ -29,8 +29,8 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
   }
 
   componentWillUpdate(nextProps, nextState) {
-    if (nextProps.updateSuccess !== this.props.updateSuccess && nextProps.updateSuccess) {
-      this.handleClose();
+    if (nextProps.updateSuccess !== this.props.updateSuccess && nextProps.updateSuccess && nextProps.customerEntity.id) {
+      this.handleClose(nextProps.customerEntity.id);
     }
   }
 
@@ -66,8 +66,8 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
     }
   };
 
-  handleClose = () => {
-    this.props.history.push('/entity/domestic');
+  handleClose = customerId => {
+    this.props.history.push('/entity/domestic/' + customerId);
   };
 
   render() {
