@@ -18,7 +18,7 @@ logging:
         ROOT: INFO
         uk.co.dryhome: INFO
         io.github.jhipster: INFO
-        org.docx4j: WARN
+#        org.docx4j: WARN
 
 spring:
     devtools:
