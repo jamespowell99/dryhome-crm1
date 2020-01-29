@@ -106,7 +106,19 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
                   <dl>
                     <dt>Customer</dt>
                     <dd>
-                      {customerOrderEntity.customerName}({customerOrderEntity.customerId})
+                      {customerOrderEntity.customerId ? (
+                        <Link
+                          to={
+                            customerOrderEntity.customerType === 'DOMESTIC'
+                              ? `/entity/domestic/${customerOrderEntity.customerId}`
+                              : `/entity/dampproofer/${customerOrderEntity.customerId}`
+                          }
+                        >
+                          {customerOrderEntity.customerName}({customerOrderEntity.customerId})
+                        </Link>
+                      ) : (
+                        ''
+                      )}
                     </dd>
 
                     <dt>
@@ -205,7 +217,6 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
                 <Table responsive className="table-bordered">
                   <thead className="thead-light">
                     <tr>
-                      <th className="hand">ID</th>
                       <th className="hand">Product</th>
                       <th className="hand">Quantity</th>
                       <th className="hand">Price</th>
@@ -217,7 +228,6 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
                     {customerOrderEntity.items
                       ? customerOrderEntity.items.map((item, i) => (
                           <tr key={`entity-${i}`}>
-                            <td>{item.id}</td>
                             <td>{item.product}</td>
                             <td>{item.quantity}</td>
                             <td>

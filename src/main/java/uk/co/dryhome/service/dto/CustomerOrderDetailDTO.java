@@ -291,7 +291,7 @@ public class CustomerOrderDetailDTO implements Serializable {
         this.items = items;
     }
 
-    public CompanyType getTCustomerType() {
+    public CompanyType getCustomerType() {
         return customerType;
     }
 
