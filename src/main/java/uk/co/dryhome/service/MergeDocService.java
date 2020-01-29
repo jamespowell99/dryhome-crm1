@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -36,7 +37,10 @@ public class MergeDocService {
         if (!allowedDocuments.contains(documentName)) {
             throw new RuntimeException("unrecognised document name: " + documentName);
         }
-        byte[] document = new WordMerger().merge(getFile(documentName + ".docx"), source.documentMappings());
+        Map<String, String> mappings = source.documentMappings();
+        String filename = documentName + ".docx";
+        log.info("Merging doc {}. Values: {}", filename, mappings);
+        byte[] document = new WordMerger().merge(getFile(filename), mappings);
 
         try {
             // get your file as InputStream

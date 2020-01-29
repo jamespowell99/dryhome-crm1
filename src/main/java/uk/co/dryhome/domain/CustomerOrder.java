@@ -2,6 +2,7 @@ package uk.co.dryhome.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -46,6 +47,7 @@ import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 @Entity
 @Table(name = "customer_order")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Slf4j
 public class CustomerOrder implements Serializable, MergeDocumentSource {
 
     private static final long serialVersionUID = 1L;
