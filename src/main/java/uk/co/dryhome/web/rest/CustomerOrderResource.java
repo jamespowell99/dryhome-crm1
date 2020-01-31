@@ -21,6 +21,7 @@ import uk.co.dryhome.service.CustomerOrderQueryService;
 import uk.co.dryhome.service.CustomerOrderService;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.CustomerOrderReportResponseDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
 import uk.co.dryhome.web.rest.util.HeaderUtil;
@@ -101,6 +102,13 @@ public class CustomerOrderResource {
         Page<CustomerOrderSummaryDTO> page = customerOrderQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/customer-orders");
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/customer-orders/report")
+    public ResponseEntity<CustomerOrderReportResponseDTO> customerOrdersReport(CustomerOrderCriteria criteria) {
+        log.debug("REST request to get CustomerOrders by criteria: {}", criteria);
+        CustomerOrderReportResponseDTO customerOrderReportResponseDTO = customerOrderQueryService.generateReportResponse(criteria);
+        return ResponseEntity.ok(customerOrderReportResponseDTO);
     }
 
     /**

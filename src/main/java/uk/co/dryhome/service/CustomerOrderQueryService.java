@@ -15,15 +15,18 @@ import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.domain.CustomerOrder_;
 import uk.co.dryhome.domain.Customer_;
 import uk.co.dryhome.domain.OrderItem_;
+import uk.co.dryhome.domain.OrderSummary;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.CustomerOrderReportResponseDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -55,12 +58,17 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
-    public List<CustomerOrderSummaryDTO> findByCriteria(CustomerOrderCriteria criteria) {
+    public CustomerOrderReportResponseDTO generateReportResponse(CustomerOrderCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<CustomerOrder> specification = createSpecification(criteria);
-        return customerOrderRepository.findAll(specification).stream()
+        List<CustomerOrderSummaryDTO> orders = customerOrderRepository.findAll(specification).stream()
             .map(customerOrderMapper::toDto)
             .collect(Collectors.toList());
+
+        OrderSummary summary = customerOrderRepository.getSummary();
+
+//        BigDecimal postVatTotal = orders.stream().map(CustomerOrderSummaryDTO::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new CustomerOrderReportResponseDTO(summary.getCount(), summary.getPreVatTotal(), summary.getPostVatTotal(), orders);
     }
 
     /**
