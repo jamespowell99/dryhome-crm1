@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.domain.OrderItem;
+import uk.co.dryhome.domain.enumeration.OrderStatus;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.repository.ProductRepository;
@@ -17,6 +18,7 @@ import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.service.dto.OrderItemDTO;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,6 +43,16 @@ public class CustomerOrderService {
     public CustomerOrderDetailDTO create(CustomerOrderDetailDTO customerOrderDetailDTO) {
         log.debug("Request to create CustomerOrder : {}", customerOrderDetailDTO);
         final CustomerOrder customerOrder = customerOrderMapper.detailToEntity(customerOrderDetailDTO);
+
+        customerOrder.getItems().forEach(i -> {
+            i.setSubTotal(i.getPrice().multiply(BigDecimal.valueOf(i.getQuantity())));
+        });
+        customerOrder.setSubTotal(customerOrder.getItems().stream().map(OrderItem::getSubTotal).reduce(BigDecimal.ZERO, BigDecimal::add));
+        customerOrder.setVatAmount(customerOrder.getSubTotal().multiply(customerOrder.getVatRate().divide(BigDecimal.valueOf(100),3, BigDecimal.ROUND_HALF_UP)).setScale(2, BigDecimal.ROUND_HALF_UP));
+        customerOrder.setTotal(customerOrder.getSubTotal().add(customerOrder.getVatAmount()));
+
+        customerOrder.setStatus(getStatus(customerOrder));
+
         CustomerOrder savedCustomerOrder = customerOrderRepository.save(customerOrder);
         customerOrder.getItems().forEach( i -> {
             i.setCustomerOrder(savedCustomerOrder);
@@ -50,6 +62,19 @@ public class CustomerOrderService {
         return customerOrderMapper.toDetailDto(savedCustomerOrder);
 
     }
+
+    private OrderStatus getStatus(CustomerOrder customerOrder) {
+        if (customerOrder.getPaymentDate() != null) {
+            return OrderStatus.PAID;
+        } else if (customerOrder.getInvoiceDate() != null) {
+            return OrderStatus.INVOICED;
+        } else if (customerOrder.getDespatchDate() != null) {
+            return OrderStatus.DESPATCHED;
+        } else {
+            return OrderStatus.PLACED;
+        }
+    }
+
     /**
      * Save a customerOrder.
      *
@@ -78,6 +103,8 @@ public class CustomerOrderService {
             existingItem.setQuantity(i.getQuantity());
             existingItem.setNotes(i.getNotes());
             existingItem.setSerialNumber(i.getSerialNumber());
+            existingItem.setSubTotal(existingItem.getPrice().multiply(BigDecimal.valueOf(existingItem.getQuantity())));
+
             log.info("Updating item: {}", existingItem);
             orderItemRepository.save(existingItem);
         });
@@ -89,6 +116,8 @@ public class CustomerOrderService {
             .map(ie -> ie.customerOrder(newCustomerOrder))
             .forEach(ie -> {
                 ie.setProduct(productRepository.findById(ie.getProduct().getId()).orElseThrow(() -> new RuntimeException("product not found: " + ie.getProduct().getId())));
+                ie.setSubTotal(ie.getPrice().multiply(BigDecimal.valueOf(ie.getQuantity())));
+
                 orderItemRepository.save(ie);
                 newCustomerOrder.addItems(ie);
             });
@@ -104,6 +133,12 @@ public class CustomerOrderService {
         orderItemRepository.deleteAll(itemsToDelete);
 
         CustomerOrder savedCustomerOrder = customerOrderRepository.save(newCustomerOrder);
+
+        savedCustomerOrder.setSubTotal(savedCustomerOrder.getItems().stream().map(OrderItem::getSubTotal).reduce(BigDecimal.ZERO, BigDecimal::add));
+        savedCustomerOrder.setVatAmount(savedCustomerOrder.getSubTotal().multiply(savedCustomerOrder.getVatRate().divide(BigDecimal.valueOf(100),3, BigDecimal.ROUND_HALF_UP)).setScale(2, BigDecimal.ROUND_HALF_UP));
+        savedCustomerOrder.setTotal(savedCustomerOrder.getSubTotal().add(savedCustomerOrder.getVatAmount()));
+
+        savedCustomerOrder.setStatus(getStatus(savedCustomerOrder));
 
         CustomerOrderDetailDTO result = customerOrderMapper.toDetailDto(savedCustomerOrder);
         return result;

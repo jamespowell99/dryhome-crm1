@@ -40,7 +40,10 @@ public class OrderItem implements Serializable {
     @Column(name = "serial_number")
     private String serialNumber;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @Column(name = "sub_total", precision = 10, scale = 2)
+    private BigDecimal subTotal;
+
+    @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties("orderItems")
     private Product product;
@@ -111,6 +114,19 @@ public class OrderItem implements Serializable {
         this.serialNumber = serialNumber;
     }
 
+    public BigDecimal getSubTotal() {
+        return subTotal;
+    }
+
+    public OrderItem subTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
+        return this;
+    }
+
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
+    }
+
     public Product getProduct() {
         return product;
     }
@@ -153,10 +169,6 @@ public class OrderItem implements Serializable {
         return Objects.equals(getId(), orderItem.getId());
     }
 
-    public BigDecimal getSubTotal() {
-        return price.multiply(BigDecimal.valueOf(quantity));
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(getId());
@@ -170,6 +182,7 @@ public class OrderItem implements Serializable {
             ", quantity=" + getQuantity() +
             ", notes='" + getNotes() + "'" +
             ", serialNumber='" + getSerialNumber() + "'" +
+            ", subTotal=" + getSubTotal() +
             "}";
     }
 }

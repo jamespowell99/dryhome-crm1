@@ -10,7 +10,7 @@
                 "required"
             ],
             "otherEntityField": "name",
-            "otherEntityRelationshipNameUndefined": true,
+            "otherEntityRelationshipNameUndefined": false,
             "otherEntityRelationshipName": "orderItem"
         },
         {
@@ -22,7 +22,7 @@
             ],
             "otherEntityField": "id",
             "otherEntityRelationshipName": "orderItem",
-            "otherEntityRelationshipNameUndefined": true
+            "otherEntityRelationshipNameUndefined": false
         }
     ],
     "fields": [
@@ -47,6 +47,10 @@
         {
             "fieldName": "serialNumber",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "subTotal",
+            "fieldType": "BigDecimal"
         }
     ],
     "changelogDate": "20190429203119",

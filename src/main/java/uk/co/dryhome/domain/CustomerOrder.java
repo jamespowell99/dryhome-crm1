@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import uk.co.dryhome.domain.enumeration.OrderMethod;
+import uk.co.dryhome.domain.enumeration.OrderStatus;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -121,6 +122,19 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
     @NotNull
     @JsonIgnoreProperties("customerOrders")
     private Customer customer;
+
+    @NotNull
+    private BigDecimal subTotal;
+
+    @NotNull
+    private BigDecimal vatAmount;
+
+    @NotNull
+    private BigDecimal total;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private OrderStatus status;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -365,6 +379,55 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
+    public BigDecimal getSubTotal() {
+        return subTotal;
+    }
+
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
+    }
+
+    public BigDecimal getVatAmount() {
+        return vatAmount;
+    }
+
+    public void setVatAmount(BigDecimal vatAmount) {
+        this.vatAmount = vatAmount;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
+    public CustomerOrder subTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
+        return this;
+    }
+    public CustomerOrder vatAmount(BigDecimal vatAmount) {
+        this.vatAmount = vatAmount;
+        return this;
+    }
+    public CustomerOrder total(BigDecimal total) {
+        this.total = total;
+        return this;
+    }
+    public CustomerOrder status(OrderStatus status) {
+        this.status = status;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -388,38 +451,28 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
     @Override
     public String toString() {
         return "CustomerOrder{" +
-            "id=" + getId() +
-            ", orderNumber='" + getOrderNumber() + "'" +
-            ", orderDate='" + getOrderDate() + "'" +
-            ", notes1='" + getNotes1() + "'" +
-            ", notes2='" + getNotes2() + "'" +
-            ", despatchDate='" + getDespatchDate() + "'" +
-            ", invoiceDate='" + getInvoiceDate() + "'" +
-            ", paymentDate='" + getPaymentDate() + "'" +
-            ", vatRate=" + getVatRate() +
-            ", internalNotes='" + getInternalNotes() + "'" +
-            ", invoiceNumber='" + getInvoiceNumber() + "'" +
-            ", paymentStatus='" + getPaymentStatus() + "'" +
-            ", paymentType='" + getPaymentType() + "'" +
-            ", paymentAmount=" + getPaymentAmount() +
-            ", placedBy='" + getPlacedBy() + "'" +
-            ", method='" + getMethod() + "'" +
-            "}";
-    }
-
-    public BigDecimal getSubTotal() {
-        return items.stream().map(OrderItem::getSubTotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public BigDecimal getVatAmount() {
-        //todo warning?
-        return getSubTotal().multiply(getVatRate().divide(BigDecimal.valueOf(100))).setScale(2, BigDecimal.ROUND_HALF_UP);
-
-    }
-
-    public BigDecimal getTotal() {
-        return getSubTotal().add(getVatAmount());
+            "id=" + id +
+            ", orderNumber='" + orderNumber + '\'' +
+            ", orderDate=" + orderDate +
+            ", notes1='" + notes1 + '\'' +
+            ", notes2='" + notes2 + '\'' +
+            ", despatchDate=" + despatchDate +
+            ", invoiceDate=" + invoiceDate +
+            ", paymentDate=" + paymentDate +
+            ", vatRate=" + vatRate +
+            ", internalNotes='" + internalNotes + '\'' +
+            ", invoiceNumber='" + invoiceNumber + '\'' +
+            ", paymentStatus='" + paymentStatus + '\'' +
+            ", paymentType='" + paymentType + '\'' +
+            ", paymentAmount=" + paymentAmount +
+            ", placedBy='" + placedBy + '\'' +
+            ", method=" + method +
+            ", customer=" + customer +
+            ", subTotal=" + subTotal +
+            ", vatAmount=" + vatAmount +
+            ", total=" + total +
+            ", status=" + status +
+            '}';
     }
 
     private String fieldToString(String field) {

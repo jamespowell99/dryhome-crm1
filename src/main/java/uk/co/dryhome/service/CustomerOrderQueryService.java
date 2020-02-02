@@ -1,8 +1,11 @@
 package uk.co.dryhome.service;
 
+import com.amazonaws.services.cloudsearchdomain.model.SearchStatus;
 import com.google.common.collect.ImmutableSet;
 import io.github.jhipster.service.QueryService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -12,9 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.domain.CustomerOrder;
+import uk.co.dryhome.domain.CustomerOrderSums;
 import uk.co.dryhome.domain.CustomerOrder_;
 import uk.co.dryhome.domain.Customer_;
 import uk.co.dryhome.domain.OrderItem_;
+import uk.co.dryhome.domain.enumeration.OrderStatus;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
@@ -24,10 +29,14 @@ import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * Service for executing complex queries for CustomerOrder entities in the database.
@@ -75,6 +84,21 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
         final Specification<CustomerOrder> specification = createSpecification(criteria);
         return customerOrderRepository.findAll(specification, page)
             .map(customerOrderMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Pair<CustomerOrderSums, Page<CustomerOrderSummaryDTO>> report(LocalDate startDate, LocalDate endDate, List<OrderStatus> statuses, Pageable page) {
+        LocalDate searchStartDate = ofNullable(startDate).orElse(LocalDate.of(1900, 01, 01));
+        LocalDate searchEndDate = ofNullable(endDate).orElse(LocalDate.of(3000, 01, 01));
+        List<OrderStatus> searchStatuses = ofNullable(statuses).orElse(Arrays.asList(OrderStatus.values()));
+
+        List<CustomerOrderSums> sums = customerOrderRepository.sumAmountsByOrderDateBetween(searchStartDate, searchEndDate, searchStatuses);
+        if (sums.size() != 1) {
+            throw new RuntimeException("sums size should be 1, was " + sums.size());
+        }
+        Page<CustomerOrderSummaryDTO> resultPage = customerOrderRepository.findByOrderDateBetweenAndStatusIn(searchStartDate, searchEndDate, searchStatuses, page)
+            .map(customerOrderMapper::toDto);
+        return new ImmutablePair<>(sums.get(0), resultPage);
     }
 
     /**

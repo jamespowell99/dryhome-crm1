@@ -20,6 +20,7 @@ import uk.co.dryhome.domain.CustomerOrder;
 import uk.co.dryhome.domain.OrderItem;
 import uk.co.dryhome.domain.Product;
 import uk.co.dryhome.domain.enumeration.OrderMethod;
+import uk.co.dryhome.domain.enumeration.OrderStatus;
 import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.repository.OrderItemRepository;
 import uk.co.dryhome.repository.ProductRepository;
@@ -199,16 +200,22 @@ public class CustomerOrderResourceIntTest {
             .paymentAmount(DEFAULT_PAYMENT_AMOUNT)
             .placedBy(DEFAULT_PLACED_BY)
             .method(DEFAULT_METHOD)
+            .status(OrderStatus.PAID)
             .addItems(new OrderItem()
                 .price(new BigDecimal("99.99"))
                 .quantity(2)
                 .notes("some notes")
                 .serialNumber("xyz")
-                .product(productRemcon))
+                .product(productRemcon)
+                .subTotal(new BigDecimal("199.98")))
             .addItems(new OrderItem()
                 .price(new BigDecimal("5.96"))
                 .quantity(1)
-                .product(productCarriage));
+                .product(productCarriage)
+                .subTotal(new BigDecimal("5.96")))
+            .subTotal(new BigDecimal("205.94"))
+            .vatAmount(new BigDecimal("41.19"))
+            .total(new BigDecimal("247.13"));
         // Add required entity
         Customer customer = CustomerResourceIntTest.createEntity(em);
         em.persist(customer);
@@ -1484,7 +1491,8 @@ public class CustomerOrderResourceIntTest {
             .price(DEFAULT_PRICE)
             .quantity(DEFAULT_QUANTITY)
             .notes(DEFAULT_NOTES)
-            .serialNumber(DEFAULT_SERIAL_NUMBER);
+            .serialNumber(DEFAULT_SERIAL_NUMBER)
+            .subTotal(BigDecimal.ONE);
         // Add required entity
         Product product = ProductResourceIntTest.createEntity(em);
         em.persist(product);

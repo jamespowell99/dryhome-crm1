@@ -9,7 +9,8 @@ export type ICrudSearchCustomerOrderAction<T> = (
   searchStatus: string,
   searchOrderNumber: string,
   searchInvoiceNumber: string,
-  searchOrderDate: string,
+  searchFromOrderDate: string,
+  searchToOrderDate: string,
   page?: number,
   size?: number,
   sort?: string

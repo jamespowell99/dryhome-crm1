@@ -76,6 +76,7 @@ class OrderItemGatlingTest extends Simulation {
                 , "quantity":"0"
                 , "notes":"SAMPLE_TEXT"
                 , "serialNumber":"SAMPLE_TEXT"
+                , "subTotal":"0"
                 }""")).asJSON
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_orderItem_url"))).exitHereIfFailed

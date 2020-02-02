@@ -2,10 +2,13 @@ package uk.co.dryhome.web.rest;
 
 import io.github.jhipster.web.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,10 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.dryhome.domain.CustomerOrderSums;
+import uk.co.dryhome.domain.enumeration.OrderStatus;
 import uk.co.dryhome.service.CustomerOrderQueryService;
 import uk.co.dryhome.service.CustomerOrderService;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.CustomerOrderReportDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
 import uk.co.dryhome.web.rest.util.HeaderUtil;
@@ -30,8 +36,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import static org.apache.commons.lang3.ObjectUtils.anyNotNull;
 
 /**
  * REST controller for managing CustomerOrder.
@@ -101,6 +110,29 @@ public class CustomerOrderResource {
         Page<CustomerOrderSummaryDTO> page = customerOrderQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/customer-orders");
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/customer-orders/report")
+    public ResponseEntity<?> reportCustomerOrders(
+            @RequestParam(name = "startDate", required = false) LocalDate startDate,
+            @RequestParam(name = "endDate", required = false) LocalDate endDate,
+            @RequestParam(name = "statuses", required = false) List<OrderStatus> statuses,
+            Pageable pageable) {
+        log.debug("REST request to get CustomerOrder report by dates: {} - {}", startDate, endDate);
+
+        if (!anyNotNull(startDate, endDate, statuses) ) {
+            return ResponseEntity.badRequest().body("no parameters provided");
+        }
+
+        if ((startDate != null && endDate == null) || (endDate != null && startDate == null)) {
+            return ResponseEntity.badRequest().body("date filter must contain start and end date");
+        }
+
+        Pair<CustomerOrderSums, Page<CustomerOrderSummaryDTO>> result = customerOrderQueryService.report(startDate, endDate, statuses, pageable);
+        Page<CustomerOrderSummaryDTO> page = result.getRight();
+        CustomerOrderSums sums = result.getLeft();
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/customer-orders");
+        return ResponseEntity.ok().headers(headers).body(new CustomerOrderReportDTO(sums.getCount(), sums.getSubTotal(), sums.getVatAmount(), sums.getTotal(), page.getContent()));
     }
 
     /**

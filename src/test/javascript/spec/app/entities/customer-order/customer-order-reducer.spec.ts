@@ -38,7 +38,12 @@ describe('Entities reducer tests', () => {
     updateSuccess: false,
     subTotal: 0,
     vatAmount: 0,
-    total: 0
+    total: 0,
+    sumSubTotals: 0,
+    sumTotals: 0,
+    searchFromOrderDate: '',
+    searchToOrderDate: '',
+    searchInvoiceNumber: ''
   };
 
   function testInitialState(state) {
@@ -246,7 +251,7 @@ describe('Entities reducer tests', () => {
         }
       ];
       await store
-        .dispatch(getSearchEntities('AWAITING_DESPATCH', '', '', ''))
+        .dispatch(getSearchEntities('AWAITING_DESPATCH', '', '', '', ''))
         .then(() => expect(store.getActions()).toEqual(expectedActions));
     });
 

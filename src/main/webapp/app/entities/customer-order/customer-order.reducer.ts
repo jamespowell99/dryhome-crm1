@@ -4,7 +4,7 @@ import { ICrudDeleteAction, ICrudGetAction, ICrudGetAllAction, ICrudPutAction, I
 import { cleanEntity } from 'app/shared/util/entity-utils';
 import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
 
-import { defaultValue, ICustomerOrder } from 'app/shared/model/customer-order.model';
+import { defaultValue, ICustomerOrder, ICustomerOrderReport } from 'app/shared/model/customer-order.model';
 import { IOrderItem } from 'app/shared/model/order-item.model';
 
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
@@ -13,6 +13,7 @@ import { ICrudSearchCustomerOrderAction } from 'app/entities/customer-order.redu
 
 export const ACTION_TYPES = {
   SEARCH_CUSTOMERORDERS: 'customerOrder/SEARCH_CUSTOMERORDERS',
+  SEARCH_CUSTOMERORDERS_BY_INVOICE_NUM: 'customerOrder/SEARCH_CUSTOMERORDERS_BY_INVOICE_NUM',
   FETCH_CUSTOMERORDER_LIST: 'customerOrder/FETCH_CUSTOMERORDER_LIST',
   FETCH_CUSTOMERORDER: 'customerOrder/FETCH_CUSTOMERORDER',
   CREATE_CUSTOMERORDER: 'customerOrder/CREATE_CUSTOMERORDER',
@@ -24,7 +25,10 @@ export const ACTION_TYPES = {
   PAYMENT_DATE_CHANGED: 'customerOrder/PAYMENT_DATE_CHANGED',
   ITEM_QTY_CHANGED: 'customerOrder/ITEM_QTY_CHANGED',
   ITEM_PRICE_CHANGED: 'customerOrder/ITEM_PRICE_CHANGED',
-  VAT_RATE_CHANGED: 'customerOrder/VAT_RATE_CHANGED'
+  VAT_RATE_CHANGED: 'customerOrder/VAT_RATE_CHANGED',
+  SEARCH_FROM_ORDER_DATE_CHANGED: 'customerOrder/SEARCH_FROM_ORDER_DATE_CHANGED',
+  SEARCH_TO_ORDER_DATE_CHANGED: 'customerOrder/SEARCH_TO_ORDER_DATE_CHANGED',
+  SEARCH_INVOICE_NUMBER_CHANGED: 'customerOrder/SEARCH_INVOICE_NUMBER_CHANGED'
 };
 
 const initialState = {
@@ -37,7 +41,13 @@ const initialState = {
   updateSuccess: false,
   subTotal: 0,
   vatAmount: 0,
-  total: 0
+  total: 0,
+  sumSubTotals: 0,
+  sumTotals: 0,
+
+  searchFromOrderDate: '',
+  searchToOrderDate: '',
+  searchInvoiceNumber: ''
 };
 
 export type CustomerOrderState = Readonly<typeof initialState>;
@@ -47,6 +57,7 @@ export type CustomerOrderState = Readonly<typeof initialState>;
 export default (state: CustomerOrderState = initialState, action): CustomerOrderState => {
   switch (action.type) {
     case REQUEST(ACTION_TYPES.SEARCH_CUSTOMERORDERS):
+    case REQUEST(ACTION_TYPES.SEARCH_CUSTOMERORDERS_BY_INVOICE_NUM):
     case REQUEST(ACTION_TYPES.FETCH_CUSTOMERORDER_LIST):
     case REQUEST(ACTION_TYPES.FETCH_CUSTOMERORDER):
       return {
@@ -65,6 +76,7 @@ export default (state: CustomerOrderState = initialState, action): CustomerOrder
         updating: true
       };
     case FAILURE(ACTION_TYPES.SEARCH_CUSTOMERORDERS):
+    case FAILURE(ACTION_TYPES.SEARCH_CUSTOMERORDERS_BY_INVOICE_NUM):
     case FAILURE(ACTION_TYPES.FETCH_CUSTOMERORDER_LIST):
     case FAILURE(ACTION_TYPES.FETCH_CUSTOMERORDER):
     case FAILURE(ACTION_TYPES.CREATE_CUSTOMERORDER):
@@ -78,12 +90,31 @@ export default (state: CustomerOrderState = initialState, action): CustomerOrder
         errorMessage: action.payload
       };
     case SUCCESS(ACTION_TYPES.SEARCH_CUSTOMERORDERS):
+      return {
+        ...state,
+        loading: false,
+        totalItems: action.payload.headers['x-total-count'],
+        entities: action.payload.data.orders,
+        sumSubTotals: action.payload.data.subTotal,
+        sumTotals: action.payload.data.total
+      };
+    case SUCCESS(ACTION_TYPES.SEARCH_CUSTOMERORDERS_BY_INVOICE_NUM):
+      return {
+        ...state,
+        loading: false,
+        totalItems: action.payload.headers['x-total-count'],
+        entities: action.payload.data,
+        sumSubTotals: 0,
+        sumTotals: 0
+      };
     case SUCCESS(ACTION_TYPES.FETCH_CUSTOMERORDER_LIST):
       return {
         ...state,
         loading: false,
         totalItems: action.payload.headers['x-total-count'],
-        entities: action.payload.data
+        entities: action.payload.data,
+        sumSubTotals: 0,
+        sumTotals: 0
       };
     case SUCCESS(ACTION_TYPES.FETCH_CUSTOMERORDER):
       return {
@@ -200,6 +231,25 @@ export default (state: CustomerOrderState = initialState, action): CustomerOrder
           vatRate: action.payload.newVatRate
         }
       };
+    case ACTION_TYPES.SEARCH_FROM_ORDER_DATE_CHANGED:
+      return {
+        ...state,
+        searchFromOrderDate: action.payload.newSearchFromOrderDate,
+        searchInvoiceNumber: action.payload.newSearchFromOrderDate ? '' : state.searchInvoiceNumber
+      };
+    case ACTION_TYPES.SEARCH_TO_ORDER_DATE_CHANGED:
+      return {
+        ...state,
+        searchToOrderDate: action.payload.newSearchToOrderDate,
+        searchInvoiceNumber: action.payload.newSearchToOrderDate ? '' : state.searchInvoiceNumber
+      };
+    case ACTION_TYPES.SEARCH_INVOICE_NUMBER_CHANGED:
+      return {
+        ...state,
+        searchInvoiceNumber: action.payload.newInvoiceNumber,
+        searchFromOrderDate: '',
+        searchToOrderDate: ''
+      };
     default:
       return state;
   }
@@ -214,31 +264,31 @@ export const getSearchEntities: ICrudSearchCustomerOrderAction<ICustomerOrder> =
   searchStatus,
   searchOrderNumber,
   searchInvoiceNumber,
-  searchOrderDate,
+  searchFromOrderDate,
+  searchToOrderDate,
   page,
   size,
   sort
 ) => {
-  let requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}`;
-  let statusParam;
-  if (searchStatus === 'AWAITING_DESPATCH') {
-    statusParam = `&despatchDate.specified=false`;
-  } else if (searchStatus === 'AWAITING_INVOICE') {
-    statusParam = `&invoiceDate.specified=false`;
-  } else if (searchStatus === 'AWAITING_PAYMENT') {
-    statusParam = `&paymentDate.specified=false`;
-  } else if (searchStatus === 'COMPLETED') {
-    statusParam = `&despatchDate.specified=true&invoiceDate.specified=true&paymentDate.specified=true`;
-  }
+  if (searchInvoiceNumber) {
+    const requestUrl = `${apiUrl}?page=${page}&size=${size}&sort=${sort}&invoiceNumber.equals=${searchInvoiceNumber}`;
+    return {
+      type: ACTION_TYPES.SEARCH_CUSTOMERORDERS_BY_INVOICE_NUM,
+      payload: axios.get<ICustomerOrder>(requestUrl)
+    };
+  } else {
+    let requestUrl = `${apiUrl}/report?page=${page}&size=${size}&sort=${sort}`;
 
-  requestUrl += `${statusParam ? `${statusParam}` : ''}`;
-  requestUrl += `${searchOrderNumber ? `&orderNumber.equals=${searchOrderNumber}` : ''}`;
-  requestUrl += `${searchInvoiceNumber ? `&invoiceNumber.contains=${searchInvoiceNumber}` : ''}`;
-  requestUrl += `${searchOrderDate ? `&orderDate.equals=${searchOrderDate}` : ''}`;
-  return {
-    type: ACTION_TYPES.SEARCH_CUSTOMERORDERS,
-    payload: axios.get<ICustomerOrder>(requestUrl)
-  };
+    requestUrl += `${searchStatus ? `&statuses=${searchStatus}` : ''}`;
+    // requestUrl += `${searchOrderNumber ? `&orderNumber.equals=${searchOrderNumber}` : ''}`;
+    // requestUrl += `${searchInvoiceNumber ? `&invoiceNumber.contains=${searchInvoiceNumber}` : ''}`;
+    requestUrl += `${searchFromOrderDate ? `&startDate=${searchFromOrderDate}` : ''}`;
+    requestUrl += `${searchToOrderDate ? `&endDate=${searchToOrderDate}` : ''}`;
+    return {
+      type: ACTION_TYPES.SEARCH_CUSTOMERORDERS,
+      payload: axios.get<ICustomerOrderReport>(requestUrl)
+    };
+  }
 };
 
 export const getEntities: ICrudGetAllAction<ICustomerOrder> = (page, size, sort) => {
@@ -327,6 +377,27 @@ export const vatRateChanged = newVatRate => ({
   type: ACTION_TYPES.VAT_RATE_CHANGED,
   payload: {
     newVatRate
+  }
+});
+
+export const searchFromOrderDateChanged = newSearchFromOrderDate => ({
+  type: ACTION_TYPES.SEARCH_FROM_ORDER_DATE_CHANGED,
+  payload: {
+    newSearchFromOrderDate
+  }
+});
+
+export const searchToOrderDateChanged = newSearchToOrderDate => ({
+  type: ACTION_TYPES.SEARCH_TO_ORDER_DATE_CHANGED,
+  payload: {
+    newSearchToOrderDate
+  }
+});
+
+export const searchInvoiceNumberChanged = newInvoiceNumber => ({
+  type: ACTION_TYPES.SEARCH_INVOICE_NUMBER_CHANGED,
+  payload: {
+    newInvoiceNumber
   }
 });
 

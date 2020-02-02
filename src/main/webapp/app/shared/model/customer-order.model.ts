@@ -16,6 +16,14 @@ export interface IAddress {
   postCode?: string;
 }
 
+export interface ICustomerOrderReport {
+  count?: number;
+  subTotal?: number;
+  vatAmount?: number;
+  total?: number;
+  orders?: ICustomerOrder[];
+}
+
 export interface ICustomerOrder {
   id?: number;
   orderNumber?: string;
