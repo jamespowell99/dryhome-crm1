@@ -1,17 +1,17 @@
 import React from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Container, InputGroup, Row, Table } from 'reactstrap';
+import { Button, Col, Container, InputGroup, Row, Table, Collapse, Card, CardBody } from 'reactstrap';
 import { AvField, AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
 import { getPaginationItemsNumber, IPaginationBaseState, JhiPagination, TextFormat } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
 import {
-  getSearchEntities,
   getEntities,
+  getSearchEntities,
   searchFromOrderDateChanged,
-  searchToOrderDateChanged,
-  searchInvoiceNumberChanged
+  searchInvoiceNumberChanged,
+  searchToOrderDateChanged
 } from './customer-order.reducer';
 // tslint:disable-next-line:no-unused-variable
 import { APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
@@ -25,12 +25,14 @@ export interface ICustomerOrderProps extends StateProps, DispatchProps, RouteCom
 export interface ICustomerOrderState extends IPaginationBaseState {
   searchStatus: string;
   searchOrderNumber: string;
+  searchTabOpen: boolean;
 }
 
 export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustomerOrderState> {
   state: ICustomerOrderState = {
     searchStatus: '',
     searchOrderNumber: '',
+    searchTabOpen: false,
     ...getSortState(this.props.location, ITEMS_PER_PAGE)
   };
 
@@ -251,6 +253,25 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
     this.props.searchToOrderDateChanged(end);
   };
 
+  toggleSearchTab = () => {
+    if (this.searchFieldsPresent() || this.state.searchTabOpen) {
+      this.clear();
+      this.setState({ searchTabOpen: false });
+    } else {
+      this.setState({ searchTabOpen: true });
+    }
+  };
+
+  searchFieldsPresent(): boolean {
+    return !!(
+      this.state.searchStatus ||
+      this.state.searchOrderNumber ||
+      this.props.searchInvoiceNumber ||
+      this.props.searchFromOrderDate ||
+      this.props.searchToOrderDate
+    );
+  }
+
   render() {
     const { customerOrderList, match, totalItems, sumSubTotals, sumTotals } = this.props;
     return (
@@ -258,142 +279,155 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
         <h2 id="customer-order-heading">Customer Orders</h2>
         <Row>
           <Col sm="12">
-            <AvForm onSubmit={this.search} className="border">
-              <span>Search</span>
-              <AvGroup>
-                <Container>
-                  <Row>
-                    <Col>
-                      <span>status: </span>
-                      <AvInput
-                        id="search-status"
-                        type="select"
-                        name="status"
-                        className="m-1"
-                        value={this.state.searchStatus}
-                        onChange={this.handleSearchStatusChange}
-                      >
-                        <option value="" />
-                        {/* no filter*/}
-                        <option value="PLACED">Awaiting Despatch</option>
-                        {/*no despatch_date*/}
-                        <option value="DESPATCHED">Awaiting Invoice</option>
-                        {/*no invoice_date*/}
-                        <option value="INVOICED">Awaiting Payment</option>
-                        {/*no payment_date*/}
-                        <option value="PAID">Completed</option>
-                        {/*despatch_date, invoice_date, payment_date set*/}
-                      </AvInput>
+            <AvForm onSubmit={this.search}>
+              <Button color="primary" onClick={this.toggleSearchTab} style={{ marginBottom: '1rem' }}>
+                {this.searchFieldsPresent() || this.state.searchTabOpen ? 'Filter <<' : 'Filter >>'}
+              </Button>
+              <Collapse isOpen={this.searchFieldsPresent() || this.state.searchTabOpen}>
+                <Card>
+                  <CardBody>
+                    <Container>
                       <Row>
                         <Col>
-                          <span>From order date: </span>
-                          <AvField
-                            id="searchFromOrderDate"
-                            type="date"
-                            name="searchFromOrderDate"
-                            onChange={this.handleSearchFromOrderDateChange}
-                            value={this.props.searchFromOrderDate}
-                            className="m-1"
-                          />
-                        </Col>
-                        <Col>
-                          <span>To order date: </span>
-                          <AvField
-                            id="searchToOrderDate"
-                            type="date"
-                            name="searchToOrderDate"
-                            onChange={this.handleSearchToOrderDateChange}
-                            value={this.props.searchToOrderDate}
-                            className="m-1"
-                          />
+                          <Row>
+                            <Col>
+                              <span>Invoice Number</span>
+
+                              <AvInput
+                                type="text"
+                                name="searchInvoiceNumber"
+                                onChange={this.handleSearchInvoiceNumberChange}
+                                value={this.props.searchInvoiceNumber}
+                                className="m-1"
+                              />
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col>
+                              <span>status: </span>
+                              <AvInput
+                                id="search-status"
+                                type="select"
+                                name="status"
+                                className="m-1"
+                                value={this.state.searchStatus}
+                                onChange={this.handleSearchStatusChange}
+                              >
+                                <option value="" />
+                                {/* no filter*/}
+                                <option value="PLACED">Awaiting Despatch</option>
+                                {/*no despatch_date*/}
+                                <option value="DESPATCHED">Awaiting Invoice</option>
+                                {/*no invoice_date*/}
+                                <option value="INVOICED">Awaiting Payment</option>
+                                {/*no payment_date*/}
+                                <option value="PAID">Completed</option>
+                                {/*despatch_date, invoice_date, payment_date set*/}
+                              </AvInput>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col>
+                              <span>From order date: </span>
+                              <AvField
+                                id="searchFromOrderDate"
+                                type="date"
+                                name="searchFromOrderDate"
+                                onChange={this.handleSearchFromOrderDateChange}
+                                value={this.props.searchFromOrderDate}
+                                className="m-1"
+                              />
+                            </Col>
+                            <Col>
+                              <span>To order date: </span>
+                              <AvField
+                                id="searchToOrderDate"
+                                type="date"
+                                name="searchToOrderDate"
+                                onChange={this.handleSearchToOrderDateChange}
+                                value={this.props.searchToOrderDate}
+                                className="m-1"
+                              />
+                            </Col>
+                          </Row>
+                          <Button color="primary" size="sm" onClick={this.clickDateRangeThisMonth}>
+                            This Month
+                          </Button>{' '}
+                          <Button color="primary" size="sm" onClick={this.clickDateRangeLastMonth}>
+                            Last Month
+                          </Button>{' '}
+                          <Button color="primary" size="sm" onClick={this.clickDateRangeThisYear}>
+                            This Year
+                          </Button>{' '}
+                          <Button color="primary" size="sm" onClick={this.clickDateRangeLastYear}>
+                            Last Year
+                          </Button>{' '}
+                          <Button color="primary" size="sm" onClick={this.clickDateRangeThisFY}>
+                            This FY
+                          </Button>{' '}
+                          <Button color="primary" size="sm" onClick={this.clickDateRangeLastFY}>
+                            Last FY
+                          </Button>{' '}
+                          <Button color="primary" size="sm" onClick={this.clickDateRangeLast12Months}>
+                            Last 12 Months
+                          </Button>{' '}
+                          <Button color="primary" size="sm" onClick={this.clickDateRangePrevious12Months}>
+                            Previous 12 Months
+                          </Button>{' '}
                         </Col>
                       </Row>
-                      <Button color="primary" size="sm" onClick={this.clickDateRangeThisMonth}>
-                        This Month
-                      </Button>{' '}
-                      <Button color="primary" size="sm" onClick={this.clickDateRangeLastMonth}>
-                        Last Month
-                      </Button>{' '}
-                      <Button color="primary" size="sm" onClick={this.clickDateRangeThisYear}>
-                        This Year
-                      </Button>{' '}
-                      <Button color="primary" size="sm" onClick={this.clickDateRangeLastYear}>
-                        Last Year
-                      </Button>{' '}
-                      <Button color="primary" size="sm" onClick={this.clickDateRangeThisFY}>
-                        This FY
-                      </Button>{' '}
-                      <Button color="primary" size="sm" onClick={this.clickDateRangeLastFY}>
-                        Last FY
-                      </Button>{' '}
-                      <Button color="primary" size="sm" onClick={this.clickDateRangeLast12Months}>
-                        Last 12 Months
-                      </Button>{' '}
-                      <Button color="primary" size="sm" onClick={this.clickDateRangePrevious12Months}>
-                        Previous 12 Months
-                      </Button>{' '}
-                    </Col>
-                    {/*todo reinstate these*/}
-                    {/*<Col>*/}
-                    {/*<span>Order Number: </span>*/}
-                    {/*<AvInput*/}
-                    {/*type="text"*/}
-                    {/*name="searchOrderNumber"*/}
-                    {/*value={this.state.searchOrderNumber}*/}
-                    {/*onChange={this.handleSearchOrderNumberChange}*/}
-                    {/*placeholder="Order Number"*/}
-                    {/*className="m-1"*/}
-                    {/*/>*/}
-                    {/*<span>Invoice Number: </span>*/}
 
-                    <AvInput
-                      type="text"
-                      name="searchInvoiceNumber"
-                      onChange={this.handleSearchInvoiceNumberChange}
-                      value={this.props.searchInvoiceNumber}
-                      placeholder="Invoice Number"
-                      className="m-1"
-                    />
-                    {/*</Col>*/}
-                  </Row>
-
-                  <Row>
-                    <div className="mt-2">
-                      <Button className="input-group-addon mx-1">
-                        <FontAwesomeIcon icon="search" />
-                      </Button>
-                      <Button type="reset" className="input-group-addon" onClick={this.clear}>
-                        <FontAwesomeIcon icon="trash" />
-                      </Button>
-                    </div>
-                    <Container className="mt-3">
-                      <Col>
-                        <b>{totalItems}</b> <span>Records</span>
-                      </Col>
-                      <Col>
-                        {sumSubTotals ? (
-                          <div>
-                            <span>Total Pre VAT:</span>{' '}
-                            <b>£{sumSubTotals.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
-                          </div>
-                        ) : (
-                          <div />
-                        )}
-                      </Col>
-                      <Col>
-                        {sumTotals ? (
-                          <div>
-                            <span>Total Post VAT:</span>{' '}
-                            <b>£{sumTotals.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
-                          </div>
-                        ) : (
-                          <div />
-                        )}
-                      </Col>
+                      <Row>
+                        <div className="mt-2">
+                          <Button className="input-group-addon mx-1">
+                            <FontAwesomeIcon icon="search" />
+                          </Button>
+                          <Button type="reset" className="input-group-addon" onClick={this.clear}>
+                            <FontAwesomeIcon icon="trash" />
+                          </Button>
+                        </div>
+                        <Container className="mt-3">
+                          <Col>
+                            <b>{totalItems}</b> <span>Records</span>
+                          </Col>
+                          <Col>
+                            {sumSubTotals ? (
+                              <div>
+                                <span>Total Pre VAT:</span>{' '}
+                                <b>
+                                  £
+                                  {sumSubTotals.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                  })}
+                                </b>
+                              </div>
+                            ) : (
+                              <div />
+                            )}
+                          </Col>
+                          <Col>
+                            {sumTotals ? (
+                              <div>
+                                <span>Total Post VAT:</span>{' '}
+                                <b>
+                                  £
+                                  {sumTotals.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                  })}
+                                </b>
+                              </div>
+                            ) : (
+                              <div />
+                            )}
+                          </Col>
+                        </Container>
+                      </Row>
                     </Container>
-                  </Row>
-                </Container>
-              </AvGroup>
+                  </CardBody>
+                </Card>
+              </Collapse>
             </AvForm>
           </Col>
         </Row>
