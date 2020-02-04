@@ -24,12 +24,18 @@ import uk.co.dryhome.repository.CustomerOrderRepository;
 import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
+import uk.co.dryhome.service.dto.CustomerOrderStatsDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
+import uk.co.dryhome.service.dto.Stat;
+import uk.co.dryhome.service.dto.StatIndividual;
 import uk.co.dryhome.service.mapper.CustomerOrderMapper;
 
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -212,5 +218,47 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
     @Override
     public void createDocument(Long id, HttpServletResponse response, String documentName) {
         mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, customerOrderRepository.getOne(id));
+    }
+
+    public CustomerOrderStatsDTO generateStats() {
+        LocalDate now = LocalDate.now();
+
+        LocalDate lastMonth = LocalDate.now().minusMonths(1);
+        Stat monthStat = getStats(
+            now.withDayOfMonth(1),
+            LocalDate.now().withDayOfMonth(now.lengthOfMonth()),
+            now.minusMonths(1).withDayOfMonth(1),
+            lastMonth.withDayOfMonth(lastMonth.lengthOfMonth())
+            );
+
+        Stat yearStats = getStats(
+            now.withMonth(1).withDayOfMonth(1),
+            now.withMonth(12).withDayOfMonth(31),
+            now.minusYears(1).withMonth(1).withDayOfMonth(1),
+            now.minusYears(1).withMonth(12).withDayOfMonth(31));
+
+        Stat past12MonthStats = getStats(
+            now.minusYears(1).plusDays(1),
+            now,
+            now.minusYears(2).plusDays(1),
+            now.minusYears(1)
+        );
+
+        return new CustomerOrderStatsDTO(monthStat, yearStats, past12MonthStats);
+    }
+
+    private Stat getStats(LocalDate currentStart, LocalDate currentEnd, LocalDate previousStart, LocalDate previousEnd) {
+        List<OrderStatus> allStatuses = Arrays.asList(OrderStatus.values());
+        List<CustomerOrderSums> thisSums = customerOrderRepository.sumAmountsByOrderDateBetween(currentStart, currentEnd, allStatuses);
+        List<CustomerOrderSums> lastSums = customerOrderRepository.sumAmountsByOrderDateBetween(previousStart, previousEnd, allStatuses);
+
+
+        CustomerOrderSums thisVal = thisSums.get(0);
+        StatIndividual current = new StatIndividual(thisVal.getCount(), thisVal.getTotal() == null ? BigDecimal.ZERO : thisVal.getTotal(), currentStart, currentEnd);
+
+        CustomerOrderSums lastVal = lastSums.get(0);
+        StatIndividual last = new StatIndividual(lastVal.getCount(), lastVal.getTotal() == null ? BigDecimal.ZERO : lastVal.getTotal(), previousStart, previousEnd);
+        BigDecimal diff = current.getTotal().subtract(last.getTotal());
+        return new Stat(current, last, diff);
     }
 }

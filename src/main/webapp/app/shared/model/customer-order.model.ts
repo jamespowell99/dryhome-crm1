@@ -53,5 +53,24 @@ export interface ICustomerOrder {
   invoiceAddress?: IAddress;
   deliveryAddress?: IAddress;
 }
+
+export interface ICustomerOrderStats {
+  month?: IStat;
+  year?: IStat;
+  past12Months?: IStat;
+}
+
+export interface IStat {
+  current?: IStatIndividual;
+  last?: IStatIndividual;
+  diff?: number;
+}
+
+export interface IStatIndividual {
+  count?: number;
+  total?: number;
+  start?: Moment;
+  end?: Moment;
+}
 // todo move vatRate to constant
 export const defaultValue: Readonly<ICustomerOrder> = { items: [{}], vatRate: 20 };

@@ -11,10 +11,11 @@ import {
   getSearchEntities,
   searchFromOrderDateChanged,
   searchInvoiceNumberChanged,
-  searchToOrderDateChanged
+  searchToOrderDateChanged,
+  getOrderStats
 } from './customer-order.reducer';
 // tslint:disable-next-line:no-unused-variable
-import { APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_LOCAL_DATE_FORMAT, APP_LOCAL_DATE_FORMAT_SHORT } from 'app/config/constants';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 import { IRootState } from 'app/shared/reducers';
 import { connect } from 'react-redux';
@@ -38,6 +39,7 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
 
   componentDidMount() {
     this.getEntities();
+    this.props.getOrderStats();
   }
 
   search = () => {
@@ -273,7 +275,7 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
   }
 
   render() {
-    const { customerOrderList, match, totalItems, sumSubTotals, sumTotals } = this.props;
+    const { customerOrderList, match, totalItems, sumSubTotals, sumTotals, customerOrderStats } = this.props;
     return (
       <div>
         <h2 id="customer-order-heading">Customer Orders</h2>
@@ -431,6 +433,123 @@ export class CustomerOrder extends React.Component<ICustomerOrderProps, ICustome
             </AvForm>
           </Col>
         </Row>
+        {!this.searchFieldsPresent() && !this.state.searchTabOpen && customerOrderStats ? (
+          <Row>
+            <Card>
+              <CardBody>
+                <h5>Stats</h5>
+                <Row>
+                  <Col>
+                    <b>Month</b>
+                    <p>
+                      Current:{' '}
+                      <b>
+                        £
+                        {customerOrderStats.month.current.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </b>
+                      (<TextFormat type="date" value={customerOrderStats.month.current.start} format={APP_LOCAL_DATE_FORMAT_SHORT} />-
+                      <TextFormat type="date" value={customerOrderStats.month.current.end} format={APP_LOCAL_DATE_FORMAT_SHORT} />)
+                    </p>
+                    <p>
+                      Previous:{' '}
+                      <b>
+                        £
+                        {customerOrderStats.month.last.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </b>
+                      (<TextFormat type="date" value={customerOrderStats.month.last.start} format={APP_LOCAL_DATE_FORMAT_SHORT} />-
+                      <TextFormat type="date" value={customerOrderStats.month.last.end} format={APP_LOCAL_DATE_FORMAT_SHORT} />)
+                    </p>
+                    <p>
+                      Diff:{' '}
+                      <b>
+                        £{customerOrderStats.month.diff.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </b>
+                    </p>
+                  </Col>
+                  <Col>
+                    <b>Year</b>
+                    <p>
+                      Current:{' '}
+                      <b>
+                        £
+                        {customerOrderStats.year.current.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </b>
+                      (<TextFormat type="date" value={customerOrderStats.year.current.start} format={APP_LOCAL_DATE_FORMAT_SHORT} />-
+                      <TextFormat type="date" value={customerOrderStats.year.current.end} format={APP_LOCAL_DATE_FORMAT_SHORT} />)
+                    </p>
+                    <p>
+                      Previous:{' '}
+                      <b>
+                        £
+                        {customerOrderStats.year.last.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </b>
+                      (<TextFormat type="date" value={customerOrderStats.year.last.start} format={APP_LOCAL_DATE_FORMAT_SHORT} />-
+                      <TextFormat type="date" value={customerOrderStats.year.last.end} format={APP_LOCAL_DATE_FORMAT_SHORT} />)
+                    </p>
+                    <p>
+                      Diff:{' '}
+                      <b>
+                        £{customerOrderStats.year.diff.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </b>
+                    </p>
+                  </Col>
+                  <Col>
+                    <b>Past 12 months</b>
+                    <p>
+                      Last:{' '}
+                      <b>
+                        £
+                        {customerOrderStats.past12Months.current.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </b>
+                      (<TextFormat type="date" value={customerOrderStats.past12Months.current.start} format={APP_LOCAL_DATE_FORMAT_SHORT} />
+                      -<TextFormat type="date" value={customerOrderStats.past12Months.current.end} format={APP_LOCAL_DATE_FORMAT_SHORT} />)
+                    </p>
+                    <p>
+                      Previous:{' '}
+                      <b>
+                        £
+                        {customerOrderStats.past12Months.last.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </b>
+                      (<TextFormat type="date" value={customerOrderStats.past12Months.last.start} format={APP_LOCAL_DATE_FORMAT_SHORT} />-
+                      <TextFormat type="date" value={customerOrderStats.past12Months.last.end} format={APP_LOCAL_DATE_FORMAT_SHORT} />)
+                    </p>
+                    <p>
+                      Diff:{' '}
+                      <b>
+                        £
+                        {customerOrderStats.past12Months.diff.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}
+                      </b>
+                    </p>
+                  </Col>
+                </Row>
+              </CardBody>
+            </Card>
+          </Row>
+        ) : (
+          <div />
+        )}
+
         <div className="table-responsive">
           <Table responsive>
             <thead>
@@ -536,7 +655,8 @@ const mapStateToProps = ({ customerOrder }: IRootState) => ({
   sumTotals: customerOrder.sumTotals,
   searchFromOrderDate: customerOrder.searchFromOrderDate,
   searchToOrderDate: customerOrder.searchToOrderDate,
-  searchInvoiceNumber: customerOrder.searchInvoiceNumber
+  searchInvoiceNumber: customerOrder.searchInvoiceNumber,
+  customerOrderStats: customerOrder.customerOrderStats
 });
 
 const mapDispatchToProps = {
@@ -544,7 +664,8 @@ const mapDispatchToProps = {
   getEntities,
   searchFromOrderDateChanged,
   searchToOrderDateChanged,
-  searchInvoiceNumberChanged
+  searchInvoiceNumberChanged,
+  getOrderStats
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

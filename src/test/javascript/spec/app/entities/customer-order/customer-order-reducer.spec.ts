@@ -43,7 +43,8 @@ describe('Entities reducer tests', () => {
     sumTotals: 0,
     searchFromOrderDate: '',
     searchToOrderDate: '',
-    searchInvoiceNumber: ''
+    searchInvoiceNumber: '',
+    customerOrderStats: null
   };
 
   function testInitialState(state) {

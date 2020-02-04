@@ -15,3 +15,5 @@ export type ICrudSearchCustomerOrderAction<T> = (
   size?: number,
   sort?: string
 ) => IPayload<T> | ((dispatch: any) => IPayload<T>);
+
+export type ICrudNoArgs<T> = () => IPayload<T>;

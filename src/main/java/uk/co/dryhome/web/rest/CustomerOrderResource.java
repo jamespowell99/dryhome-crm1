@@ -27,6 +27,7 @@ import uk.co.dryhome.service.CustomerOrderService;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.CustomerOrderReportDTO;
+import uk.co.dryhome.service.dto.CustomerOrderStatsDTO;
 import uk.co.dryhome.service.dto.CustomerOrderSummaryDTO;
 import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
 import uk.co.dryhome.web.rest.util.HeaderUtil;
@@ -34,9 +35,11 @@ import uk.co.dryhome.web.rest.util.PaginationUtil;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -133,6 +136,13 @@ public class CustomerOrderResource {
         CustomerOrderSums sums = result.getLeft();
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/customer-orders");
         return ResponseEntity.ok().headers(headers).body(new CustomerOrderReportDTO(sums.getCount(), sums.getSubTotal(), sums.getVatAmount(), sums.getTotal(), page.getContent()));
+    }
+
+    @GetMapping("/customer-orders/stats")
+    public ResponseEntity<CustomerOrderStatsDTO> getOrderStats() {
+        log.debug("REST request to get CustomerOrder stats");
+
+        return ResponseEntity.ok(customerOrderQueryService.generateStats());
     }
 
     /**

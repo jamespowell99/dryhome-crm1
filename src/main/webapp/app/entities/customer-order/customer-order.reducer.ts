@@ -1,15 +1,15 @@
 import axios from 'axios';
-import { ICrudDeleteAction, ICrudGetAction, ICrudGetAllAction, ICrudPutAction, ICrudSearchAction } from 'react-jhipster';
+import { ICrudDeleteAction, ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipster';
 
 import { cleanEntity } from 'app/shared/util/entity-utils';
 import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
 
-import { defaultValue, ICustomerOrder, ICustomerOrderReport } from 'app/shared/model/customer-order.model';
+import { defaultValue, ICustomerOrder, ICustomerOrderReport, ICustomerOrderStats } from 'app/shared/model/customer-order.model';
 import { IOrderItem } from 'app/shared/model/order-item.model';
 
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
-import { ICrudSearchCustomerOrderAction } from 'app/entities/customer-order.redux-action-type';
+import { ICrudSearchCustomerOrderAction, ICrudNoArgs } from 'app/entities/customer-order.redux-action-type';
 
 export const ACTION_TYPES = {
   SEARCH_CUSTOMERORDERS: 'customerOrder/SEARCH_CUSTOMERORDERS',
@@ -28,7 +28,8 @@ export const ACTION_TYPES = {
   VAT_RATE_CHANGED: 'customerOrder/VAT_RATE_CHANGED',
   SEARCH_FROM_ORDER_DATE_CHANGED: 'customerOrder/SEARCH_FROM_ORDER_DATE_CHANGED',
   SEARCH_TO_ORDER_DATE_CHANGED: 'customerOrder/SEARCH_TO_ORDER_DATE_CHANGED',
-  SEARCH_INVOICE_NUMBER_CHANGED: 'customerOrder/SEARCH_INVOICE_NUMBER_CHANGED'
+  SEARCH_INVOICE_NUMBER_CHANGED: 'customerOrder/SEARCH_INVOICE_NUMBER_CHANGED',
+  FETCH_STATS: 'customerOrder/FETCH_STATS'
 };
 
 const initialState = {
@@ -47,7 +48,9 @@ const initialState = {
 
   searchFromOrderDate: '',
   searchToOrderDate: '',
-  searchInvoiceNumber: ''
+  searchInvoiceNumber: '',
+
+  customerOrderStats: null as ICustomerOrderStats
 };
 
 export type CustomerOrderState = Readonly<typeof initialState>;
@@ -69,6 +72,7 @@ export default (state: CustomerOrderState = initialState, action): CustomerOrder
     case REQUEST(ACTION_TYPES.CREATE_CUSTOMERORDER):
     case REQUEST(ACTION_TYPES.UPDATE_CUSTOMERORDER):
     case REQUEST(ACTION_TYPES.DELETE_CUSTOMERORDER):
+    case REQUEST(ACTION_TYPES.FETCH_STATS):
       return {
         ...state,
         errorMessage: null,
@@ -82,6 +86,7 @@ export default (state: CustomerOrderState = initialState, action): CustomerOrder
     case FAILURE(ACTION_TYPES.CREATE_CUSTOMERORDER):
     case FAILURE(ACTION_TYPES.UPDATE_CUSTOMERORDER):
     case FAILURE(ACTION_TYPES.DELETE_CUSTOMERORDER):
+    case FAILURE(ACTION_TYPES.FETCH_STATS):
       return {
         ...state,
         loading: false,
@@ -115,6 +120,11 @@ export default (state: CustomerOrderState = initialState, action): CustomerOrder
         entities: action.payload.data,
         sumSubTotals: 0,
         sumTotals: 0
+      };
+    case SUCCESS(ACTION_TYPES.FETCH_STATS):
+      return {
+        ...state,
+        customerOrderStats: action.payload.data
       };
     case SUCCESS(ACTION_TYPES.FETCH_CUSTOMERORDER):
       return {
@@ -304,6 +314,14 @@ export const getEntity: ICrudGetAction<ICustomerOrder> = id => {
   return {
     type: ACTION_TYPES.FETCH_CUSTOMERORDER,
     payload: axios.get<ICustomerOrder>(requestUrl)
+  };
+};
+
+export const getOrderStats: ICrudNoArgs<ICustomerOrderStats> = () => {
+  const requestUrl = `${apiUrl}/stats`;
+  return {
+    type: ACTION_TYPES.FETCH_STATS,
+    payload: axios.get<ICustomerOrderStats>(requestUrl)
   };
 };
 
