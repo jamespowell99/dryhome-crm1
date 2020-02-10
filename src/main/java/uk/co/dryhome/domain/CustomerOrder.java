@@ -8,6 +8,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import uk.co.dryhome.domain.enumeration.OrderMethod;
 import uk.co.dryhome.domain.enumeration.OrderStatus;
+import uk.co.dryhome.service.docs.DocTemplate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -571,5 +572,10 @@ public class CustomerOrder implements Serializable, MergeDocumentSource {
         }
 
         return map;
+    }
+
+    @Override
+    public String getMergeDocPrefix(DocTemplate docTemplate) {
+        return customer.getName() + "-" + orderNumber + "-" + docTemplate.getTemplateName();
     }
 }

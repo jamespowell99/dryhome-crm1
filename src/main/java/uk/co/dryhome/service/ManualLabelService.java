@@ -26,9 +26,6 @@ import java.util.Set;
 @Transactional
 @RequiredArgsConstructor
 public class ManualLabelService implements MergeDocSourceService {
-    private final static Set<String> ALLOWED_DOCUMENTS =
-        ImmutableSet.of( "labels");
-
     private final Logger log = LoggerFactory.getLogger(ManualLabelService.class);
 
     private final ManualLabelRepository manualLabelRepository;
@@ -87,7 +84,7 @@ public class ManualLabelService implements MergeDocSourceService {
     }
 
     @Override
-    public void createDocument(Long id, HttpServletResponse response, String documentName) {
-        mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, manualLabelRepository.getOne(id));
+    public void createDocument(Long id, HttpServletResponse response, String templateName, DocPrintType docPrintType) {
+
     }
 }

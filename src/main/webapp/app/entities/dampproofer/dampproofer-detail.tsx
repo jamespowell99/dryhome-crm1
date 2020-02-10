@@ -33,14 +33,16 @@ import { getEntity } from 'app/entities/dampproofer/dampproofer.reducer';
 import { ICustomer } from 'app/shared/model/customer.model';
 // tslint:disable-next-line:no-unused-variable
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
-import { getCustomerOrders } from '../customer.reducer';
+import { getCustomerOrders, printDocument, downloadDocument } from '../customer.reducer';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
+import print from 'print-js';
 
 export interface ICustomerDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
 export interface ICustomerDetailState extends IPaginationBaseState {
-  dropdownOpen: boolean;
+  downloadDropdownOpen: boolean;
+  printDropdownOpen: boolean;
   activeTab: string;
 }
 
@@ -48,9 +50,11 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
+    this.toggleDownload = this.toggleDownload.bind(this);
+    this.togglePrint = this.togglePrint.bind(this);
     this.state = {
-      dropdownOpen: false,
+      downloadDropdownOpen: false,
+      printDropdownOpen: false,
       activeTab: '1',
       ...getSortState(this.props.location, ITEMS_PER_PAGE)
     };
@@ -61,6 +65,32 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
     this.props.getCustomerOrders(this.props.match.params.id);
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.printDocumentBlob && nextProps.printDocumentBlob !== this.props.printDocumentBlob) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Since it contains the Data URI, we should remove the prefix and keep only Base64 string
+        const result = reader.result as string;
+        const b64 = result.replace(/^data:.+;base64,/, '');
+        print({ printable: b64, type: 'pdf', base64: true });
+      };
+
+      reader.readAsDataURL(new Blob([nextProps.printDocumentBlob]));
+    } else if (nextProps.downloadDocumentBlob && nextProps.downloadDocumentBlob !== this.props.downloadDocumentBlob) {
+      const url = window.URL.createObjectURL(new Blob([nextProps.downloadDocumentBlob]));
+      const link = document.createElement('a');
+      link.href = url;
+      const currentDate = new Date();
+      const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
+      const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
+      const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
+      //todo get docName?
+      link.setAttribute('download', `${nextProps.customerEntity.companyName}-docName-${currentDateToUse}.docx`);
+      document.body.appendChild(link);
+      link.click();
+    }
+  }
+
   sortEntities() {
     const { activePage, itemsPerPage } = this.state;
     this.props.getCustomerOrders(this.props.match.params.id, activePage - 1, itemsPerPage);
@@ -69,36 +99,50 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
 
   handlePagination = activePage => this.setState({ activePage }, () => this.sortEntities());
 
-  callDocument = event => {
+  callDownload = event => {
     const { customerEntity } = this.props;
     const docName = event.target.id;
-    axios({
-      url: `api/customers/${customerEntity.id}/document?documentName=${docName}`,
-      method: 'GET',
-      responseType: 'blob' // important
-    }).then(response => {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      const currentDate = new Date();
-      const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
-      const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
-      const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
-      link.setAttribute('download', `${customerEntity.companyName}-${docName}-${currentDateToUse}.docx`);
-      document.body.appendChild(link);
-      link.click();
-    });
-    // console.log('done');
+
+    // axios({
+    //     url: `api/customers/${customerEntity.id}/document?documentName=${docName}&type=DOCX`,
+    //     method: 'GET',
+    //     responseType: 'blob' // important
+    // }).then(response => {
+    //
+    //     const url = window.URL.createObjectURL(new Blob([response.data]));
+    //     const link = document.createElement('a');
+    //     link.href = url;
+    //     const currentDate = new Date();
+    //     const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
+    //     const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
+    //     const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
+    //     link.setAttribute('download', `${customerEntity.companyName}-${docName}-${currentDateToUse}.docx`);
+    //     document.body.appendChild(link);
+    //     link.click();
+    // });
+    this.props.downloadDocument(docName, customerEntity.id);
   };
 
-  toggle() {
+  callPrint = event => {
+    const { customerEntity } = this.props;
+    const docName = event.target.id;
+    this.props.printDocument(docName, customerEntity.id);
+  };
+
+  toggleDownload() {
     this.setState({
-      dropdownOpen: !this.state.dropdownOpen
+      downloadDropdownOpen: !this.state.downloadDropdownOpen
+    });
+  }
+
+  togglePrint() {
+    this.setState({
+      printDropdownOpen: !this.state.printDropdownOpen
     });
   }
 
   render() {
-    const { customerEntity, customerOrders, totalOrders } = this.props;
+    const { customerEntity, customerOrders, totalOrders, generatingDocument } = this.props;
 
     const tab1 = () => {
       toggleTab('1');
@@ -313,23 +357,42 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
               <Button tag={Link} to={`/entity/dampproofer/${customerEntity.id}/edit`} replace color="primary">
                 <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
               </Button>
-              <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+              &nbsp;
+              <ButtonDropdown isOpen={this.state.downloadDropdownOpen} toggle={this.toggleDownload}>
                 <DropdownToggle caret color="primary">
-                  Documents
+                  Download
                 </DropdownToggle>
                 <DropdownMenu>
-                  <DropdownItem onClick={this.callDocument} id={'dp-record'}>
+                  <DropdownItem onClick={this.callDownload} id={'dp-record'}>
                     Damp Proofer Record
                   </DropdownItem>
-                  <DropdownItem onClick={this.callDocument} id={'remcon-prod-lit'}>
+                  <DropdownItem onClick={this.callDownload} id={'labels'}>
+                    Labels
+                  </DropdownItem>
+                  <DropdownItem onClick={this.callDownload} id={'remcon-prod-lit'}>
                     Remcon Prod Lit
                   </DropdownItem>
-                  <DropdownItem onClick={this.callDocument} id={'labels'}>
+                </DropdownMenu>
+              </ButtonDropdown>
+              &nbsp;
+              <ButtonDropdown isOpen={this.state.printDropdownOpen} toggle={this.togglePrint}>
+                <DropdownToggle caret color="primary">
+                  Print
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem onClick={this.callPrint} id={'dp-record'}>
+                    Damp Proofer Record
+                  </DropdownItem>
+                  <DropdownItem onClick={this.callPrint} id={'labels'}>
                     Labels
+                  </DropdownItem>
+                  <DropdownItem onClick={this.callPrint} id={'remcon-prod-lit'}>
+                    Remcon Prod Lit
                   </DropdownItem>
                 </DropdownMenu>
               </ButtonDropdown>
             </Row>
+            <Row>{generatingDocument ? <span>Generating...</span> : <span />}</Row>
           </div>
         )}
       </div>
@@ -340,10 +403,13 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
 const mapStateToProps = ({ customer }: IRootState) => ({
   customerEntity: customer.entity,
   customerOrders: customer.customerOrders,
-  totalOrders: customer.totalOrders
+  totalOrders: customer.totalOrders,
+  generatingDocument: customer.generatingDocument,
+  downloadDocumentBlob: customer.downloadDocumentBlob,
+  printDocumentBlob: customer.printDocumentBlob
 });
 
-const mapDispatchToProps = { getEntity, getCustomerOrders };
+const mapDispatchToProps = { getEntity, getCustomerOrders, printDocument, downloadDocument };
 
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;

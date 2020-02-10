@@ -2,6 +2,7 @@ package uk.co.dryhome.web.rest;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import uk.co.dryhome.service.CustomerService;
+import uk.co.dryhome.service.DocPrintType;
 import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
 import uk.co.dryhome.web.rest.util.HeaderUtil;
@@ -135,9 +136,10 @@ public class CustomerResource {
     }
 
     @GetMapping("/customers/{id}/document")
-    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
-        log.debug("REST request to create document {} for customer : {}", documentName, id);
-        customerService.createDocument(id, response, documentName);
+    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response,
+                         @RequestParam(name="type") DocPrintType docPrintType) {
+        log.debug("REST request to create document {}/{} for customer : {}", documentName, docPrintType, id);
+        customerService.createDocument(id, response, documentName, docPrintType);
     }
 
 }

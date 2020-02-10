@@ -9,6 +9,7 @@ import uk.co.dryhome.domain.enumeration.CompanyType;
 import uk.co.dryhome.domain.enumeration.InterestedType;
 import uk.co.dryhome.domain.enumeration.LeadType;
 import uk.co.dryhome.domain.enumeration.Status;
+import uk.co.dryhome.service.docs.DocTemplate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,6 +26,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -687,7 +689,14 @@ public class Customer implements Serializable, MergeDocumentSource {
             }
         }
 
+        map.put("fullLetterAddress", getFullLetterAddress());
+
         return map;
+    }
+
+    @Override
+    public String getMergeDocPrefix(DocTemplate docTemplate) {
+        return getName() + "-" + docTemplate.getTemplateName();
     }
 
     public String getName() {
@@ -715,5 +724,29 @@ public class Customer implements Serializable, MergeDocumentSource {
         }
 
         return sb.toString();
+    }
+
+    public String getFullLetterAddress() {
+        ArrayList<String> allFields = new ArrayList<>();
+        allFields.add(getFullContactName());
+        allFields.add(companyName);
+        allFields.add(address1);
+        allFields.add(address2);
+        allFields.add(address3);
+        allFields.add(town);
+        allFields.add(postCode);
+
+        List<String> blankLinesRemoved = allFields.stream()
+            .filter(StringUtils::isNotEmpty)
+            .collect(Collectors.toList());
+
+        List<String> fullLetterAddress = new ArrayList<>();
+
+        for (int i = 0; i < (7 - blankLinesRemoved.size()); i ++) {
+            fullLetterAddress.add("");
+        }
+        fullLetterAddress.addAll(blankLinesRemoved);
+
+        return fullLetterAddress.stream().collect(Collectors.joining("\n"));
     }
 }

@@ -31,6 +31,7 @@ import { getEntity } from './customer-order.reducer';
 // tslint:disable-next-line:no-unused-variable
 import { APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import axios from 'axios';
+import print from 'print-js';
 
 export interface ICustomerOrderDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -55,26 +56,39 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
   callDocument = event => {
     const { customerOrderEntity } = this.props;
     const docName = event.target.id;
+
     axios({
       url: `api/customer-orders/${customerOrderEntity.id}/document?documentName=${docName}`,
       method: 'GET',
       responseType: 'blob' // important
     }).then(response => {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      const currentDate = new Date();
-      const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
-      const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
-      const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
-      link.setAttribute(
-        'download',
-        `${customerOrderEntity.customerName}-${customerOrderEntity.orderNumber}-${docName}-${currentDateToUse}.docx`
-      );
-      document.body.appendChild(link);
-      link.click();
+      if (docName.endsWith('-pdf')) {
+        // todo is there a nicer way to convert to base
+        const reader = new FileReader();
+        reader.onload = () => {
+          // Since it contains the Data URI, we should remove the prefix and keep only Base64 string
+          const result = reader.result as string;
+          const b64 = result.replace(/^data:.+;base64,/, '');
+          print({ printable: b64, type: 'pdf', base64: true });
+        };
+
+        reader.readAsDataURL(new Blob([response.data]));
+      } else {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        const currentDate = new Date();
+        const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
+        const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
+        const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
+        link.setAttribute(
+          'download',
+          `${customerOrderEntity.customerName}-${customerOrderEntity.orderNumber}-${docName}-${currentDateToUse}.docx`
+        );
+        document.body.appendChild(link);
+        link.click();
+      }
     });
-    // console.log('done');
   };
 
   toggle() {
@@ -334,6 +348,9 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
               Documents
             </DropdownToggle>
             <DropdownMenu>
+              <DropdownItem onClick={this.callDocument} id={'customer-invoice-pdf'}>
+                Customer Invoice (PDF)
+              </DropdownItem>
               <DropdownItem onClick={this.callDocument} id={'customer-invoice'}>
                 Customer Invoice
               </DropdownItem>

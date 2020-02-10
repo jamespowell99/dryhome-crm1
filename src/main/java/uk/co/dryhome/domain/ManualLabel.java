@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uk.co.dryhome.service.docs.DocTemplate;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -210,5 +211,10 @@ public class ManualLabel implements Serializable, MergeDocumentSource {
         }
 
         return map;
+    }
+
+    @Override
+    public String getMergeDocPrefix(DocTemplate docTemplate) {
+        return getLine1() + "-" + docTemplate.getTemplateName();
     }
 }

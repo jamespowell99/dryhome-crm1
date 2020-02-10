@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.dryhome.domain.Customer;
 import uk.co.dryhome.domain.MergeDocumentSource;
 import uk.co.dryhome.repository.CustomerRepository;
+import uk.co.dryhome.service.docs.CustomerDocTemplate;
+import uk.co.dryhome.service.docs.DocTemplate;
+import uk.co.dryhome.service.docs.DocTemplateFactory;
 import uk.co.dryhome.service.dto.CustomerDTO;
 import uk.co.dryhome.service.mapper.CustomerMapper;
 
@@ -24,8 +27,6 @@ import java.util.Set;
 @Service
 @Transactional
 public class CustomerService implements MergeDocSourceService{
-    private final static Set<String> ALLOWED_DOCUMENTS =
-        ImmutableSet.of("dp-record", "remcon-prod-lit", "dom-record", "labels");
 
     private final Logger log = LoggerFactory.getLogger(CustomerService.class);
 
@@ -93,7 +94,8 @@ public class CustomerService implements MergeDocSourceService{
 
 
     @Override
-    public void createDocument(Long id, HttpServletResponse response, String documentName) {
-        mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, customerRepository.getOne(id));
+    public void createDocument(Long id, HttpServletResponse response, String templateName, DocPrintType docPrintType) {
+        DocTemplate template = DocTemplateFactory.fromTemplateName(CustomerDocTemplate.class, templateName);
+        mergeDocService.generateDocument(template, docPrintType, response, customerRepository.getOne(id));
     }
 }

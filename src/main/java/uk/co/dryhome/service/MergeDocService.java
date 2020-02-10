@@ -9,38 +9,49 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.google.common.base.Preconditions;
 import com.powtechconsulting.mailmerge.WordMerger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.h2.command.dml.Merge;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import uk.co.dryhome.config.DryhomeProperties;
 import uk.co.dryhome.domain.MergeDocumentSource;
+import uk.co.dryhome.service.docs.CustomerDocTemplate;
+import uk.co.dryhome.service.docs.DocTemplate;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MergeDocService {
     private final DryhomeProperties properties;
+    private final GoogleDocsMerger googleDocsMerger;
 
-    public void generateDocument(String documentName, HttpServletResponse response, Set<String> allowedDocuments, MergeDocumentSource source) {
-        if (!allowedDocuments.contains(documentName)) {
-            throw new RuntimeException("unrecognised document name: " + documentName);
+    public void generateDocument(DocTemplate template, DocPrintType docPrintType, HttpServletResponse response, MergeDocumentSource source) {
+        if (docPrintType == DocPrintType.DOCX) {
+            generateDocViaWord(template, response, source);
+        } else {
+            generateDocViaGoogle(template, response, source);
         }
-        Map<String, String> mappings = source.documentMappings();
-        String filename = documentName + ".docx";
-        log.info("Merging doc {}. Values: {}", filename, mappings);
-        byte[] document = new WordMerger().merge(getFile(filename), mappings);
+    }
+
+    private void generateDocViaWord(DocTemplate template, HttpServletResponse response,MergeDocumentSource source) {
+        String filename = template.getTemplateName() + ".docx";
+        log.debug("Merging doc {}. Values: {}", filename, source.documentMappings());
+        byte[] document = new WordMerger().merge(getFile(filename), source.documentMappings());
 
         try {
             // get your file as InputStream
@@ -49,8 +60,20 @@ public class MergeDocService {
             org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
             response.flushBuffer();
         } catch (IOException ex) {
-            log.info("Error writing file to output stream. Filename was '{}'", documentName, ex);
-            throw new RuntimeException("IOError writing file to output stream");
+            throw new RuntimeException("IOError writing file to output stream: " + template, ex);
+        }
+    }
+
+    private void generateDocViaGoogle(DocTemplate template, HttpServletResponse response, MergeDocumentSource source) {
+        String newDocumentId = googleDocsMerger.merge(template.getTemplateId(), source.getMergeDocPrefix(template), source.documentMappings());
+        byte[] document = googleDocsMerger.getDocument(newDocumentId);
+
+        try {
+            InputStream is = new ByteArrayInputStream(document);
+            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+            response.flushBuffer();
+        } catch (IOException ex) {
+            throw new RuntimeException("IOError writing file to output stream: " + template, ex);
         }
     }
 
@@ -118,4 +141,6 @@ public class MergeDocService {
             }
         }
     }
+
+
 }

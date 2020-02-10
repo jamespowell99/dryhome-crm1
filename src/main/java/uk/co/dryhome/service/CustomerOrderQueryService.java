@@ -21,6 +21,8 @@ import uk.co.dryhome.domain.Customer_;
 import uk.co.dryhome.domain.OrderItem_;
 import uk.co.dryhome.domain.enumeration.OrderStatus;
 import uk.co.dryhome.repository.CustomerOrderRepository;
+import uk.co.dryhome.service.docs.DocTemplate;
+import uk.co.dryhome.service.docs.DocTemplateFactory;
 import uk.co.dryhome.service.dto.AddressDTO;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
@@ -54,9 +56,6 @@ import static java.util.Optional.ofNullable;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CustomerOrderQueryService extends QueryService<CustomerOrder> implements MergeDocSourceService {
-    private final static Set<String> ALLOWED_DOCUMENTS =
-        ImmutableSet.of("customer-invoice", "accountant-invoice", "file-invoice");
-
     private final Logger log = LoggerFactory.getLogger(CustomerOrderQueryService.class);
 
     private final CustomerOrderRepository customerOrderRepository;
@@ -215,11 +214,6 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
         return specification;
     }
 
-    @Override
-    public void createDocument(Long id, HttpServletResponse response, String documentName) {
-        mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, customerOrderRepository.getOne(id));
-    }
-
     public CustomerOrderStatsDTO generateStats() {
         LocalDate now = LocalDate.now();
 
@@ -260,5 +254,11 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
         StatIndividual last = new StatIndividual(lastVal.getCount(), lastVal.getTotal() == null ? BigDecimal.ZERO : lastVal.getTotal(), previousStart, previousEnd);
         BigDecimal diff = current.getTotal().subtract(last.getTotal());
         return new Stat(current, last, diff);
+    }
+
+    @Override
+    public void createDocument(Long id, HttpServletResponse response, String templateName, DocPrintType docPrintType) {
+        DocTemplate template = DocTemplateFactory.fromTemplateName(CustomerOrderQueryService.class, templateName);
+        mergeDocService.generateDocument(template, docPrintType, response, customerOrderRepository.getOne(id));
     }
 }

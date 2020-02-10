@@ -87,6 +87,8 @@ export default () => next => action => {
             default:
               if (data !== '' && data.message) {
                 addErrorAlert(data.message);
+              } else if (data instanceof Blob) {
+                addErrorAlert('error was returned');
               } else {
                 addErrorAlert(data);
               }
