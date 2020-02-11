@@ -17,9 +17,7 @@ export const ACTION_TYPES = {
   DELETE_CUSTOMER: 'customer/DELETE_CUSTOMER',
   SET_BLOB: 'customer/SET_BLOB',
   RESET: 'customer/RESET',
-  FETCH_CUSTOMER_ORDER_LIST: 'customer/FETCH_CUSTOMER_ORDER_LIST',
-  PRINT_DOCUMENT: 'customer/PRINT_DOCUMENT',
-  DOWNLOAD_DOCUMENT: 'customer/DOWNLOAD_DOCUMENT'
+  FETCH_CUSTOMER_ORDER_LIST: 'customer/FETCH_CUSTOMER_ORDER_LIST'
 };
 
 const initialState = {
@@ -33,10 +31,7 @@ const initialState = {
   customerOrders: [] as ReadonlyArray<ICustomerOrder>,
   totalOrders: 0,
   retrievedCustomer: false,
-  retrievedCustomerOrders: false,
-  generatingDocument: false,
-  printDocumentBlob: null,
-  downloadDocumentBlob: null
+  retrievedCustomerOrders: false
 };
 
 export type CustomerState = Readonly<typeof initialState>;
@@ -66,22 +61,6 @@ export default (state: CustomerState = initialState, action): CustomerState => {
         updateSuccess: false,
         updating: true
       };
-    case REQUEST(ACTION_TYPES.PRINT_DOCUMENT):
-      return {
-        ...state,
-        generatingDocument: true,
-        printDocumentBlob: null,
-        downloadDocumentBlob: null,
-        errorMessage: null
-      };
-    case REQUEST(ACTION_TYPES.DOWNLOAD_DOCUMENT):
-      return {
-        ...state,
-        generatingDocument: true,
-        printDocumentBlob: null,
-        downloadDocumentBlob: null,
-        errorMessage: null
-      };
     case FAILURE(ACTION_TYPES.SEARCH_CUSTOMERS):
     case FAILURE(ACTION_TYPES.FETCH_CUSTOMER_LIST):
     case FAILURE(ACTION_TYPES.FETCH_CUSTOMER):
@@ -97,22 +76,6 @@ export default (state: CustomerState = initialState, action): CustomerState => {
         updating: false,
         updateSuccess: false,
         errorMessage: action.payload
-      };
-    case FAILURE(ACTION_TYPES.PRINT_DOCUMENT):
-      return {
-        ...state,
-        errorMessage: action.payload,
-        generatingDocument: false,
-        printDocumentBlob: null,
-        downloadDocumentBlob: null
-      };
-    case FAILURE(ACTION_TYPES.DOWNLOAD_DOCUMENT):
-      return {
-        ...state,
-        errorMessage: action.payload,
-        generatingDocument: false,
-        printDocumentBlob: null,
-        downloadDocumentBlob: null
       };
     case SUCCESS(ACTION_TYPES.SEARCH_CUSTOMERS):
     case SUCCESS(ACTION_TYPES.FETCH_CUSTOMER_LIST):
@@ -152,18 +115,6 @@ export default (state: CustomerState = initialState, action): CustomerState => {
         updateSuccess: true,
         entity: {}
       };
-    case SUCCESS(ACTION_TYPES.PRINT_DOCUMENT):
-      return {
-        ...state,
-        generatingDocument: false,
-        printDocumentBlob: action.payload.data
-      };
-    case SUCCESS(ACTION_TYPES.DOWNLOAD_DOCUMENT):
-      return {
-        ...state,
-        generatingDocument: false,
-        downloadDocumentBlob: action.payload.data
-      };
 
     case ACTION_TYPES.SET_BLOB:
       const { name, data, contentType } = action.payload;
@@ -191,13 +142,3 @@ export const getCustomerOrders: ICrudGetOrdersByCustomerIdAction<ICustomerOrder>
     payload: axios.get<ICustomerOrder>(`${requestUrl}&cacheBuster=${new Date().getTime()}`)
   };
 };
-
-export const printDocument = (docName, entityId) => ({
-  type: ACTION_TYPES.PRINT_DOCUMENT,
-  payload: axios.get(`api/customers/${entityId}/document?documentName=${docName}&type=PDF`, { responseType: 'blob' })
-});
-
-export const downloadDocument = (docName, entityId) => ({
-  type: ACTION_TYPES.DOWNLOAD_DOCUMENT,
-  payload: axios.get(`api/customers/${entityId}/document?documentName=${docName}&type=DOCX`, { responseType: 'blob' })
-});

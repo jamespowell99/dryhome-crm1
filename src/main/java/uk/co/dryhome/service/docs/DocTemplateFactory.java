@@ -14,7 +14,7 @@ public class DocTemplateFactory {
             values = CustomerOrderDocTemplate.values();
         } else if (docTemplateClass.equals(ManualInvoiceDocTemplate.class)) {
             values = ManualInvoiceDocTemplate.values();
-        } else if (docTemplateClass.equals(ManualLabel.class)) {
+        } else if (docTemplateClass.equals(ManualLabelsDocTemplate.class)) {
             values = ManualLabelsDocTemplate.values();
         } else {
             throw new RuntimeException("unrecognised type: " + docTemplateClass);

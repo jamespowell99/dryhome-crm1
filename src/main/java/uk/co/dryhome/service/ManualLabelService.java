@@ -1,23 +1,22 @@
 package uk.co.dryhome.service;
 
-import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
-import uk.co.dryhome.domain.ManualLabel;
-import uk.co.dryhome.domain.MergeDocumentSource;
-import uk.co.dryhome.repository.ManualLabelRepository;
-import uk.co.dryhome.service.dto.ManualLabelDTO;
-import uk.co.dryhome.service.mapper.ManualLabelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.dryhome.domain.ManualLabel;
+import uk.co.dryhome.repository.ManualLabelRepository;
+import uk.co.dryhome.service.docs.DocTemplate;
+import uk.co.dryhome.service.docs.DocTemplateFactory;
+import uk.co.dryhome.service.docs.ManualLabelsDocTemplate;
+import uk.co.dryhome.service.dto.ManualLabelDTO;
+import uk.co.dryhome.service.mapper.ManualLabelMapper;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service Implementation for managing ManualLabel.
@@ -85,6 +84,7 @@ public class ManualLabelService implements MergeDocSourceService {
 
     @Override
     public void createDocument(Long id, HttpServletResponse response, String templateName, DocPrintType docPrintType) {
-
+        DocTemplate template = DocTemplateFactory.fromTemplateName(ManualLabelsDocTemplate.class, templateName);
+        mergeDocService.generateDocument(template, docPrintType, response, manualLabelRepository.getOne(id));
     }
 }

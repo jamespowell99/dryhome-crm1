@@ -15,6 +15,7 @@ import passwordReset, { PasswordResetState } from 'app/modules/account/password-
 import customer, {
   CustomerState
 } from 'app/entities/customer.reducer';
+import docGeneration, { DocGenerationState } from 'app/shared/reducers/doc-generation';
 // prettier-ignore
 import product, {
   ProductState
@@ -50,6 +51,7 @@ export interface IRootState {
   readonly manualInvoice: ManualInvoiceState;
   readonly manualLabel: ManualLabelState;
   /* jhipster-needle-add-reducer-type - JHipster will add reducer type here */
+  readonly docGeneration: DocGenerationState;
   readonly loadingBar: any;
 }
 
@@ -69,6 +71,7 @@ const rootReducer = combineReducers<IRootState>({
   manualInvoice,
   manualLabel,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
+  docGeneration,
   loadingBar
 });
 

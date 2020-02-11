@@ -22,7 +22,6 @@ import {
   CardHeader,
   Container
 } from 'reactstrap';
-import axios from 'axios';
 import classnames from 'classnames';
 // tslint:disable-next-line:no-unused-variable
 import { ICrudGetAction, byteSize, TextFormat, getPaginationItemsNumber, JhiPagination, IPaginationBaseState } from 'react-jhipster';
@@ -32,11 +31,13 @@ import { IRootState } from 'app/shared/reducers';
 import { getEntity } from 'app/entities/dampproofer/dampproofer.reducer';
 import { ICustomer } from 'app/shared/model/customer.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
-import { getCustomerOrders, printDocument, downloadDocument } from '../customer.reducer';
+import { APP_LOCAL_DATE_FORMAT, APP_LOCAL_DATETIME_FORMAT_DOC_GENERATION } from 'app/config/constants';
+import { getCustomerOrders } from '../customer.reducer';
+import { getDocument } from 'app/shared/reducers/doc-generation';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
 import print from 'print-js';
+import moment from 'moment';
 
 export interface ICustomerDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -69,23 +70,21 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
     if (nextProps.printDocumentBlob && nextProps.printDocumentBlob !== this.props.printDocumentBlob) {
       const reader = new FileReader();
       reader.onload = () => {
-        // Since it contains the Data URI, we should remove the prefix and keep only Base64 string
         const result = reader.result as string;
         const b64 = result.replace(/^data:.+;base64,/, '');
         print({ printable: b64, type: 'pdf', base64: true });
       };
-
       reader.readAsDataURL(new Blob([nextProps.printDocumentBlob]));
     } else if (nextProps.downloadDocumentBlob && nextProps.downloadDocumentBlob !== this.props.downloadDocumentBlob) {
       const url = window.URL.createObjectURL(new Blob([nextProps.downloadDocumentBlob]));
       const link = document.createElement('a');
       link.href = url;
       const currentDate = new Date();
-      const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
-      const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
-      const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
-      //todo get docName?
-      link.setAttribute('download', `${nextProps.customerEntity.companyName}-docName-${currentDateToUse}.docx`);
+      // todo get docName?
+      link.setAttribute(
+        'download',
+        `${nextProps.customerEntity.companyName}-docName-${moment().format(APP_LOCAL_DATETIME_FORMAT_DOC_GENERATION)}.docx`
+      );
       document.body.appendChild(link);
       link.click();
     }
@@ -100,33 +99,11 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
   handlePagination = activePage => this.setState({ activePage }, () => this.sortEntities());
 
   callDownload = event => {
-    const { customerEntity } = this.props;
-    const docName = event.target.id;
-
-    // axios({
-    //     url: `api/customers/${customerEntity.id}/document?documentName=${docName}&type=DOCX`,
-    //     method: 'GET',
-    //     responseType: 'blob' // important
-    // }).then(response => {
-    //
-    //     const url = window.URL.createObjectURL(new Blob([response.data]));
-    //     const link = document.createElement('a');
-    //     link.href = url;
-    //     const currentDate = new Date();
-    //     const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
-    //     const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
-    //     const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
-    //     link.setAttribute('download', `${customerEntity.companyName}-${docName}-${currentDateToUse}.docx`);
-    //     document.body.appendChild(link);
-    //     link.click();
-    // });
-    this.props.downloadDocument(docName, customerEntity.id);
+    this.props.getDocument('customers', event.target.id, this.props.customerEntity.id, 'DOCX');
   };
 
   callPrint = event => {
-    const { customerEntity } = this.props;
-    const docName = event.target.id;
-    this.props.printDocument(docName, customerEntity.id);
+    this.props.getDocument('customers', event.target.id, this.props.customerEntity.id, 'PDF');
   };
 
   toggleDownload() {
@@ -400,16 +377,16 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
   }
 }
 
-const mapStateToProps = ({ customer }: IRootState) => ({
+const mapStateToProps = ({ customer, docGeneration }: IRootState) => ({
   customerEntity: customer.entity,
   customerOrders: customer.customerOrders,
   totalOrders: customer.totalOrders,
-  generatingDocument: customer.generatingDocument,
-  downloadDocumentBlob: customer.downloadDocumentBlob,
-  printDocumentBlob: customer.printDocumentBlob
+  generatingDocument: docGeneration.generatingDocument,
+  downloadDocumentBlob: docGeneration.downloadDocumentBlob,
+  printDocumentBlob: docGeneration.printDocumentBlob
 });
 
-const mapDispatchToProps = { getEntity, getCustomerOrders, printDocument, downloadDocument };
+const mapDispatchToProps = { getEntity, getCustomerOrders, getDocument };
 
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;

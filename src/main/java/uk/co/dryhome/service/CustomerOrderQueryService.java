@@ -21,6 +21,7 @@ import uk.co.dryhome.domain.Customer_;
 import uk.co.dryhome.domain.OrderItem_;
 import uk.co.dryhome.domain.enumeration.OrderStatus;
 import uk.co.dryhome.repository.CustomerOrderRepository;
+import uk.co.dryhome.service.docs.CustomerOrderDocTemplate;
 import uk.co.dryhome.service.docs.DocTemplate;
 import uk.co.dryhome.service.docs.DocTemplateFactory;
 import uk.co.dryhome.service.dto.AddressDTO;
@@ -258,7 +259,7 @@ public class CustomerOrderQueryService extends QueryService<CustomerOrder> imple
 
     @Override
     public void createDocument(Long id, HttpServletResponse response, String templateName, DocPrintType docPrintType) {
-        DocTemplate template = DocTemplateFactory.fromTemplateName(CustomerOrderQueryService.class, templateName);
+        DocTemplate template = DocTemplateFactory.fromTemplateName(CustomerOrderDocTemplate.class, templateName);
         mergeDocService.generateDocument(template, docPrintType, response, customerOrderRepository.getOne(id));
     }
 }

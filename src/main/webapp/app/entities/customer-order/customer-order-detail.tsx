@@ -29,23 +29,27 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 import { getEntity } from './customer-order.reducer';
 // tslint:disable-next-line:no-unused-variable
-import { APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
-import axios from 'axios';
+import { APP_LOCAL_DATE_FORMAT, APP_LOCAL_DATETIME_FORMAT_DOC_GENERATION } from 'app/config/constants';
 import print from 'print-js';
+import moment from 'moment';
+import { getDocument } from 'app/shared/reducers/doc-generation';
 
 export interface ICustomerOrderDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
 export interface ICustomerOrderDetailState {
-  dropdownOpen: boolean;
+  downloadDropdownOpen: boolean;
+  printDropdownOpen: boolean;
 }
 
 export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailProps, ICustomerOrderDetailState> {
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
+    this.toggleDownload = this.toggleDownload.bind(this);
+    this.togglePrint = this.togglePrint.bind(this);
     this.state = {
-      dropdownOpen: false
+      downloadDropdownOpen: false,
+      printDropdownOpen: false
     };
   }
 
@@ -53,52 +57,53 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
     this.props.getEntity(this.props.match.params.id);
   }
 
-  callDocument = event => {
-    const { customerOrderEntity } = this.props;
-    const docName = event.target.id;
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.printDocumentBlob && nextProps.printDocumentBlob !== this.props.printDocumentBlob) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const b64 = result.replace(/^data:.+;base64,/, '');
+        print({ printable: b64, type: 'pdf', base64: true });
+      };
+      reader.readAsDataURL(new Blob([nextProps.printDocumentBlob]));
+    } else if (nextProps.downloadDocumentBlob && nextProps.downloadDocumentBlob !== this.props.downloadDocumentBlob) {
+      const url = window.URL.createObjectURL(new Blob([nextProps.downloadDocumentBlob]));
+      const link = document.createElement('a');
+      link.href = url;
+      const currentDate = new Date();
+      // todo get docName?
+      link.setAttribute(
+        'download',
+        `${nextProps.customerOrderEntity.customerName}-${nextProps.customerOrderEntity.orderNumber}` +
+          `-docName-${moment().format(APP_LOCAL_DATETIME_FORMAT_DOC_GENERATION)}.docx`
+      );
+      document.body.appendChild(link);
+      link.click();
+    }
+  }
 
-    axios({
-      url: `api/customer-orders/${customerOrderEntity.id}/document?documentName=${docName}`,
-      method: 'GET',
-      responseType: 'blob' // important
-    }).then(response => {
-      if (docName.endsWith('-pdf')) {
-        // todo is there a nicer way to convert to base
-        const reader = new FileReader();
-        reader.onload = () => {
-          // Since it contains the Data URI, we should remove the prefix and keep only Base64 string
-          const result = reader.result as string;
-          const b64 = result.replace(/^data:.+;base64,/, '');
-          print({ printable: b64, type: 'pdf', base64: true });
-        };
-
-        reader.readAsDataURL(new Blob([response.data]));
-      } else {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        const currentDate = new Date();
-        const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
-        const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
-        const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
-        link.setAttribute(
-          'download',
-          `${customerOrderEntity.customerName}-${customerOrderEntity.orderNumber}-${docName}-${currentDateToUse}.docx`
-        );
-        document.body.appendChild(link);
-        link.click();
-      }
-    });
+  callDownload = event => {
+    this.props.getDocument('customer-orders', event.target.id, this.props.customerOrderEntity.id, 'DOCX');
   };
 
-  toggle() {
+  callPrint = event => {
+    this.props.getDocument('customer-orders', event.target.id, this.props.customerOrderEntity.id, 'PDF');
+  };
+
+  toggleDownload() {
     this.setState({
-      dropdownOpen: !this.state.dropdownOpen
+      downloadDropdownOpen: !this.state.downloadDropdownOpen
+    });
+  }
+
+  togglePrint() {
+    this.setState({
+      printDropdownOpen: !this.state.printDropdownOpen
     });
   }
 
   render() {
-    const { customerOrderEntity } = this.props;
+    const { customerOrderEntity, generatingDocument } = this.props;
     return (
       <div>
         <Container>
@@ -336,43 +341,58 @@ export class CustomerOrderDetail extends React.Component<ICustomerOrderDetailPro
               </Card>
             </Col>
           </Row>
-          <Button tag={Link} to="/entity/customer-order" replace color="info">
-            <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-          </Button>
-          &nbsp;
-          <Button tag={Link} to={`/entity/customer-order/${customerOrderEntity.id}/edit`} replace color="primary">
-            <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-          </Button>
-          <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-            <DropdownToggle caret color="primary">
-              Documents
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem onClick={this.callDocument} id={'customer-invoice-pdf'}>
-                Customer Invoice (PDF)
-              </DropdownItem>
-              <DropdownItem onClick={this.callDocument} id={'customer-invoice'}>
-                Customer Invoice
-              </DropdownItem>
-              <DropdownItem onClick={this.callDocument} id={'accountant-invoice'}>
-                Accountant Invoice
-              </DropdownItem>
-              <DropdownItem onClick={this.callDocument} id={'file-invoice'}>
-                File Invoice
-              </DropdownItem>
-            </DropdownMenu>
-          </ButtonDropdown>
+          <Row>
+            <Button tag={Link} to="/entity/customer-order" replace color="info">
+              <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
+            </Button>
+            &nbsp;
+            <Button tag={Link} to={`/entity/customer-order/${customerOrderEntity.id}/edit`} replace color="primary">
+              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
+            </Button>
+            &nbsp;
+            <ButtonDropdown isOpen={this.state.downloadDropdownOpen} toggle={this.toggleDownload}>
+              <DropdownToggle caret color="primary">
+                Download
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem onClick={this.callDownload} id={'customer-invoice'}>
+                  Customer Invoice
+                </DropdownItem>
+                <DropdownItem onClick={this.callDownload} id={'accountant-invoice'}>
+                  Accountant Invoice
+                </DropdownItem>
+                <DropdownItem onClick={this.callDownload} id={'file-invoice'}>
+                  File Invoice
+                </DropdownItem>
+              </DropdownMenu>
+            </ButtonDropdown>
+            &nbsp;
+            <ButtonDropdown isOpen={this.state.printDropdownOpen} toggle={this.togglePrint}>
+              <DropdownToggle caret color="primary">
+                Print
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem onClick={this.callPrint} id={'customer-invoice'}>
+                  Customer Invoice
+                </DropdownItem>
+              </DropdownMenu>
+            </ButtonDropdown>
+          </Row>
+          <Row>{generatingDocument ? <span>Generating...</span> : <span />}</Row>
         </Container>
       </div>
     );
   }
 }
 
-const mapStateToProps = ({ customerOrder }: IRootState) => ({
-  customerOrderEntity: customerOrder.entity
+const mapStateToProps = ({ customerOrder, docGeneration }: IRootState) => ({
+  customerOrderEntity: customerOrder.entity,
+  generatingDocument: docGeneration.generatingDocument,
+  downloadDocumentBlob: docGeneration.downloadDocumentBlob,
+  printDocumentBlob: docGeneration.printDocumentBlob
 });
 
-const mapDispatchToProps = { getEntity };
+const mapDispatchToProps = { getEntity, getDocument };
 
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;
