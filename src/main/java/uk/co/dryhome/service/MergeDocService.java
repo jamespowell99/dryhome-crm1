@@ -9,17 +9,13 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.google.common.base.Preconditions;
 import com.powtechconsulting.mailmerge.WordMerger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.h2.command.dml.Merge;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import uk.co.dryhome.config.DryhomeProperties;
 import uk.co.dryhome.domain.MergeDocumentSource;
-import uk.co.dryhome.service.docs.CustomerDocTemplate;
 import uk.co.dryhome.service.docs.DocTemplate;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,11 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
