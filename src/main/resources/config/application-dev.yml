@@ -131,3 +131,6 @@ jhipster:
 # ===================================================================
 
 # application:
+dryhome:
+    merge-docs:
+      google-creds-file-location: /Users/james/dev/dryhome/creds.json
