@@ -24,6 +24,7 @@ import uk.co.dryhome.domain.CustomerOrderSums;
 import uk.co.dryhome.domain.enumeration.OrderStatus;
 import uk.co.dryhome.service.CustomerOrderQueryService;
 import uk.co.dryhome.service.CustomerOrderService;
+import uk.co.dryhome.service.DocPrintType;
 import uk.co.dryhome.service.dto.CustomerOrderCriteria;
 import uk.co.dryhome.service.dto.CustomerOrderDetailDTO;
 import uk.co.dryhome.service.dto.CustomerOrderReportDTO;
@@ -184,9 +185,10 @@ public class CustomerOrderResource {
     }
 
     @GetMapping("/customer-orders/{id}/document")
-    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
-        log.debug("REST request to create document {} for customer order : {}", documentName, id);
-        customerOrderQueryService.createDocument(id, response, documentName);
+    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response,
+                         @RequestParam(name="type") DocPrintType docPrintType) {
+        log.debug("REST request to create document {}/{} for customer order : {}", documentName, docPrintType, id);
+        customerOrderQueryService.createDocument(id, response, documentName, docPrintType);
     }
 
 }

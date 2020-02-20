@@ -1,6 +1,7 @@
 package uk.co.dryhome.web.rest;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
+import uk.co.dryhome.service.DocPrintType;
 import uk.co.dryhome.service.ManualLabelService;
 import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.web.rest.errors.BadRequestAlertException;
@@ -119,9 +120,10 @@ public class ManualLabelResource {
     }
 
     @GetMapping("/manual-labels/{id}/document")
-    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response ) {
-        log.debug("REST request to create document {} for customer : {}", documentName, id);
-        manualLabelService.createDocument(id, response, documentName);
+    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response,
+                         @RequestParam(name="type") DocPrintType docPrintType) {
+        log.debug("REST request to create document {}/{} for customer : {}", documentName, docPrintType, id);
+        manualLabelService.createDocument(id, response, documentName, docPrintType);
     }
 
 }

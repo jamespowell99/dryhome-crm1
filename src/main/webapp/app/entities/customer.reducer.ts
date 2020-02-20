@@ -115,6 +115,7 @@ export default (state: CustomerState = initialState, action): CustomerState => {
         updateSuccess: true,
         entity: {}
       };
+
     case ACTION_TYPES.SET_BLOB:
       const { name, data, contentType } = action.payload;
       return {

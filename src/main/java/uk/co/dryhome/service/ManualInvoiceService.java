@@ -12,6 +12,10 @@ import uk.co.dryhome.domain.ManualInvoice;
 import uk.co.dryhome.domain.ManualInvoiceItem;
 import uk.co.dryhome.repository.ManualInvoiceItemRepository;
 import uk.co.dryhome.repository.ManualInvoiceRepository;
+import uk.co.dryhome.service.docs.DocTemplate;
+import uk.co.dryhome.service.docs.DocTemplateFactory;
+import uk.co.dryhome.service.docs.ManualInvoiceDocTemplate;
+import uk.co.dryhome.service.docs.ManualLabelsDocTemplate;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceDetailDTO;
 import uk.co.dryhome.service.dto.ManualInvoiceItemDTO;
@@ -30,8 +34,6 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class ManualInvoiceService implements MergeDocSourceService {
-    private final static Set<String> ALLOWED_DOCUMENTS =
-        ImmutableSet.of("customer-invoice", "accountant-invoice", "file-invoice");
     private final Logger log = LoggerFactory.getLogger(ManualInvoiceService.class);
 
     private final ManualInvoiceRepository manualInvoiceRepository;
@@ -145,7 +147,8 @@ public class ManualInvoiceService implements MergeDocSourceService {
     }
 
     @Override
-    public void createDocument(Long id, HttpServletResponse response, String documentName) {
-        mergeDocService.generateDocument(documentName, response, ALLOWED_DOCUMENTS, manualInvoiceRepository.getOne(id));
+    public void createDocument(Long id, HttpServletResponse response, String templateName, DocPrintType docPrintType) {
+        DocTemplate template = DocTemplateFactory.fromTemplateName(ManualInvoiceDocTemplate.class, templateName);
+        mergeDocService.generateDocument(template, docPrintType, response, manualInvoiceRepository.getOne(id));
     }
 }

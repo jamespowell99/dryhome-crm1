@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.dryhome.domain.MergeDocumentSource;
+import uk.co.dryhome.service.DocPrintType;
 import uk.co.dryhome.service.ManualInvoiceService;
 import uk.co.dryhome.service.MergeDocService;
 import uk.co.dryhome.service.dto.ManualInvoiceDTO;
@@ -133,9 +134,10 @@ public class ManualInvoiceResource{
     }
 
     @GetMapping("/manual-invoices/{id}/document")
-    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response) {
-        log.debug("REST request to create document {} for manual invoice : {}", documentName, id);
-        manualInvoiceService.createDocument(id, response, documentName);
+    public void document(@RequestParam String documentName, @PathVariable Long id, HttpServletResponse response,
+                         @RequestParam(name="type") DocPrintType docPrintType) {
+        log.debug("REST request to create document {}/{} for manual invoice : {}", documentName, docPrintType, id);
+        manualInvoiceService.createDocument(id, response, documentName, docPrintType);
     }
 
 

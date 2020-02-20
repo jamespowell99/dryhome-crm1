@@ -4,6 +4,7 @@ package uk.co.dryhome.domain;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uk.co.dryhome.service.docs.DocTemplate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -593,6 +594,11 @@ public class ManualInvoice implements Serializable, MergeDocumentSource {
         }
 
         return map;
+    }
+
+    @Override
+    public String getMergeDocPrefix(DocTemplate docTemplate) {
+        return orderNumber + "-" + docTemplate.getTemplateName();
     }
 
     private String fieldToString(String field) {

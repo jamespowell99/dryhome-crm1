@@ -22,7 +22,6 @@ import {
   Table,
   TabPane
 } from 'reactstrap';
-import axios from 'axios';
 import classnames from 'classnames';
 // tslint:disable-next-line:no-unused-variable
 import { TextFormat, getPaginationItemsNumber, JhiPagination, IPaginationBaseState } from 'react-jhipster';
@@ -30,17 +29,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntity } from 'app/entities/domestic/domestic.reducer';
+import { APP_LOCAL_DATE_FORMAT, APP_LOCAL_DATETIME_FORMAT_DOC_GENERATION } from 'app/config/constants';
 import { getCustomerOrders } from '../customer.reducer';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { getDocument } from 'app/shared/reducers/doc-generation';
 import { getSortState } from 'app/shared/util/dryhome-pagination-utils';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
+import print from 'print-js';
+import moment from 'moment';
 
 // tslint:disable-next-line:no-unused-variable
 
 export interface ICustomerDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
 export interface ICustomerDetailState extends IPaginationBaseState {
-  dropdownOpen: boolean;
+  downloadDropdownOpen: boolean;
+  printDropdownOpen: boolean;
   activeTab: string;
 }
 
@@ -48,9 +51,11 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
+    this.toggleDownload = this.toggleDownload.bind(this);
+    this.togglePrint = this.togglePrint.bind(this);
     this.state = {
-      dropdownOpen: false,
+      downloadDropdownOpen: false,
+      printDropdownOpen: false,
       activeTab: '1',
       ...getSortState(this.props.location, ITEMS_PER_PAGE)
     };
@@ -61,6 +66,30 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
     this.props.getCustomerOrders(this.props.match.params.id);
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.printDocumentBlob && nextProps.printDocumentBlob !== this.props.printDocumentBlob) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const b64 = result.replace(/^data:.+;base64,/, '');
+        print({ printable: b64, type: 'pdf', base64: true });
+      };
+      reader.readAsDataURL(new Blob([nextProps.printDocumentBlob]));
+    } else if (nextProps.downloadDocumentBlob && nextProps.downloadDocumentBlob !== this.props.downloadDocumentBlob) {
+      const url = window.URL.createObjectURL(new Blob([nextProps.downloadDocumentBlob]));
+      const link = document.createElement('a');
+      link.href = url;
+      const currentDate = new Date();
+      // todo get docName?
+      link.setAttribute(
+        'download',
+        `${nextProps.customerEntity.name}-docName-${moment().format(APP_LOCAL_DATETIME_FORMAT_DOC_GENERATION)}.docx`
+      );
+      document.body.appendChild(link);
+      link.click();
+    }
+  }
+
   sortEntities() {
     const { activePage, itemsPerPage } = this.state;
     this.props.getCustomerOrders(this.props.match.params.id, activePage - 1, itemsPerPage);
@@ -69,36 +98,28 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
 
   handlePagination = activePage => this.setState({ activePage }, () => this.sortEntities());
 
-  callDocument = event => {
-    const { customerEntity } = this.props;
-    const docName = event.target.id;
-    axios({
-      url: `api/customers/${customerEntity.id}/document?documentName=${docName}`,
-      method: 'GET',
-      responseType: 'blob' // important
-    }).then(response => {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      const currentDate = new Date();
-      const currentDateAsString = `${currentDate.getFullYear()}${currentDate.getMonth() + 1}${currentDate.getDate()}`;
-      const currentTimeAsString = `${currentDate.getHours()}${currentDate.getMinutes()}${currentDate.getSeconds()}`;
-      const currentDateToUse = `${currentDateAsString}${currentTimeAsString}`;
-      link.setAttribute('download', `${customerEntity.lastName}-${customerEntity.firstName}-${docName}-${currentDateToUse}.docx`);
-      document.body.appendChild(link);
-      link.click();
-    });
-    // console.log('done');
+  callDownload = event => {
+    this.props.getDocument('customers', event.target.id, this.props.customerEntity.id, 'DOCX');
   };
 
-  toggle() {
+  callPrint = event => {
+    this.props.getDocument('customers', event.target.id, this.props.customerEntity.id, 'PDF');
+  };
+
+  toggleDownload() {
     this.setState({
-      dropdownOpen: !this.state.dropdownOpen
+      downloadDropdownOpen: !this.state.downloadDropdownOpen
+    });
+  }
+
+  togglePrint() {
+    this.setState({
+      printDropdownOpen: !this.state.printDropdownOpen
     });
   }
 
   render() {
-    const { customerEntity, customerOrders, totalOrders } = this.props;
+    const { customerEntity, customerOrders, totalOrders, generatingDocument } = this.props;
 
     const tab1 = () => {
       toggleTab('1');
@@ -377,20 +398,36 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
               <Button tag={Link} to={`/entity/domestic/${customerEntity.id}/edit`} replace color="primary">
                 <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
               </Button>
-              <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+              &nbsp;
+              <ButtonDropdown isOpen={this.state.downloadDropdownOpen} toggle={this.toggleDownload}>
                 <DropdownToggle caret color="primary">
-                  Documents
+                  Download
                 </DropdownToggle>
                 <DropdownMenu>
-                  <DropdownItem onClick={this.callDocument} id={'dom-record'}>
+                  <DropdownItem onClick={this.callDownload} id={'dom-record'}>
                     Domestic Record
                   </DropdownItem>
-                  <DropdownItem onClick={this.callDocument} id={'labels'}>
+                  <DropdownItem onClick={this.callDownload} id={'labels'}>
+                    Labels
+                  </DropdownItem>
+                </DropdownMenu>
+              </ButtonDropdown>
+              &nbsp;
+              <ButtonDropdown isOpen={this.state.printDropdownOpen} toggle={this.togglePrint}>
+                <DropdownToggle caret color="primary">
+                  Print
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem onClick={this.callPrint} id={'dom-record'}>
+                    Domestic Record
+                  </DropdownItem>
+                  <DropdownItem onClick={this.callPrint} id={'labels'}>
                     Labels
                   </DropdownItem>
                 </DropdownMenu>
               </ButtonDropdown>
             </Row>
+            <Row>{generatingDocument ? <span>Generating...</span> : <span />}</Row>
           </div>
         )}
       </div>
@@ -398,13 +435,16 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
   }
 }
 
-const mapStateToProps = ({ customer }: IRootState) => ({
+const mapStateToProps = ({ customer, docGeneration }: IRootState) => ({
   customerEntity: customer.entity,
   customerOrders: customer.customerOrders,
-  totalOrders: customer.totalOrders
+  totalOrders: customer.totalOrders,
+  generatingDocument: docGeneration.generatingDocument,
+  downloadDocumentBlob: docGeneration.downloadDocumentBlob,
+  printDocumentBlob: docGeneration.printDocumentBlob
 });
 
-const mapDispatchToProps = { getEntity, getCustomerOrders };
+const mapDispatchToProps = { getEntity, getCustomerOrders, getDocument };
 
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;
