@@ -14,9 +14,11 @@ import com.google.api.services.docs.v1.model.SubstringMatchCriteria;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import uk.co.dryhome.config.DryhomeProperties;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -30,12 +32,13 @@ import java.util.Map;
 
 //todo improve this - can be way more performant
 @Service
+@RequiredArgsConstructor
 public class GoogleDocsMerger {
     private static final Logger LOG = LoggerFactory.getLogger(GoogleDocsMerger.class);
 
-    private static final String MERGE_RESULTS_LOCATION = "1T__9GbH4z9Nw3hQHEE3n2t8vLtd4YzLt";
-    private static final String CREDENTIALS_FILE_PATH = "/Users/james/dev/dryhome/creds.json";
+    private final DryhomeProperties properties;
 
+    private static final String MERGE_RESULTS_LOCATION = "1T__9GbH4z9Nw3hQHEE3n2t8vLtd4YzLt";
 
     public String merge(String templateDocumentId, String documentPrefix, Map<String, String> mappings) {
         LOG.info("merge start");
@@ -91,10 +94,10 @@ public class GoogleDocsMerger {
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
-    private static Credential getCredentials() throws IOException {
+    private Credential getCredentials() throws IOException {
         //todo deprecated?
         LOG.info("getting creds");
-        GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(CREDENTIALS_FILE_PATH))
+        GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(properties.getMergeDocs().getGoogleCredsFileLocation()))
                 .createScoped(SCOPES);
         return credential;
     }

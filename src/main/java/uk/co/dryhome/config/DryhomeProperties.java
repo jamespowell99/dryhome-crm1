@@ -33,6 +33,8 @@ public class DryhomeProperties {
        private String awsAccessKey;
        @NotNull
        private String awsSecretKey;
+       @NotNull
+       private String googleCredsFileLocation;
    }
 
 }
