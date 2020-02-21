@@ -418,13 +418,13 @@ export class CustomerUpdate extends React.Component<ICustomerUpdateProps, ICusto
                     />
                   </AvGroup>
                   <AvGroup>
-                    <Label id="saleAmountLabel" for="saleAmountProducts">
+                    <Label id="saleInvoiceAmountLabel" for="saleAmountProducts">
                       Amount
                     </Label>
                     <AvField
-                      id="customer-saleAmount"
+                      id="customer-saleInvoiceAmount"
                       type="text"
-                      name="saleAmount"
+                      name="saleInvoiceAmount"
                       validate={{
                         maxLength: { value: 100, errorMessage: 'This field cannot be longer than 100 characters.' }
                       }}

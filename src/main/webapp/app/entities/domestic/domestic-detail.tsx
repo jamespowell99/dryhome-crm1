@@ -424,6 +424,9 @@ export class CustomerDetail extends React.Component<ICustomerDetailProps, ICusto
                   <DropdownItem onClick={this.callPrint} id={'labels'}>
                     Labels
                   </DropdownItem>
+                  <DropdownItem onClick={this.callPrint} id={'remcon-domestics'}>
+                    Remcon Domestics 345
+                  </DropdownItem>
                 </DropdownMenu>
               </ButtonDropdown>
             </Row>
